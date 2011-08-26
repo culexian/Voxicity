@@ -1,9 +1,9 @@
 all:
-	javac src/voxicity/*.java
+	javac -cp .:jar/* src/voxicity/*.java
 	jar cvfe Voxicity.jar voxicity.Voxicity -C src/ .
 
 test:
-	java -jar Voxicity.jar
+	java -cp .:jar/*:Voxicity.jar voxicity.Voxicity
 
 clean:
 	rm -rv src/voxicity/*.class
