@@ -61,29 +61,72 @@ public class Voxicity
 
 	void update( int delta )
 	{
-		if ( Keyboard.isKeyDown( Keyboard.KEY_A ) ) camera[0] -= 0.15 * delta;
-		if ( Keyboard.isKeyDown( Keyboard.KEY_D ) ) camera[0] += 0.15 * delta;
+		float x_move = 0;
+		float z_move = 0;
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_W ) ) camera[2] -= 0.15 * delta;
-		if ( Keyboard.isKeyDown( Keyboard.KEY_S ) ) camera[2] += 0.15 * delta;
+		if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
+		{
+//			camera[0] -= 0.15 * delta;
+			x_move -= 0.15 * delta;
+		}
+		if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
+		{
+//			camera[0] += 0.15 * delta;
+			x_move += 0.15 * delta;
+		}
+
+		if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
+		{
+//			camera[2] -= 0.15 * delta;
+			z_move -= 0.15 * delta;
+		}
+
+		if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
+		{
+//			camera[2] += 0.15 * delta;
+			z_move += 0.15 * delta;
+		}
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 0.15 * delta;
 		if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.15 * delta;
 
 		int x_delta = Mouse.getDX();
-		rot_x += ( x_delta / 800.0f ) * 45.0f;
+		int y_delta = Mouse.getDY();
 
-		System.out.println( x_delta + " " + rot_x );
+		rot_x += ( x_delta / 800.0f ) * 45.0f;
+		rot_y += ( y_delta / 800.0f ) * ( 45.0f );
+
+		rot_x = rot_x > 360.0f ? rot_x - 360.0f : rot_x;
+		rot_x = rot_x < -360.0 ? rot_x + 360.0f : rot_x;
+
+		rot_y = Math.min( rot_y, 90.0f );
+		rot_y = Math.max( rot_y, -90.0f );
+
+		float cos_rot_x = ( float ) Math.cos( Math.toRadians( rot_x ) );
+		float sin_rot_x = ( float ) Math.sin( Math.toRadians( rot_x ) );
+
+		System.out.println( "Cos( rot_x ) = " + cos_rot_x );
+
+		float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
+		float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
+
+		System.out.println( "Corr. x: " + corr_x + " Corr. z: " + corr_z );
+
+//		System.out.println( x_delta + " " + rot_x );
 		rot += 0.15 * delta;
+		camera[0] += corr_x;
+		camera[2] += corr_z;
 	}
 
 	void draw()
 	{
 		GL11.glLoadIdentity();
-		GLU.gluLookAt( camera[0], camera[1], camera[2], camera[0], camera[1], camera[2] - 10, 0,1,0 );
+		GL11.glRotatef( -rot_y, 1, 0, 0 );
 		GL11.glRotatef( rot_x, 0, 1, 0 );
+		GLU.gluLookAt( camera[0], camera[1], camera[2], camera[0], camera[1], camera[2] - 10, 0,1,0 );
+
 		GL11.glTranslatef( 0, 0, -80 );
-		//GL11.glRotatef( rot, 0, 1, 1 );
+		GL11.glRotatef( rot, 0, 1, 1 );
 		GL11.glTranslatef( 0, 0, 80 );
 
 		// Clear the screen and depth buffer
