@@ -8,6 +8,12 @@ import org.lwjgl.util.glu.GLU;
 
 public class Voxicity
 {
+	// Set the library path for lwjgl
+	static
+	{
+		System.setProperty( "java.library.path", "native" );
+	}
+
 	float rot = 0;
 
 	public void init()
@@ -34,9 +40,10 @@ public class Voxicity
 
 		while ( !Display.isCloseRequested() )
 		{
-			rot += 0.05;
+			rot += 0.5;
 
 			GL11.glLoadIdentity();
+			GLU.gluLookAt( 0, 50, 0, 0,0, -90, 0,1,0 );
 			GL11.glTranslatef( 0, 0, -90 );
 			GL11.glRotatef( rot, 0, 1, 1 );
 			GL11.glTranslatef( 0, 0, 90 );
