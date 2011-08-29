@@ -2,6 +2,7 @@ package voxicity;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
@@ -18,6 +19,9 @@ public class Voxicity
 
 	long last_frame = 0;
 	float rot = 0;
+
+	float rot_x;
+	float rot_y;
 
 	float camera[] = new float[3];
 
@@ -36,6 +40,7 @@ public class Voxicity
 
 		get_time_delta();
 		setup_camera();
+		Mouse.setGrabbed( true );
 
 		while ( !Display.isCloseRequested() )
 		{
@@ -56,22 +61,27 @@ public class Voxicity
 
 	void update( int delta )
 	{
-		if ( Keyboard.isKeyDown( Keyboard.KEY_A ) ) camera[0] -= 0.35 * delta;
-		if ( Keyboard.isKeyDown( Keyboard.KEY_D ) ) camera[0] += 0.35 * delta;
+		if ( Keyboard.isKeyDown( Keyboard.KEY_A ) ) camera[0] -= 0.15 * delta;
+		if ( Keyboard.isKeyDown( Keyboard.KEY_D ) ) camera[0] += 0.15 * delta;
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_W ) ) camera[2] -= 0.35 * delta;
-		if ( Keyboard.isKeyDown( Keyboard.KEY_S ) ) camera[2] += 0.35 * delta;
+		if ( Keyboard.isKeyDown( Keyboard.KEY_W ) ) camera[2] -= 0.15 * delta;
+		if ( Keyboard.isKeyDown( Keyboard.KEY_S ) ) camera[2] += 0.15 * delta;
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 0.35 * delta;
-		if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.35 * delta;
+		if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 0.15 * delta;
+		if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.15 * delta;
 
+		int x_delta = Mouse.getDX();
+		rot_x += ( x_delta / 800.0f ) * 45.0f;
+
+		System.out.println( x_delta + " " + rot_x );
 		rot += 0.15 * delta;
 	}
 
 	void draw()
 	{
 		GL11.glLoadIdentity();
-		GLU.gluLookAt( camera[0], camera[1], camera[2], 0,0, -80, 0,1,0 );
+		GLU.gluLookAt( camera[0], camera[1], camera[2], camera[0], camera[1], camera[2] - 10, 0,1,0 );
+		GL11.glRotatef( rot_x, 0, 1, 0 );
 		GL11.glTranslatef( 0, 0, -80 );
 		//GL11.glRotatef( rot, 0, 1, 1 );
 		GL11.glTranslatef( 0, 0, 80 );
