@@ -17,6 +17,9 @@ public class Voxicity
 		System.setProperty( "java.library.path", "native" );
 	}
 
+	long last_fps_update = 0;
+	int fps_count = 0;
+
 	long last_frame = 0;
 	float rot = 0;
 
@@ -24,6 +27,8 @@ public class Voxicity
 	float rot_y;
 
 	float camera[] = new float[3];
+
+	boolean is_close_requested = false;
 
 	public void init()
 	{
@@ -38,14 +43,17 @@ public class Voxicity
 			System.exit(0);
 		}
 
+		last_fps_update = get_time_ms();
 		get_time_delta();
 		setup_camera();
 		Mouse.setGrabbed( true );
 
-		while ( !Display.isCloseRequested() )
+		while ( !is_close_requested )
 		{
 			update( get_time_delta() );
 			draw();
+
+			is_close_requested |= Display.isCloseRequested();
 		}
 			Display.destroy();
 	}
@@ -61,31 +69,26 @@ public class Voxicity
 
 	void update( int delta )
 	{
+		if ( Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) )
+			is_close_requested = true;
+
+		if ( Keyboard.isKeyDown( Keyboard.KEY_Q ) )
+			is_close_requested = true;
+
 		float x_move = 0;
 		float z_move = 0;
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
-		{
-//			camera[0] -= 0.15 * delta;
 			x_move -= 0.15 * delta;
-		}
+
 		if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
-		{
-//			camera[0] += 0.15 * delta;
 			x_move += 0.15 * delta;
-		}
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
-		{
-//			camera[2] -= 0.15 * delta;
 			z_move -= 0.15 * delta;
-		}
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
-		{
-//			camera[2] += 0.15 * delta;
 			z_move += 0.15 * delta;
-		}
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 0.15 * delta;
 		if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.15 * delta;
@@ -105,17 +108,19 @@ public class Voxicity
 		float cos_rot_x = ( float ) Math.cos( Math.toRadians( rot_x ) );
 		float sin_rot_x = ( float ) Math.sin( Math.toRadians( rot_x ) );
 
-		System.out.println( "Cos( rot_x ) = " + cos_rot_x );
+		//System.out.println( "Cos( rot_x ) = " + cos_rot_x );
 
 		float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
 		float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
 
-		System.out.println( "Corr. x: " + corr_x + " Corr. z: " + corr_z );
+		//System.out.println( "Corr. x: " + corr_x + " Corr. z: " + corr_z );
 
 //		System.out.println( x_delta + " " + rot_x );
 		rot += 0.15 * delta;
 		camera[0] += corr_x;
 		camera[2] += corr_z;
+
+		update_fps();
 	}
 
 	void draw()
@@ -179,6 +184,22 @@ public class Voxicity
 		GL11.glEnd();
 
 		Display.update();
+	}
+
+	void update_fps()
+	{
+		if ( get_time_ms() - last_fps_update > 1000 )
+		{
+			Display.setTitle( "FPS: " + fps_count );
+			fps_count = 0;
+			last_fps_update += 1000;
+		}
+		fps_count++;
+	}
+
+	long get_time_ms()
+	{
+		return (Sys.getTime() * 1000)  / Sys.getTimerResolution();
 	}
 
 	void setup_camera()
