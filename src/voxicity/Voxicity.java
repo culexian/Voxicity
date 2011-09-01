@@ -7,16 +7,12 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.Color;
 import org.lwjgl.Sys;
 
 public class Voxicity
 {
-	// Set the library path for lwjgl
-	static
-	{
-		System.setProperty( "java.library.path", "native" );
-	}
-
 	long last_fps_update = 0;
 	int fps_count = 0;
 
@@ -29,6 +25,8 @@ public class Voxicity
 	float camera[] = new float[3];
 
 	boolean is_close_requested = false;
+
+	Block test = new Block( new Vector3f( 0, 0, 100 ), Color.YELLOW );
 
 	public void init()
 	{
@@ -130,12 +128,16 @@ public class Voxicity
 		GL11.glRotatef( rot_x, 0, 1, 0 );
 		GLU.gluLookAt( camera[0], camera[1], camera[2], camera[0], camera[1], camera[2] - 10, 0,1,0 );
 
-		GL11.glTranslatef( 0, 0, -80 );
-		GL11.glRotatef( rot, 0, 1, 1 );
-		GL11.glTranslatef( 0, 0, 80 );
 
 		// Clear the screen and depth buffer
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+		test.render();
+		new Block( new Vector3f( 0,0, 120 ), Color.BLUE ).render();
+
+		GL11.glTranslatef( 0, 0, -80 );
+		GL11.glRotatef( rot, 0, 1, 1 );
+		GL11.glTranslatef( 0, 0, 80 );
 
 		GL11.glBegin(GL11.GL_QUADS);
 
