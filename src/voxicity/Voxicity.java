@@ -11,6 +11,9 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.Color;
 import org.lwjgl.Sys;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public class Voxicity
 {
 	long last_fps_update = 0;
@@ -26,7 +29,7 @@ public class Voxicity
 
 	boolean is_close_requested = false;
 
-	Block test = new Block( new Vector3f( 0, 0, 100 ), Color.YELLOW );
+	List<Block> block_list = new ArrayList<Block>();
 
 	public void init()
 	{
@@ -45,6 +48,7 @@ public class Voxicity
 		get_time_delta();
 		setup_camera();
 		Mouse.setGrabbed( true );
+		generate_blocks();
 
 		while ( !is_close_requested )
 		{
@@ -132,8 +136,8 @@ public class Voxicity
 		// Clear the screen and depth buffer
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-		test.render();
-		new Block( new Vector3f( 0,0, 120 ), Color.BLUE ).render();
+		for ( Block block : block_list )
+			block.render();
 
 		GL11.glTranslatef( 0, 0, -80 );
 		GL11.glRotatef( rot, 0, 1, 1 );
@@ -213,13 +217,22 @@ public class Voxicity
 
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
+		camera[1] = 30;
+		camera[2] = 40;
+	}
+
+	void generate_blocks()
+	{
+		for ( int i = 0 ; i < 1000; i++ )
+		{
+			int x = i / 20;
+			int z = i % 20;
+			block_list.add( new Block( x * 20, 0, z * 20, new Color( 100, 100, 100 + i * 5) ) );
+		}
 	}
 
 	public static void main( String[] args )
 	{
-		System.out.println( "Hello world! I'm Voxicity!" );
-
-		System.out.println( "Making a display now" );
 		Voxicity voxy = new Voxicity();
 		voxy.init();
 	}
