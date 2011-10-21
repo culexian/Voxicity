@@ -77,50 +77,60 @@ public class Voxicity
 		if ( Keyboard.isKeyDown( Keyboard.KEY_Q ) )
 			is_close_requested = true;
 
-		float x_move = 0;
-		float z_move = 0;
+		while ( Keyboard.next() )
+		{
+			if ( Keyboard.getEventKey() == Keyboard.KEY_E && Keyboard.getEventKeyState() )
+				toggle_mouse_grab();
+		}
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
-			x_move -= 0.15 * delta;
+		if ( Mouse.isGrabbed() )
+		{
+			float x_move = 0;
+			float z_move = 0;
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
-			x_move += 0.15 * delta;
+			if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
+				x_move -= 0.15 * delta;
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
-			z_move -= 0.15 * delta;
+			if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
+				x_move += 0.15 * delta;
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
-			z_move += 0.15 * delta;
+			if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
+				z_move -= 0.15 * delta;
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 0.15 * delta;
-		if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.15 * delta;
+			if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
+				z_move += 0.15 * delta;
 
-		int x_delta = Mouse.getDX();
-		int y_delta = Mouse.getDY();
+			if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 0.15 * delta;
+			if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.15 * delta;
 
-		rot_x += ( x_delta / 800.0f ) * 45.0f;
-		rot_y += ( y_delta / 800.0f ) * ( 45.0f );
+			int x_delta = Mouse.getDX();
+			int y_delta = Mouse.getDY();
 
-		rot_x = rot_x > 360.0f ? rot_x - 360.0f : rot_x;
-		rot_x = rot_x < -360.0 ? rot_x + 360.0f : rot_x;
+			rot_x += ( x_delta / 800.0f ) * 45.0f;
+			rot_y += ( y_delta / 800.0f ) * ( 45.0f );
 
-		rot_y = Math.min( rot_y, 90.0f );
-		rot_y = Math.max( rot_y, -90.0f );
+			rot_x = rot_x > 360.0f ? rot_x - 360.0f : rot_x;
+			rot_x = rot_x < -360.0 ? rot_x + 360.0f : rot_x;
 
-		float cos_rot_x = ( float ) Math.cos( Math.toRadians( rot_x ) );
-		float sin_rot_x = ( float ) Math.sin( Math.toRadians( rot_x ) );
+			rot_y = Math.min( rot_y, 90.0f );
+			rot_y = Math.max( rot_y, -90.0f );
 
-		//System.out.println( "Cos( rot_x ) = " + cos_rot_x );
+			float cos_rot_x = ( float ) Math.cos( Math.toRadians( rot_x ) );
+			float sin_rot_x = ( float ) Math.sin( Math.toRadians( rot_x ) );
 
-		float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
-		float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
+			//System.out.println( "Cos( rot_x ) = " + cos_rot_x );
 
-		//System.out.println( "Corr. x: " + corr_x + " Corr. z: " + corr_z );
+			float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
+			float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
 
-//		System.out.println( x_delta + " " + rot_x );
+			//System.out.println( "Corr. x: " + corr_x + " Corr. z: " + corr_z );
+
+	//		System.out.println( x_delta + " " + rot_x );
+			camera[0] += corr_x;
+			camera[2] += corr_z;
+		}
+
 		rot += 0.15 * delta;
-		camera[0] += corr_x;
-		camera[2] += corr_z;
 
 		update_fps();
 	}
@@ -229,6 +239,12 @@ public class Voxicity
 			int z = i % 20;
 			block_list.add( new Block( x * 20, 0, z * 20, new Color( 100, 100, 100 + i * 5) ) );
 		}
+	}
+
+	void toggle_mouse_grab()
+	{
+
+		Mouse.setGrabbed( !Mouse.isGrabbed() );
 	}
 
 	public static void main( String[] args )
