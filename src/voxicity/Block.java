@@ -69,7 +69,7 @@ public class Block
 
 	void gen_vert_buffer()
 	{
-		// 6 vertices make a block
+		// 8 vertices make a block
 		float[] verts = {
 		                   10,  10,  10,
 		                   10,  10, -10,
