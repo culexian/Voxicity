@@ -40,24 +40,28 @@ public class Block
 	{
 		GL11.glPushMatrix();
 
+		// Translate to block location offset
 		GL11.glTranslatef( pos_x, pos_y, pos_z );
 
 		// set the color of the quad (R,G,B,A)
 		GL11.glColor3f( color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f );
 
+		// Bind VBO to vertex pointer
 		GL11.glEnableClientState( GL11.GL_VERTEX_ARRAY );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, vert_buf );
 		GL11.glVertexPointer( 3, GL11.GL_FLOAT, 0, 0 );
 
+		// Bind index array
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, index_buf );
 
+		// Draw the block
 		GL12.glDrawRangeElements( GL11.GL_QUADS, 0, 7, 24, GL11.GL_UNSIGNED_INT, 0 );
 
-		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
-
+		// Unbind both buffers
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
 
+		// Disable Vertex pointer
 		GL11.glDisableClientState( GL11.GL_VERTEX_ARRAY );
 
 		GL11.glPopMatrix();
@@ -65,6 +69,7 @@ public class Block
 
 	void gen_vert_buffer()
 	{
+		// 6 vertices make a block
 		float[] verts = {
 		                   10,  10,  10,
 		                   10,  10, -10,
@@ -76,10 +81,12 @@ public class Block
 		                  -10, -10, -10
 		                };
 
+		// Store the vertices in a buffer
 		FloatBuffer buf = BufferUtils.createFloatBuffer( 8 * 3 );
 		buf.put( verts );
 		buf.rewind();
 
+		// Pass the buffer to a VBO
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, vert_buf );
 		GL15.glBufferData( GL15.GL_ARRAY_BUFFER, buf, GL15.GL_STATIC_DRAW );
 		
@@ -87,6 +94,7 @@ public class Block
 
 	void gen_index_buffer()
 	{
+		// Create indexes for a cube, 6 sides, 1 quad each
 		int indices[] = {
 		                  0, 1, 3, 2, // right
 		                  4, 5, 7, 6, // left
@@ -95,10 +103,13 @@ public class Block
 		                  1, 3, 7, 5, // back
 		                  0, 2, 6, 4, // front
 		                };
-		IntBuffer buf = BufferUtils.createIntBuffer( 24 );
+
+		// Store the indices in a buffer
+		IntBuffer buf = BufferUtils.createIntBuffer( 6 * 4 );
 		buf.put( indices );
 		buf.rewind();
 
+		// Pass the buffer to an IBO
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, index_buf );
 		GL15.glBufferData( GL15.GL_ELEMENT_ARRAY_BUFFER, buf, GL15.GL_STATIC_DRAW );
 	}
