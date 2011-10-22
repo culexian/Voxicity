@@ -222,7 +222,7 @@ public class Voxicity
 	{
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GLU.gluPerspective( 45.0f, 1.333f, 1f, 1000f );
+		GLU.gluPerspective( 45.0f, 1.333f, 1f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		GL11.glShadeModel( GL11.GL_SMOOTH );
@@ -233,11 +233,12 @@ public class Voxicity
 
 	void generate_blocks()
 	{
-		for ( int i = 0 ; i < 500; i++ )
+		for ( int i = 0 ; i < 6000; i++ )
 		{
-			int x = i / 20;
-			int z = i % 20;
-			block_list.add( new Block( x * 20, 0, z * 20, new Color( 100, 100, 100 + i * 5) ) );
+			int x = i % 20;
+			int y = i / 400;
+			int z = i / 20 % 20;
+			block_list.add( new Block( x * 20, y * 20, z * 20, new Color( 100, 100, 100 + i * 5) ) );
 		}
 	}
 
