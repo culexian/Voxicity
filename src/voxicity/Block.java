@@ -13,6 +13,9 @@ import java.nio.FloatBuffer;
 
 public class Block
 {
+	int block_id = 0;
+	int block_data = 0;
+
 	int pos_x,pos_y,pos_z;
 	Color color = new Color();
 
