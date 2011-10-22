@@ -233,7 +233,7 @@ public class Voxicity
 
 	void generate_blocks()
 	{
-		for ( int i = 0 ; i < 6000; i++ )
+		for ( int i = 0 ; i < 1000; i++ )
 		{
 			int x = i % 20;
 			int y = i / 400;
