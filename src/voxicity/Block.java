@@ -22,6 +22,7 @@ public class Block
 
 	int vert_buf = 0;
 	int index_buf = 0;
+	int tex_buffer = 0;
 
 	public Block( int pos_x, int pos_y, int pos_z, ReadableColor color )
 	{
@@ -30,14 +31,16 @@ public class Block
 		this.pos_z = pos_z;
 		this.color = new Color( color );
 
-		IntBuffer int_buf = BufferUtils.createIntBuffer(2);
+		IntBuffer int_buf = BufferUtils.createIntBuffer(3);
 		GL15.glGenBuffers( int_buf );
 
 		this.vert_buf = int_buf.get(0);
 		this.index_buf = int_buf.get(1);
+		this.tex_buffer = int_buf.get(2);
 
 		gen_vert_buffer();
 		gen_index_buffer();
+		gen_tex_buffer();
 	}
 
 	public void render()
@@ -48,12 +51,19 @@ public class Block
 		GL11.glTranslatef( pos_x, pos_y, pos_z );
 
 		// set the color of the quad (R,G,B,A)
-		GL11.glColor3f( color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f );
+		//GL11.glColor3f( color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f );
+		GL11.glColor3f( 1, 1, 1 );
 
 		// Bind VBO to vertex pointer
 		GL11.glEnableClientState( GL11.GL_VERTEX_ARRAY );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, vert_buf );
 		GL11.glVertexPointer( 3, GL11.GL_FLOAT, 0, 0 );
+
+		// Bind the texture coord VBO to texture pointer
+		GL11.glEnableClientState( GL11.GL_TEXTURE_COORD_ARRAY );
+		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, tex_buffer );
+		GL11.glBindTexture( GL11.GL_TEXTURE_2D, block_tex );
+		GL11.glTexCoordPointer( 2, GL11.GL_FLOAT, 0, 0 );
 
 		// Bind index array
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, index_buf );
@@ -64,6 +74,9 @@ public class Block
 		// Unbind both buffers
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
+
+		// Disable Texture pointer
+		GL11.glDisableClientState( GL11.GL_TEXTURE_COORD_ARRAY );
 
 		// Disable Vertex pointer
 		GL11.glDisableClientState( GL11.GL_VERTEX_ARRAY );
@@ -116,5 +129,25 @@ public class Block
 		// Pass the buffer to an IBO
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, index_buf );
 		GL15.glBufferData( GL15.GL_ELEMENT_ARRAY_BUFFER, buf, GL15.GL_STATIC_DRAW );
+	}
+
+	void gen_tex_buffer()
+	{
+		// Create texture coords for a cube, not ready
+		float[] coords = {
+		                0, 0,
+		                0, 1,
+		                1, 0,
+		                1, 1,
+		              };
+
+		// Store the coords in a buffer
+		FloatBuffer buf = BufferUtils.createFloatBuffer( 8 ); // Size 8 for now
+		buf.put( coords );
+		buf.rewind();
+
+		// Pass the buffer to a VBO
+		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, tex_buffer );
+		GL15.glBufferData( GL15.GL_ARRAY_BUFFER, buf, GL15.GL_STATIC_DRAW );
 	}
 }

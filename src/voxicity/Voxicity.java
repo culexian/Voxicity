@@ -11,6 +11,9 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.Color;
 import org.lwjgl.Sys;
 
+import java.io.File;
+import java.io.PrintStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -49,6 +52,10 @@ public class Voxicity
 		setup_camera();
 		Mouse.setGrabbed( true );
 		generate_blocks();
+
+		GL11.glShadeModel( GL11.GL_SMOOTH );
+		GL11.glEnable( GL11.GL_DEPTH_TEST );
+		GL11.glEnable( GL11.GL_TEXTURE_2D );
 
 		while ( !is_close_requested )
 		{
@@ -225,15 +232,13 @@ public class Voxicity
 		GLU.gluPerspective( 45.0f, 1.333f, 1f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
-		GL11.glShadeModel( GL11.GL_SMOOTH );
-		GL11.glEnable( GL11.GL_DEPTH_TEST );
 		camera[1] = 30;
 		camera[2] = 40;
 	}
 
 	void generate_blocks()
 	{
-		for ( int i = 0 ; i < 1000; i++ )
+		for ( int i = 0 ; i < 6000; i++ )
 		{
 			int x = i % 20;
 			int y = i / 400;
@@ -250,7 +255,18 @@ public class Voxicity
 
 	public static void main( String[] args )
 	{
-		Voxicity voxy = new Voxicity();
-		voxy.init();
+		try
+		{
+			File new_out = new File( "voxicity.log" );
+			System.setOut( new PrintStream( new_out ) );
+
+			Voxicity voxy = new Voxicity();
+			voxy.init();
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
+
 	}
 }
