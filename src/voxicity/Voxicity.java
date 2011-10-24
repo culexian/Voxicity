@@ -40,6 +40,7 @@ public class Voxicity
 		{
 			Display.setDisplayMode( new DisplayMode( 800, 600 ) );
 			Display.create();
+			System.out.println( "DEBUG!" );
 		}
 		catch ( LWJGLException e )
 		{
@@ -232,13 +233,16 @@ public class Voxicity
 		GLU.gluPerspective( 45.0f, 1.333f, 1f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
-		camera[1] = 30;
-		camera[2] = 40;
+		camera[0] = 20;
+		camera[1] = 10;
+		camera[2] = -120;
+		rot_x = 180;
+		rot_y = 15;
 	}
 
 	void generate_blocks()
 	{
-		for ( int i = 0 ; i < 6000; i++ )
+		for ( int i = 0 ; i < 1000; i++ )
 		{
 			int x = i % 20;
 			int y = i / 400;

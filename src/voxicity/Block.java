@@ -69,7 +69,7 @@ public class Block
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, index_buf );
 
 		// Draw the block
-		GL12.glDrawRangeElements( GL11.GL_QUADS, 0, 7, 24, GL11.GL_UNSIGNED_INT, 0 );
+		GL12.glDrawRangeElements( GL11.GL_QUADS, 0, 23, 24, GL11.GL_UNSIGNED_INT, 0 );
 
 		// Unbind both buffers
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
@@ -88,18 +88,45 @@ public class Block
 	{
 		// 8 vertices make a block
 		float[] verts = {
+		                  // Left
+		                  -10,  10,  10,
+		                  -10,  10, -10,
+		                  -10, -10,  10,
+		                  -10, -10, -10,
+
+		                  // Right
 		                   10,  10,  10,
 		                   10,  10, -10,
 		                   10, -10,  10,
 		                   10, -10, -10,
+
+		                  // Front
+		                   10,  10,  10,
+		                   10, -10,  10,
+		                  -10,  10,  10,
+		                  -10, -10,  10,
+
+		                  // Back
+		                   10,  10, -10,
+		                   10, -10, -10,
+		                  -10,  10, -10,
+		                  -10, -10, -10,
+
+		                  // Top
+		                   10,  10,  10,
+		                   10,  10, -10,
 		                  -10,  10,  10,
 		                  -10,  10, -10,
+
+		                  // Bottom
+		                   10, -10,  10,
+		                   10, -10, -10,
 		                  -10, -10,  10,
-		                  -10, -10, -10
+		                  -10, -10, -10,
 		                };
 
 		// Store the vertices in a buffer
-		FloatBuffer buf = BufferUtils.createFloatBuffer( 8 * 3 );
+		FloatBuffer buf = BufferUtils.createFloatBuffer( 24 * 3 );
 		buf.put( verts );
 		buf.rewind();
 
@@ -113,12 +140,12 @@ public class Block
 	{
 		// Create indexes for a cube, 6 sides, 1 quad each
 		int indices[] = {
-		                  0, 1, 3, 2, // right
-		                  4, 5, 7, 6, // left
-		                  0, 1, 5, 4, // top
-		                  2, 3, 7, 6, // bottom
-		                  1, 3, 7, 5, // back
-		                  0, 2, 6, 4, // front
+		                  0, 1, 3, 2,     // right
+		                  4, 5, 7, 6,     // left
+		                  8, 9, 11, 10,   // top
+		                  12, 13, 15, 14, // bottom
+		                  16, 17, 19, 18, // back
+		                  20, 21, 23, 22, // front
 		                };
 
 		// Store the indices in a buffer
@@ -135,14 +162,45 @@ public class Block
 	{
 		// Create texture coords for a cube, not ready
 		float[] coords = {
+		                // Left
+		                1, 0,
+		                0, 0,
+		                1, 1,
+		                0, 1,
+
+		                // Right
+		                0, 0,
+		                1, 0,
+		                0, 1,
+		                1, 1,
+
+		                // Front
+		                1, 0,
+		                1, 1,
+		                0, 0,
+		                0, 1,
+
+		                // Back
 		                0, 0,
 		                0, 1,
 		                1, 0,
 		                1, 1,
-		              };
+
+		                // Top
+		                0, 0,
+		                0, 1,
+		                1, 0,
+		                1, 1,
+
+		                // Bottom
+		                1, 0,
+		                1, 1,
+		                0, 0,
+		                0, 1,
+		                 };
 
 		// Store the coords in a buffer
-		FloatBuffer buf = BufferUtils.createFloatBuffer( 8 ); // Size 8 for now
+		FloatBuffer buf = BufferUtils.createFloatBuffer( 6 * 4 * 2 ); // Size 8 for now
 		buf.put( coords );
 		buf.rewind();
 
