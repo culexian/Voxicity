@@ -197,7 +197,7 @@ public class Block
 		                1, 1,
 		                0, 0,
 		                0, 1,
-		                 };
+		               };
 
 		// Store the coords in a buffer
 		FloatBuffer buf = BufferUtils.createFloatBuffer( 6 * 4 * 2 ); // Size 8 for now
