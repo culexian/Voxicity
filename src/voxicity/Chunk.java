@@ -22,8 +22,8 @@ public class Chunk
 	{
 		int block_pos = 0;
 		block_pos += x;
-		block_pos += y * Constants.Chunk.side_length;
-		block_pos += z * Constants.Chunk.side_length * Constants.Chunk.side_length;
+		block_pos += y * Constants.Chunk.side_length * Constants.Chunk.side_length;
+		block_pos += z * Constants.Chunk.side_length;
 
 		return block_pos;
 	}

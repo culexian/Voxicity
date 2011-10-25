@@ -31,10 +31,12 @@ public class Voxicity
 	float camera[] = new float[3];
 
 	boolean is_close_requested = false;
+	boolean jumping = true;
 
 	List<Block> block_list = new ArrayList<Block>();
 
 	Chunk first_chunk, second_chunk;
+	World world;
 
 	public void init()
 	{
@@ -53,6 +55,7 @@ public class Voxicity
 		get_time_delta();
 		setup_camera();
 		Mouse.setGrabbed( true );
+		world = new World();
 		first_chunk = new Chunk( 0, 0, 0 );
 		second_chunk = new Chunk( 1, 0, 0 );
 		//generate_blocks();
@@ -100,19 +103,26 @@ public class Voxicity
 			float z_move = 0;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
-				x_move -= 0.015 * delta;
+				x_move -= 0.005 * delta;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
-				x_move += 0.015 * delta;
+				x_move += 0.005 * delta;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
-				z_move -= 0.015 * delta;
+				z_move -= 0.005 * delta;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
-				z_move += 0.015 * delta;
+				z_move += 0.005 * delta;
 
-			if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 0.015 * delta;
-			if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.015 * delta;
+			if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) )
+			{
+				camera[1] += 0.005 * delta;
+				jumping = true;
+			}
+//			if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.005 * delta;
+
+			if ( jumping )
+				camera[1] -= 0.005 * delta;
 
 			int x_delta = Mouse.getDX();
 			int y_delta = Mouse.getDY();
@@ -158,7 +168,7 @@ public class Voxicity
 			block.render();
 
 		first_chunk.draw();
-		second_chunk.draw();
+		//second_chunk.draw();
 
 		GL11.glTranslatef( 0, 0, -80 );
 		GL11.glRotatef( rot, 0, 1, 1 );
@@ -233,12 +243,12 @@ public class Voxicity
 	{
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GLU.gluPerspective( 45.0f, 1.333f, 1f, 10000f );
+		GLU.gluPerspective( 45.0f, 1.333f, 0.5f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
-		camera[0] = 0;
-		camera[1] = 0;
-		camera[2] = -20;
+		camera[0] = 5;
+		camera[1] = 4;
+		camera[2] = 5;
 		rot_x = 180;
 		rot_y = 15;
 	}
@@ -261,7 +271,15 @@ public class Voxicity
 
 	void check_collisions()
 	{
-		
+		Block beneath = world.get_block( Math.round(camera[0]), Math.round(camera[1] - 1.6f), Math.round(camera[2] ) );
+
+		if ( beneath != null )
+		{
+			System.out.println( "Collision at " + camera[0] + " " + camera[1] + " " + camera[2] + " with " + beneath + " at " + beneath.pos_x + " " + beneath.pos_y + " " + beneath.pos_z );
+
+			camera[1] = beneath.pos_y + 1.6f;
+			jumping = false;
+		}
 	}
 
 	public static void main( String[] args )
@@ -269,7 +287,7 @@ public class Voxicity
 		try
 		{
 			File new_out = new File( "voxicity.log" );
-			System.setOut( new PrintStream( new_out ) );
+			//System.setOut( new PrintStream( new_out ) );
 
 			Voxicity voxy = new Voxicity();
 			voxy.init();
@@ -278,6 +296,5 @@ public class Voxicity
 		{
 			e.printStackTrace();
 		}
-
 	}
 }
