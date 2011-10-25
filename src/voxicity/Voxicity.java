@@ -34,13 +34,14 @@ public class Voxicity
 
 	List<Block> block_list = new ArrayList<Block>();
 
+	Chunk first_chunk, second_chunk;
+
 	public void init()
 	{
 		try
 		{
 			Display.setDisplayMode( new DisplayMode( 800, 600 ) );
 			Display.create();
-			System.out.println( "DEBUG!" );
 		}
 		catch ( LWJGLException e )
 		{
@@ -52,7 +53,9 @@ public class Voxicity
 		get_time_delta();
 		setup_camera();
 		Mouse.setGrabbed( true );
-		generate_blocks();
+		first_chunk = new Chunk( 0, 0, 0 );
+		second_chunk = new Chunk( 1, 0, 0 );
+		//generate_blocks();
 
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
@@ -97,19 +100,19 @@ public class Voxicity
 			float z_move = 0;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
-				x_move -= 0.15 * delta;
+				x_move -= 0.015 * delta;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
-				x_move += 0.15 * delta;
+				x_move += 0.015 * delta;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
-				z_move -= 0.15 * delta;
+				z_move -= 0.015 * delta;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
-				z_move += 0.15 * delta;
+				z_move += 0.015 * delta;
 
-			if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 0.15 * delta;
-			if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.15 * delta;
+			if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 0.015 * delta;
+			if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.015 * delta;
 
 			int x_delta = Mouse.getDX();
 			int y_delta = Mouse.getDY();
@@ -126,14 +129,9 @@ public class Voxicity
 			float cos_rot_x = ( float ) Math.cos( Math.toRadians( rot_x ) );
 			float sin_rot_x = ( float ) Math.sin( Math.toRadians( rot_x ) );
 
-			//System.out.println( "Cos( rot_x ) = " + cos_rot_x );
-
 			float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
 			float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
 
-			//System.out.println( "Corr. x: " + corr_x + " Corr. z: " + corr_z );
-
-	//		System.out.println( x_delta + " " + rot_x );
 			camera[0] += corr_x;
 			camera[2] += corr_z;
 		}
@@ -156,6 +154,9 @@ public class Voxicity
 
 		for ( Block block : block_list )
 			block.render();
+
+		first_chunk.draw();
+		second_chunk.draw();
 
 		GL11.glTranslatef( 0, 0, -80 );
 		GL11.glRotatef( rot, 0, 1, 1 );
