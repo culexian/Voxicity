@@ -138,6 +138,8 @@ public class Voxicity
 
 		rot += 0.15 * delta;
 
+		check_collisions();
+
 		update_fps();
 	}
 
@@ -234,9 +236,9 @@ public class Voxicity
 		GLU.gluPerspective( 45.0f, 1.333f, 1f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
-		camera[0] = 20;
-		camera[1] = 10;
-		camera[2] = -120;
+		camera[0] = 0;
+		camera[1] = 0;
+		camera[2] = -20;
 		rot_x = 180;
 		rot_y = 15;
 	}
@@ -254,8 +256,12 @@ public class Voxicity
 
 	void toggle_mouse_grab()
 	{
-
 		Mouse.setGrabbed( !Mouse.isGrabbed() );
+	}
+
+	void check_collisions()
+	{
+		
 	}
 
 	public static void main( String[] args )
