@@ -30,6 +30,8 @@ public class Voxicity
 
 	float camera[] = new float[3];
 
+	Vector3f accel = new Vector3f( 0, 0, 0 );
+
 	boolean is_close_requested = false;
 	boolean jumping = true;
 
@@ -85,6 +87,10 @@ public class Voxicity
 
 	void update( int delta )
 	{
+
+		accel.x -= accel.x * 0.01f * delta;
+		accel.z -= accel.z * 0.01f * delta;
+
 		if ( Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) )
 			is_close_requested = true;
 
@@ -103,26 +109,26 @@ public class Voxicity
 			float z_move = 0;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
-				x_move -= 0.005 * delta;
+				x_move -= 0.002 * delta;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
-				x_move += 0.005 * delta;
+				x_move += 0.002 * delta;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
-				z_move -= 0.005 * delta;
+				z_move -= 0.002 * delta;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
-				z_move += 0.005 * delta;
+				z_move += 0.002 * delta;
 
-			if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) )
+			if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) && !jumping )
 			{
-				camera[1] += 0.005 * delta;
+				accel.y += 0.6f;
 				jumping = true;
 			}
 //			if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.005 * delta;
 
 			if ( jumping )
-				camera[1] -= 0.005 * delta;
+				accel.y -= 0.0010 * delta;
 
 			int x_delta = Mouse.getDX();
 			int y_delta = Mouse.getDY();
@@ -142,8 +148,12 @@ public class Voxicity
 			float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
 			float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
 
-			camera[0] += corr_x;
-			camera[2] += corr_z;
+			accel.x += corr_x;
+			accel.z += corr_z;
+
+			camera[0] += accel.x;
+			camera[1] += accel.y;
+			camera[2] += accel.z;
 		}
 
 		rot += 0.15 * delta;
@@ -278,8 +288,11 @@ public class Voxicity
 			System.out.println( "Collision at " + camera[0] + " " + camera[1] + " " + camera[2] + " with " + beneath + " at " + beneath.pos_x + " " + beneath.pos_y + " " + beneath.pos_z );
 
 			camera[1] = beneath.pos_y + 1.6f;
+			accel.y = 0;
 			jumping = false;
 		}
+		else
+			jumping = true;
 	}
 
 	public static void main( String[] args )
