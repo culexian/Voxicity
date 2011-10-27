@@ -208,4 +208,13 @@ public class Block
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, tex_buffer );
 		GL15.glBufferData( GL15.GL_ARRAY_BUFFER, buf, GL15.GL_STATIC_DRAW );
 	}
+
+	public AABB get_bounds()
+	{
+		AABB box = new AABB( 1, 1, 1 );
+		box.pos.x = pos_x;
+		box.pos.y = pos_y;
+		box.pos.z = pos_z;
+		return box; 
+	}
 }

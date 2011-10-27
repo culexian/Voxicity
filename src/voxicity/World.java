@@ -21,11 +21,9 @@ public class World
 
 		if ( chunks.containsKey( get_chunk_id( x, y, z ) ) )
 		{
-//			System.out.println( "Found chunk " + id );
 			return chunks.get( id );
 		}
 
-//		System.out.println( "Did not find chunk" );
 		return null;
 	}
 

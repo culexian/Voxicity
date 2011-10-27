@@ -281,15 +281,27 @@ public class Voxicity
 
 	void check_collisions()
 	{
-		Block beneath = world.get_block( Math.round(camera[0]), Math.round(camera[1] - 1.6f), Math.round(camera[2] ) );
+		Block beneath = world.get_block( Math.round(camera[0]), Math.round(camera[1] - 1.81f), Math.round(camera[2] ) );
 
 		if ( beneath != null )
 		{
-			System.out.println( "Collision at " + camera[0] + " " + camera[1] + " " + camera[2] + " with " + beneath + " at " + beneath.pos_x + " " + beneath.pos_y + " " + beneath.pos_z );
+			AABB player = new AABB( 0.8f, 1.8f, 0.8f );
+			player.pos.x = camera[0];
+			player.pos.y = camera[1] - player.top();
+			player.pos.z = camera[2];
 
-			camera[1] = beneath.pos_y + 1.6f;
-			accel.y = 0;
-			jumping = false;
+			AABB beneath_box = beneath.get_bounds();
+
+			if ( player.collides( beneath_box ) )
+			{
+				System.out.println( "Collision at " + camera[0] + " " + camera[1] + " " + camera[2] + " with " + beneath + " at " + beneath.pos_x + " " + beneath.pos_y + " " + beneath.pos_z + " Intersecting with " + beneath_box.top_intersect( player ) );
+				camera[1] += beneath_box.top_intersect( player );
+				accel.y = 0;
+				jumping = false;
+
+			}
+
+
 		}
 		else
 			jumping = true;
