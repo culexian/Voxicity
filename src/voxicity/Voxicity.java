@@ -109,16 +109,16 @@ public class Voxicity
 			float z_move = 0;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
-				x_move -= 2;
+				x_move -= 3;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
-				x_move += 2;
+				x_move += 3;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
-				z_move -= 2;
+				z_move -= 3;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
-				z_move += 2;
+				z_move += 3;
 
 			if ( flying )
 			{
@@ -129,12 +129,12 @@ public class Voxicity
 			{
 				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) && !jumping )
 				{
-					move_speed.y = 4f;
+					move_speed.y = 3f;
 					jumping = true;
 				}
 
 				if ( jumping )
-					accel.y -= 1.5f * delta;
+					accel.y = -4.5f;
 
 			}
 
@@ -159,17 +159,13 @@ public class Voxicity
 			accel.x = corr_x;
 			accel.z = corr_z;
 
-			move_speed.x += accel.x; 
-			move_speed.y += accel.y;
-			move_speed.z += accel.z;
+			move_speed.x = accel.x; 
+			move_speed.y += accel.y * delta;
+			move_speed.z = accel.z;
 
 			camera[0] += move_speed.x * delta;
 			camera[1] += move_speed.y * delta;
 			camera[2] += move_speed.z * delta;
-
-			move_speed.x += 8 * -move_speed.x * delta;
-			move_speed.z += 8 * -move_speed.z * delta;
-
 		}
 
 		rot += 0.15 * delta;
@@ -378,7 +374,9 @@ public class Voxicity
 			}
 		}
 		else
+		{
 			jumping = true;
+		}
 	}
 
 	public static void main( String[] args )
