@@ -109,16 +109,16 @@ public class Voxicity
 			float z_move = 0;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
-				x_move -= 4;
+				x_move -= 2;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
-				x_move += 4;
+				x_move += 2;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
-				z_move -= 4;
+				z_move -= 2;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
-				z_move += 4;
+				z_move += 2;
 
 			if ( flying )
 			{
@@ -129,12 +129,12 @@ public class Voxicity
 			{
 				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) && !jumping )
 				{
-					accel.y = 2.0f;
+					move_speed.y = 4f;
 					jumping = true;
 				}
 
 				if ( jumping )
-					accel.y -= 3f * delta;
+					accel.y -= 1.5f * delta;
 
 			}
 
@@ -159,13 +159,16 @@ public class Voxicity
 			accel.x = corr_x;
 			accel.z = corr_z;
 
-			move_speed.x = move_speed.x * delta + delta * accel.x;
-			move_speed.y = move_speed.y * delta + delta * accel.y;
-			move_speed.z = move_speed.z * delta + delta * accel.z;
+			move_speed.x += accel.x; 
+			move_speed.y += accel.y;
+			move_speed.z += accel.z;
 
-			camera[0] += accel.x * delta * delta + move_speed.x;
-			camera[1] += accel.y * delta * delta + move_speed.y;
-			camera[2] += accel.z * delta * delta + move_speed.z;
+			camera[0] += move_speed.x * delta;
+			camera[1] += move_speed.y * delta;
+			camera[2] += move_speed.z * delta;
+
+			move_speed.x += 8 * -move_speed.x * delta;
+			move_speed.z += 8 * -move_speed.z * delta;
 
 		}
 
@@ -255,6 +258,7 @@ public class Voxicity
 			{
 				camera[1] += above_box.bottom_intersect( player );
 				move_speed.y = -move_speed.y;
+				accel.y = 0;
 			}
 		}
 
@@ -369,6 +373,7 @@ public class Voxicity
 				//System.out.println( "Collision at " + camera[0] + " " + camera[1] + " " + camera[2] + " with " + beneath + " at " + beneath.pos_x + " " + beneath.pos_y + " " + beneath.pos_z + " Intersecting with " + beneath_box.top_intersect( player ) );
 				camera[1] += beneath_box.top_intersect( player );
 				move_speed.y = 0;
+				accel.y = 0;
 				jumping = false;
 			}
 		}
