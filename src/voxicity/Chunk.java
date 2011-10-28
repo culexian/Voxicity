@@ -63,7 +63,7 @@ public class Chunk
 
 	public void generate_blocks()
 	{
-		for ( int i = 0 ; i < 1500; i++ )
+		for ( int i = 0 ; i < 200; i++ )
 		{
 			int x = i % 32;
 			int y = i / 32 / 32 % 32;

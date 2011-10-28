@@ -31,6 +31,7 @@ public class Voxicity
 	float camera[] = new float[3];
 
 	Vector3f accel = new Vector3f( 0, 0, 0 );
+	Vector3f move_speed = new Vector3f();
 
 	boolean is_close_requested = false;
 	boolean jumping = true;
@@ -46,6 +47,7 @@ public class Voxicity
 		try
 		{
 			Display.setDisplayMode( new DisplayMode( 800, 600 ) );
+//			Display.sync( 60 );
 			Display.create();
 		}
 		catch ( LWJGLException e )
@@ -69,7 +71,7 @@ public class Voxicity
 
 		while ( !is_close_requested )
 		{
-			update( get_time_delta() );
+			update( get_time_delta() / 1000.0f );
 			draw();
 
 			is_close_requested |= Display.isCloseRequested();
@@ -80,17 +82,14 @@ public class Voxicity
 	int get_time_delta()
 	{
 		// Get the time in milliseconds
-		long new_time = (Sys.getTime() * 1000)  / Sys.getTimerResolution();
+		long new_time = get_time_ms();
 		int delta = (int) ( new_time - last_frame );
 		last_frame = new_time;
 		return delta;
 	}
 
-	void update( int delta )
+	void update( float delta )
 	{
-
-		accel.x -= accel.x * 0.01f * delta;
-		accel.z -= accel.z * 0.01f * delta;
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) )
 			is_close_requested = true;
@@ -110,32 +109,32 @@ public class Voxicity
 			float z_move = 0;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
-				x_move -= 0.002 * delta;
+				x_move -= 4;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
-				x_move += 0.002 * delta;
+				x_move += 4;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
-				z_move -= 0.002 * delta;
+				z_move -= 4;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
-				z_move += 0.002 * delta;
+				z_move += 4;
 
 			if ( flying )
 			{
-				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 0.005 * delta;
-				if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 0.005 * delta;
+				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 5 * delta;
+				if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 5 * delta;
 			}
 			else
 			{
 				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) && !jumping )
 				{
-					accel.y += 0.40f;
+					accel.y = 2.0f;
 					jumping = true;
 				}
 
 				if ( jumping )
-					accel.y -= 0.0014 * delta;
+					accel.y -= 3f * delta;
 
 			}
 
@@ -157,12 +156,17 @@ public class Voxicity
 			float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
 			float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
 
-			accel.x += corr_x;
-			accel.z += corr_z;
+			accel.x = corr_x;
+			accel.z = corr_z;
 
-			camera[0] += accel.x;
-			camera[1] += accel.y;
-			camera[2] += accel.z;
+			move_speed.x = move_speed.x * delta + delta * accel.x;
+			move_speed.y = move_speed.y * delta + delta * accel.y;
+			move_speed.z = move_speed.z * delta + delta * accel.z;
+
+			camera[0] += accel.x * delta * delta + move_speed.x;
+			camera[1] += accel.y * delta * delta + move_speed.y;
+			camera[2] += accel.z * delta * delta + move_speed.z;
+
 		}
 
 		rot += 0.15 * delta;
@@ -183,61 +187,8 @@ public class Voxicity
 		// Clear the screen and depth buffer
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-		for ( Block block : block_list )
-			block.render();
-
 		first_chunk.draw();
 		//second_chunk.draw();
-
-		GL11.glTranslatef( 0, 0, -80 );
-		GL11.glRotatef( rot, 0, 1, 1 );
-		GL11.glTranslatef( 0, 0, 80 );
-
-		GL11.glBegin(GL11.GL_QUADS);
-
-		// Front
-		GL11.glColor3f( 1.0f, 0.0f, 0.0f );
-		GL11.glVertex3f( -10, -10, -90 );
-		GL11.glColor3f( 0.0f, 1.0f, 0.0f );
-		GL11.glVertex3f( 10, -10, -90 );
-		GL11.glColor3f(0.5f,0.5f,1.0f);
-		GL11.glVertex3f( 10, 10, -90 );
-		GL11.glColor3f( 0.0f, 0.0f, 1.0f );
-		GL11.glVertex3f( -10, 10, -90 );
-
-		// left
-		GL11.glVertex3f( -10, -10, -90 );
-		GL11.glVertex3f( -10, -10, -70 );
-		GL11.glVertex3f( -10, 10, -70 );
-		GL11.glVertex3f( -10, 10, -90 );
-
-		// right
-		GL11.glVertex3f( 10, -10, -90 );
-		GL11.glVertex3f( 10, -10, -70 );
-		GL11.glVertex3f( 10, 10, -70 );
-		GL11.glVertex3f( 10, 10, -90 );
-
-		// front
-		GL11.glColor3f( 0.5f, 1.0f, 0.0f );
-		GL11.glVertex3f( -10, -10, -70 );
-		GL11.glVertex3f( 10, -10, -70 );
-		GL11.glVertex3f( 10, 10, -70 );
-		GL11.glVertex3f( -10, 10, -70 );
-
-		// top
-		GL11.glColor3f( 1.0f, 0.5f, 0.0f );
-		GL11.glVertex3f( -10, 10, -90 );
-		GL11.glVertex3f( -10, 10, -70 );
-		GL11.glVertex3f( 10, 10, -70 );
-		GL11.glVertex3f( 10, 10, -90 );
-
-		// bottom
-		GL11.glColor3f( 0.0f, 0.5f, 1.0f );
-		GL11.glVertex3f( -10, -10, -90 );
-		GL11.glVertex3f( -10, -10, -70 );
-		GL11.glVertex3f( 10, -10, -70 );
-		GL11.glVertex3f( 10, -10, -90 );
-		GL11.glEnd();
 
 		Display.update();
 	}
@@ -269,7 +220,7 @@ public class Voxicity
 		camera[1] = 4;
 		camera[2] = 5;
 		rot_x = 180;
-		rot_y = 15;
+		rot_y = 0;
 	}
 
 	void generate_blocks()
@@ -303,7 +254,7 @@ public class Voxicity
 			if ( player.collides( above_box ) )
 			{
 				camera[1] += above_box.bottom_intersect( player );
-				accel.y = -accel.y;
+				move_speed.y = -move_speed.y;
 			}
 		}
 
@@ -315,7 +266,7 @@ public class Voxicity
 			if ( player.collides( upper_neg_x_box ) )
 			{
 				//System.out.println( "Collision with a wall " + upper_neg_x_box.toString() + " at " + player.toString() + " with intersection of " + upper_neg_x_box.right_intersect( player ) );
-				accel.x = 0;
+				move_speed.x = 0;
 				camera[0] += upper_neg_x_box.right_intersect( player ) + 0.0001f;
 			}
 		}
@@ -328,7 +279,7 @@ public class Voxicity
 			if ( player.collides( upper_pos_x_box ) )
 			{
 				//System.out.println( "Collision with a wall " + upper_pos_x_box.toString() + " at " + player.toString() + " with intersection of " + upper_pos_x_box.right_intersect( player ) );
-				accel.x = 0;
+				move_speed.x = 0;
 				camera[0] += upper_pos_x_box.left_intersect( player ) - 0.0001f;
 			}
 		}
@@ -340,7 +291,7 @@ public class Voxicity
 
 			if ( player.collides( upper_neg_z_box ) )
 			{
-				accel.z = 0;
+				move_speed.z = 0;
 				camera[2] += upper_neg_z_box.front_intersect( player ) + 0.0001f;
 			}
 		}
@@ -352,7 +303,7 @@ public class Voxicity
 
 			if ( player.collides( upper_pos_z_box ) )
 			{
-				accel.z = 0;
+				move_speed.z = 0;
 				camera[2] += upper_pos_z_box.back_intersect( player ) - 0.0001f;
 			}
 		}
@@ -365,7 +316,7 @@ public class Voxicity
 			if ( player.collides( lower_neg_x_box ) )
 			{
 				//System.out.println( "Collision with a wall " + lower_neg_x_box.toString() + " at " + player.toString() + " with intersection of " + lower_neg_x_box.right_intersect( player ) );
-				accel.x = 0;
+				move_speed.x = 0;
 				camera[0] += lower_neg_x_box.right_intersect( player ) + 0.0001f;
 			}
 		}
@@ -378,7 +329,7 @@ public class Voxicity
 			if ( player.collides( lower_pos_x_box ) )
 			{
 				//System.out.println( "Collision with a wall " + lower_pos_x_box.toString() + " at " + player.toString() + " with intersection of " + lower_pos_x_box.right_intersect( player ) );
-				accel.x = 0;
+				move_speed.x = 0;
 				camera[0] += lower_pos_x_box.left_intersect( player ) - 0.0001f;
 			}
 		}
@@ -390,7 +341,7 @@ public class Voxicity
 
 			if ( player.collides( lower_neg_z_box ) )
 			{
-				accel.z = 0;
+				move_speed.z = 0;
 				camera[2] += lower_neg_z_box.front_intersect( player ) + 0.0001f;
 			}
 		}
@@ -402,7 +353,7 @@ public class Voxicity
 
 			if ( player.collides( lower_pos_z_box ) )
 			{
-				accel.z = 0;
+				move_speed.z = 0;
 				camera[2] += lower_pos_z_box.back_intersect( player ) - 0.0001f;
 			}
 		}
@@ -413,11 +364,11 @@ public class Voxicity
 
 			AABB beneath_box = beneath.get_bounds();
 
-			if ( player.collides( beneath_box ) && accel.y < 0 )
+			if ( player.collides( beneath_box ) && move_speed.y < 0 )
 			{
 				//System.out.println( "Collision at " + camera[0] + " " + camera[1] + " " + camera[2] + " with " + beneath + " at " + beneath.pos_x + " " + beneath.pos_y + " " + beneath.pos_z + " Intersecting with " + beneath_box.top_intersect( player ) );
 				camera[1] += beneath_box.top_intersect( player );
-				accel.y = 0;
+				move_speed.y = 0;
 				jumping = false;
 			}
 		}
