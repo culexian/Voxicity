@@ -58,4 +58,34 @@ public class AABB
 	{
 		return top() - rhs.bottom();
 	}
+
+	public float bottom_intersect( final AABB rhs )
+	{
+		return bottom() - rhs.top();
+	}
+
+	public float left_intersect( final AABB rhs )
+	{
+		return left() - rhs.right();
+	}
+
+	public float right_intersect( final AABB rhs )
+	{
+		return right() - rhs.left();
+	}
+
+	public float front_intersect( final AABB rhs )
+	{
+		return front() - rhs.back();
+	}
+
+	public float back_intersect( final AABB rhs )
+	{
+		return back() - rhs.front();
+	}
+
+	public String toString()
+	{
+		return pos.toString() + dim.toString();
+	}
 }
