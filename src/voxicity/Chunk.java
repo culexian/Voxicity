@@ -63,12 +63,30 @@ public class Chunk
 
 	public void generate_blocks()
 	{
-		for ( int i = 0 ; i < 1200; i++ )
+		for ( int x = 0 ; x < Constants.Chunk.side_length ; x++ )
 		{
-			int x = i % 32;
-			int y = i / 32 / 32 % 32;
-			int z = i / 32 % 32;
-			blocks[i] = new Block( x, y, z, new Color( 100, 100, 100 + i * 5) );
+			for ( int y = 0 ; y < Constants.Chunk.side_length ; y++ )
+			{
+				for ( int z = 0 ; z < Constants.Chunk.side_length ; z++ )
+				{
+					if ( y < 1 )
+						set_block( x, y, z, new Block( x, y, z , new Color( 255, 255, 255 ) ) );
+				}
+			}
 		}
+
+
+		for ( int x = 0 ; x < Constants.Chunk.side_length ; x++ )
+		{
+			set_block( x, 1, 0, new Block( x, 1, 0, new Color( 255, 255, 255 ) ) );
+			set_block( x, 1, 31, new Block( x, 1, 31, new Color( 255, 255, 255 ) ) );
+		}
+
+		for ( int z = 0 ; z < Constants.Chunk.side_length ; z++ )
+		{
+			set_block( 0, 1, z, new Block( 0, 1, z, new Color( 255, 255, 255 ) ) );
+			set_block( 31, 1, z, new Block( 31, 1, z, new Color( 255, 255, 255 ) ) );
+		}
+
 	}
 }

@@ -214,7 +214,7 @@ public class Voxicity
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		camera[0] = 5;
-		camera[1] = 4;
+		camera[1] = 10;
 		camera[2] = 5;
 		rot_x = 180;
 		rot_y = 0;
