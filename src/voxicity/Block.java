@@ -50,10 +50,6 @@ public class Block
 		// Translate to block location offset
 		GL11.glTranslatef( pos_x, pos_y, pos_z );
 
-		// set the color of the quad (R,G,B,A)
-		//GL11.glColor3f( color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f );
-		GL11.glColor3f( 1, 1, 1 );
-
 		// Bind VBO to vertex pointer
 		GL11.glEnableClientState( GL11.GL_VERTEX_ARRAY );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, vert_buf );
