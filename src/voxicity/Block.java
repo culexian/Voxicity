@@ -18,18 +18,16 @@ public class Block
 	int block_tex = TextureManager.get_texture( "textures/dirt.png" );
 
 	int pos_x,pos_y,pos_z;
-	Color color = new Color();
 
 	int vert_buf = 0;
 	int index_buf = 0;
 	int tex_buffer = 0;
 
-	public Block( int pos_x, int pos_y, int pos_z, ReadableColor color )
+	public Block( int pos_x, int pos_y, int pos_z )
 	{
 		this.pos_x = pos_x;
 		this.pos_y = pos_y;
 		this.pos_z = pos_z;
-		this.color = new Color( color );
 
 		IntBuffer int_buf = BufferUtils.createIntBuffer(3);
 		GL15.glGenBuffers( int_buf );

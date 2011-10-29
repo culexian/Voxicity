@@ -70,23 +70,21 @@ public class Chunk
 				for ( int z = 0 ; z < Constants.Chunk.side_length ; z++ )
 				{
 					if ( y < 1 )
-						set_block( x, y, z, new Block( x, y, z , new Color( 255, 255, 255 ) ) );
+						set_block( x, y, z, new Block( x, y, z ) );
 				}
 			}
 		}
 
-
 		for ( int x = 0 ; x < Constants.Chunk.side_length ; x++ )
 		{
-			set_block( x, 1, 0, new Block( x, 1, 0, new Color( 255, 255, 255 ) ) );
-			set_block( x, 1, 31, new Block( x, 1, 31, new Color( 255, 255, 255 ) ) );
+			set_block( x, 1, 0, new Block( x, 1, 0 ) );
+			set_block( x, 1, 31, new Block( x, 1, 31 ) );
 		}
 
 		for ( int z = 0 ; z < Constants.Chunk.side_length ; z++ )
 		{
-			set_block( 0, 1, z, new Block( 0, 1, z, new Color( 255, 255, 255 ) ) );
-			set_block( 31, 1, z, new Block( 31, 1, z, new Color( 255, 255, 255 ) ) );
+			set_block( 0, 1, z, new Block( 0, 1, z ) );
+			set_block( 31, 1, z, new Block( 31, 1, z ) );
 		}
-
 	}
 }
