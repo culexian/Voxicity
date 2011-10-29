@@ -265,7 +265,6 @@ public class Voxicity
 
 			if ( player.collides( upper_neg_x_box ) )
 			{
-				//System.out.println( "Collision with a wall " + upper_neg_x_box.toString() + " at " + player.toString() + " with intersection of " + upper_neg_x_box.right_intersect( player ) );
 				move_speed.x = 0;
 				camera[0] += upper_neg_x_box.right_intersect( player ) + 0.0001f;
 			}
@@ -278,7 +277,6 @@ public class Voxicity
 
 			if ( player.collides( upper_pos_x_box ) )
 			{
-				//System.out.println( "Collision with a wall " + upper_pos_x_box.toString() + " at " + player.toString() + " with intersection of " + upper_pos_x_box.right_intersect( player ) );
 				move_speed.x = 0;
 				camera[0] += upper_pos_x_box.left_intersect( player ) - 0.0001f;
 			}
@@ -315,7 +313,6 @@ public class Voxicity
 
 			if ( player.collides( lower_neg_x_box ) )
 			{
-				//System.out.println( "Collision with a wall " + lower_neg_x_box.toString() + " at " + player.toString() + " with intersection of " + lower_neg_x_box.right_intersect( player ) );
 				move_speed.x = 0;
 				camera[0] += lower_neg_x_box.right_intersect( player ) + 0.0001f;
 			}
@@ -328,7 +325,6 @@ public class Voxicity
 
 			if ( player.collides( lower_pos_x_box ) )
 			{
-				//System.out.println( "Collision with a wall " + lower_pos_x_box.toString() + " at " + player.toString() + " with intersection of " + lower_pos_x_box.right_intersect( player ) );
 				move_speed.x = 0;
 				camera[0] += lower_pos_x_box.left_intersect( player ) - 0.0001f;
 			}
@@ -366,7 +362,6 @@ public class Voxicity
 
 			if ( player.collides( beneath_box ) && move_speed.y < 0 )
 			{
-				//System.out.println( "Collision at " + camera[0] + " " + camera[1] + " " + camera[2] + " with " + beneath + " at " + beneath.pos_x + " " + beneath.pos_y + " " + beneath.pos_z + " Intersecting with " + beneath_box.top_intersect( player ) );
 				camera[1] += beneath_box.top_intersect( player );
 				move_speed.y = 0;
 				accel.y = 0;
