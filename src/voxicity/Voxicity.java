@@ -47,7 +47,6 @@ public class Voxicity
 		try
 		{
 			Display.setDisplayMode( new DisplayMode( 800, 600 ) );
-//			Display.sync( 60 );
 			Display.create();
 		}
 		catch ( LWJGLException e )
@@ -63,7 +62,6 @@ public class Voxicity
 		world = new World();
 		first_chunk = new Chunk( 0, 0, 0 );
 		second_chunk = new Chunk( 1, 0, 0 );
-		//generate_blocks();
 
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
@@ -220,17 +218,6 @@ public class Voxicity
 		camera[2] = 5;
 		rot_x = 180;
 		rot_y = 0;
-	}
-
-	void generate_blocks()
-	{
-		for ( int i = 0 ; i < 500; i++ )
-		{
-			int x = i % 20;
-			int y = i / 400;
-			int z = i / 20 % 20;
-			block_list.add( new Block( x * 20, y * 20, z * 20, new Color( 100, 100, 100 + i * 5) ) );
-		}
 	}
 
 	void toggle_mouse_grab()
