@@ -30,6 +30,8 @@ public class Voxicity
 
 	float camera[] = new float[3];
 
+	Vector3f last_pos = new Vector3f();
+
 	Vector3f accel = new Vector3f( 0, 0, 0 );
 	Vector3f move_speed = new Vector3f();
 
@@ -61,7 +63,6 @@ public class Voxicity
 		Mouse.setGrabbed( true );
 		world = new World();
 		first_chunk = new Chunk( 0, 0, 0 );
-		second_chunk = new Chunk( 1, 0, 0 );
 
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
@@ -88,6 +89,8 @@ public class Voxicity
 
 	void update( float delta )
 	{
+		//Store the new last position
+		last_pos.set( camera[0], camera[1], camera[2] );
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) )
 			is_close_requested = true;
@@ -127,12 +130,12 @@ public class Voxicity
 			{
 				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) && !jumping )
 				{
-					move_speed.y = 3f;
+					move_speed.y = 9.5f;
 					jumping = true;
 				}
 
 				if ( jumping )
-					accel.y = -4.5f;
+					accel.y = -27f;
 
 			}
 
@@ -185,7 +188,6 @@ public class Voxicity
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		first_chunk.draw();
-		//second_chunk.draw();
 
 		Display.update();
 	}
@@ -214,7 +216,7 @@ public class Voxicity
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		camera[0] = 5;
-		camera[1] = 10;
+		camera[1] = 20;
 		camera[2] = 5;
 		rot_x = 180;
 		rot_y = 0;
@@ -231,6 +233,11 @@ public class Voxicity
 		player.pos.x = camera[0];
 		player.pos.y = camera[1] - 0.75f;
 		player.pos.z = camera[2];
+
+		Vector3f distance = new Vector3f();
+		
+		if ( Vector3f.sub( player.pos, last_pos, distance ).length() > 1.0 )
+			System.out.println( "Moving too fast! " + distance.length()  );
 
 		Block above = world.get_block( Math.round(player.pos.x), Math.round(player.top()), Math.round(player.pos.z) );
 		if ( above != null )
