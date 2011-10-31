@@ -130,12 +130,12 @@ public class Voxicity
 			{
 				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) && !jumping )
 				{
-					move_speed.y = 9.5f;
+					move_speed.y = 8.0f;
 					jumping = true;
 				}
 
 				if ( jumping )
-					accel.y = -27f;
+					accel.y = -23f;
 
 			}
 
