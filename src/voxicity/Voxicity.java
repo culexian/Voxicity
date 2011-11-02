@@ -102,6 +102,15 @@ public class Voxicity
 		{
 			if ( Keyboard.getEventKey() == Keyboard.KEY_E && Keyboard.getEventKeyState() )
 				toggle_mouse_grab();
+
+			if ( Keyboard.getEventKey() == Keyboard.KEY_G && Keyboard.getEventKeyState() )
+			{
+				flying = !flying;
+				System.out.println( "Flying is " + flying );
+				accel.y = 0;
+				move_speed.y = 0;
+				jumping = true;
+			}
 		}
 
 		if ( Mouse.isGrabbed() )
