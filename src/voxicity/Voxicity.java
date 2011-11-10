@@ -45,6 +45,7 @@ public class Voxicity
 
 	float rot_x;
 	float rot_y;
+	float mouse_speed = 2.0f;
 
 	float camera[] = new float[3];
 
@@ -167,8 +168,8 @@ public class Voxicity
 			int x_delta = Mouse.getDX();
 			int y_delta = Mouse.getDY();
 
-			rot_x += ( x_delta / 800.0f ) * 45.0f;
-			rot_y += ( y_delta / 800.0f ) * ( 45.0f );
+			rot_x += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
+			rot_y += ( y_delta / 800.0f ) * 45.0f * mouse_speed;
 
 			rot_x = rot_x > 360.0f ? rot_x - 360.0f : rot_x;
 			rot_x = rot_x < -360.0 ? rot_x + 360.0f : rot_x;
