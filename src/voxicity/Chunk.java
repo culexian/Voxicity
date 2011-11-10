@@ -66,7 +66,7 @@ public class Chunk
 		blocks[block_pos] = block;
 	}
 
-	public void draw()
+	public void render()
 	{
 		GL11.glPushMatrix();
 		GL11.glTranslatef( x, y, z );

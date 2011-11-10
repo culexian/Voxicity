@@ -68,4 +68,12 @@ public class World
 
 		return loc.get_block();
 	}
+
+	public void render()
+	{
+		for ( Chunk chunk : chunks.values() )
+		{
+			chunk.render();
+		}
+	}
 }

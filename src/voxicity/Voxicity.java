@@ -90,7 +90,7 @@ public class Voxicity
 		while ( !is_close_requested )
 		{
 			update( get_time_delta() / 1000.0f );
-			draw();
+			render();
 
 			is_close_requested |= Display.isCloseRequested();
 		}
@@ -204,7 +204,7 @@ public class Voxicity
 		update_fps();
 	}
 
-	void draw()
+	void render()
 	{
 		GL11.glLoadIdentity();
 		GL11.glRotatef( -rot_y, 1, 0, 0 );
@@ -215,7 +215,7 @@ public class Voxicity
 		// Clear the screen and depth buffer
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-		first_chunk.draw();
+		world.render();
 
 		Display.update();
 	}
