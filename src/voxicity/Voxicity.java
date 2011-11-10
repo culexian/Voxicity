@@ -60,7 +60,6 @@ public class Voxicity
 
 	List<Block> block_list = new ArrayList<Block>();
 
-	Chunk first_chunk, second_chunk;
 	World world;
 
 	public void init()
@@ -81,7 +80,6 @@ public class Voxicity
 		setup_camera();
 		Mouse.setGrabbed( true );
 		world = new World();
-		first_chunk = new Chunk( 0, 0, 0 );
 
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
