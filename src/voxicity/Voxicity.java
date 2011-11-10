@@ -122,11 +122,7 @@ public class Voxicity
 
 			if ( Keyboard.getEventKey() == Keyboard.KEY_G && Keyboard.getEventKeyState() )
 			{
-				flying = !flying;
-				System.out.println( "Flying is " + flying );
-				accel.y = 0;
-				move_speed.y = 0;
-				jumping = true;
+				toggle_flying();
 			}
 		}
 
@@ -249,6 +245,23 @@ public class Voxicity
 	void toggle_mouse_grab()
 	{
 		Mouse.setGrabbed( !Mouse.isGrabbed() );
+	}
+
+	void toggle_flying()
+	{
+		if ( flying == false )
+		{
+			flying = true;
+			accel.y = 0;
+			move_speed.y = 0;
+			System.out.println( "Flying is " + flying );
+		}
+		else
+		{
+			flying = false;
+			jumping = true;
+			System.out.println( "Flying is " + flying );
+		}
 	}
 
 	void check_collisions()
