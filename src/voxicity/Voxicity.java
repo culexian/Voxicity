@@ -42,7 +42,6 @@ public class Voxicity
 	int fps_count = 0;
 
 	long last_frame = 0;
-	float rot = 0;
 
 	float rot_x;
 	float rot_y;
@@ -194,8 +193,6 @@ public class Voxicity
 			camera[1] += move_speed.y * delta;
 			camera[2] += move_speed.z * delta;
 		}
-
-		rot += 0.15 * delta;
 
 		check_collisions();
 
