@@ -3,7 +3,7 @@ all:
 	jar cvfme Voxicity.jar Manifest.mf voxicity.Voxicity -C src/ .
 
 test:
-	java -cp .:jar/*:Voxicity.jar voxicity.Voxicity
+	java -jar Voxicity.jar voxicity.Voxicity
 
 pack:
 	
