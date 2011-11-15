@@ -46,6 +46,7 @@ public class Voxicity
 	float rot_x;
 	float rot_y;
 	float mouse_speed = 2.0f;
+	float camera_offset = 0.75f;
 
 	float camera[] = new float[3];
 
@@ -201,7 +202,7 @@ public class Voxicity
 		GL11.glLoadIdentity();
 		GL11.glRotatef( -rot_y, 1, 0, 0 );
 		GL11.glRotatef( rot_x, 0, 1, 0 );
-		GLU.gluLookAt( camera[0], camera[1], camera[2], camera[0], camera[1], camera[2] - 10, 0,1,0 );
+		GLU.gluLookAt( camera[0], camera[1] + camera_offset, camera[2], camera[0], camera[1] + camera_offset, camera[2] - 10, 0,1,0 );
 
 
 		// Clear the screen and depth buffer
@@ -266,29 +267,28 @@ public class Voxicity
 
 	void check_collisions()
 	{
-		final int slice_num = 10;
+		int slice_num = 30;
 		boolean collided = false;
 		AABB player = new AABB( 0.5f, 1.7f, 0.5f );
 		player.pos.x = camera[0];
-		player.pos.y = camera[1] - 0.75f;
+		player.pos.y = camera[1];
 		player.pos.z = camera[2];
 
-		Vector3f distance = new Vector3f();
-		Vector3f.sub( player.pos, last_pos, distance );
-		distance.scale( 1.0f / slice_num );
+		Vector3f new_pos = new Vector3f( camera[0], camera[1], camera[2] );
 
-//		System.out.println( "Collision start" );
+		Vector3f slice_distance = new Vector3f();
+		Vector3f.sub( new_pos, last_pos, slice_distance );
+		slice_distance.scale( 1.0f / ( slice_num * 1.0f ) );
 
-		Vector3f start = new Vector3f( last_pos );
-		for ( int i = 1 ; i < slice_num ; i++ )
+		Vector3f slice_pos = new Vector3f( last_pos );
+		player.pos = slice_pos;
+
+		for ( int i = 0 ; i < slice_num ; i++ )
 		{
-			if ( collided )
-				break;
 
-	//		System.out.println( start );
-			start = Vector3f.add( start, distance, start );
-
-			Block above = world.get_block( Math.round(player.pos.x), Math.round(player.top()), Math.round(player.pos.z) );
+			Vector3f.add( slice_pos, slice_distance, slice_pos );
+/*
+			Block above = world.get_block( Math.round( player.pos.x), Math.round(player.top()), Math.round( player.pos.z) );
 			if ( above != null )
 			{
 				AABB above_box = above.get_bounds();
@@ -296,13 +296,13 @@ public class Voxicity
 				if ( player.collides( above_box ) )
 				{
 					collided = true;
-					camera[1] += above_box.bottom_intersect( player );
+					player.pos.y += above_box.bottom_intersect( player );
 					move_speed.y = -move_speed.y;
 					accel.y = 0;
 				}
 			}
 
-			Block upper_neg_x = world.get_block( Math.round(camera[0] - player.dim.x), Math.round(camera[1]), Math.round(camera[2]) );
+			Block upper_neg_x = world.get_block( Math.round( camera[0] - player.dim.x), Math.round(camera[1]), Math.round(camera[2]) );
 			if ( upper_neg_x != null )
 			{
 				AABB upper_neg_x_box = upper_neg_x.get_bounds();
@@ -311,7 +311,7 @@ public class Voxicity
 				{
 					collided = true;
 					move_speed.x = 0;
-					camera[0] += upper_neg_x_box.right_intersect( player ) + 0.0001f;
+					player.pos.x += upper_neg_x_box.right_intersect( player ) + 0.0001f;
 				}
 			}
 
@@ -324,7 +324,7 @@ public class Voxicity
 				{
 					collided = true;
 					move_speed.x = 0;
-					camera[0] += upper_pos_x_box.left_intersect( player ) - 0.0001f;
+					player.pos.x += upper_pos_x_box.left_intersect( player ) - 0.0001f;
 				}
 			}
 
@@ -337,7 +337,7 @@ public class Voxicity
 				{
 					collided = true;
 					move_speed.z = 0;
-					camera[2] += upper_neg_z_box.front_intersect( player ) + 0.0001f;
+					player.pos.z += upper_neg_z_box.front_intersect( player ) + 0.0001f;
 				}
 			}
 
@@ -350,7 +350,7 @@ public class Voxicity
 				{
 					collided = true;
 					move_speed.z = 0;
-					camera[2] += upper_pos_z_box.back_intersect( player ) - 0.0001f;
+					player.pos.z += upper_pos_z_box.back_intersect( player ) - 0.0001f;
 				}
 			}
 
@@ -363,7 +363,7 @@ public class Voxicity
 				{
 					collided = true;
 					move_speed.x = 0;
-					camera[0] += lower_neg_x_box.right_intersect( player ) + 0.0001f;
+					player.pos.x += lower_neg_x_box.right_intersect( player ) + 0.0001f;
 				}
 			}
 
@@ -376,7 +376,7 @@ public class Voxicity
 				{
 					collided = true;
 					move_speed.x = 0;
-					camera[0] += lower_pos_x_box.left_intersect( player ) - 0.0001f;
+					player.pos.x += lower_pos_x_box.left_intersect( player ) - 0.0001f;
 				}
 			}
 
@@ -389,7 +389,7 @@ public class Voxicity
 				{
 					collided = true;
 					move_speed.z = 0;
-					camera[2] += lower_neg_z_box.front_intersect( player ) + 0.0001f;
+					player.pos.z += lower_neg_z_box.front_intersect( player ) + 0.0001f;
 				}
 			}
 
@@ -402,20 +402,22 @@ public class Voxicity
 				{
 					collided = true;
 					move_speed.z = 0;
-					camera[2] += lower_pos_z_box.back_intersect( player ) - 0.0001f;
+					player.pos.z += lower_pos_z_box.back_intersect( player ) - 0.0001f;
 				}
 			}
 
-			Block beneath = world.get_block( Math.round(player.pos.x), Math.round( player.bottom()), Math.round(player.pos.z) );
+*/
+
+			Block beneath = world.get_block( Math.round( player.pos.x), Math.round( player.bottom() - 0.01f ), Math.round(player.pos.z) );
 			if ( beneath != null )
 			{
-
+			//	System.out.println( "Got here" );
 				AABB beneath_box = beneath.get_bounds();
 
 				if ( player.collides( beneath_box ) && move_speed.y < 0 )
 				{
 					collided = true;
-					camera[1] += beneath_box.top_intersect( player );
+					player.pos.y += beneath_box.top_intersect( player ) + 0.0001f;
 					move_speed.y = 0;
 					accel.y = 0;
 					jumping = false;
@@ -424,6 +426,17 @@ public class Voxicity
 			else
 			{
 				jumping = true;
+			}
+
+			if ( collided )
+			{
+				// Set the player's new position after collision checking/handling
+				camera[0] = player.pos.x;
+				camera[1] = player.pos.y;
+				camera[2] = player.pos.z;
+
+				System.out.println( "Collided at " + i + " iterations" );
+				break;
 			}
 		}
 	}
