@@ -267,12 +267,13 @@ public class Voxicity
 
 	void check_collisions()
 	{
-		int slice_num = 30;
-		boolean collided = false;
+		int slice_num = 10;
+
+		boolean collided_x = false;
+		boolean collided_y = false;
+		boolean collided_z = false;
+
 		AABB player = new AABB( 0.5f, 1.7f, 0.5f );
-		player.pos.x = camera[0];
-		player.pos.y = camera[1];
-		player.pos.z = camera[2];
 
 		Vector3f new_pos = new Vector3f( camera[0], camera[1], camera[2] );
 
@@ -283,11 +284,14 @@ public class Voxicity
 		Vector3f slice_pos = new Vector3f( last_pos );
 		player.pos = slice_pos;
 
+		Vector3f corrected_pos = new Vector3f( new_pos );
+
+		// Check y axis for collisions
 		for ( int i = 0 ; i < slice_num ; i++ )
 		{
-
+			
 			Vector3f.add( slice_pos, slice_distance, slice_pos );
-/*
+
 			Block above = world.get_block( Math.round( player.pos.x), Math.round(player.top()), Math.round( player.pos.z) );
 			if ( above != null )
 			{
@@ -295,128 +299,21 @@ public class Voxicity
 
 				if ( player.collides( above_box ) )
 				{
-					collided = true;
+					collided_y = true;
 					player.pos.y += above_box.bottom_intersect( player );
 					move_speed.y = -move_speed.y;
 					accel.y = 0;
 				}
 			}
 
-			Block upper_neg_x = world.get_block( Math.round( camera[0] - player.dim.x), Math.round(camera[1]), Math.round(camera[2]) );
-			if ( upper_neg_x != null )
-			{
-				AABB upper_neg_x_box = upper_neg_x.get_bounds();
-
-				if ( player.collides( upper_neg_x_box ) )
-				{
-					collided = true;
-					move_speed.x = 0;
-					player.pos.x += upper_neg_x_box.right_intersect( player ) + 0.0001f;
-				}
-			}
-
-				Block upper_pos_x = world.get_block( Math.round(camera[0] + player.dim.x), Math.round(camera[1]), Math.round(camera[2]) );
-			if ( upper_pos_x != null )
-			{
-				AABB upper_pos_x_box = upper_pos_x.get_bounds();
-
-				if ( player.collides( upper_pos_x_box ) )
-				{
-					collided = true;
-					move_speed.x = 0;
-					player.pos.x += upper_pos_x_box.left_intersect( player ) - 0.0001f;
-				}
-			}
-
-			Block upper_neg_z = world.get_block( Math.round(camera[0]), Math.round(camera[1]), Math.round(camera[2] - player.dim.z) );
-			if ( upper_neg_z != null )
-			{
-				AABB upper_neg_z_box = upper_neg_z.get_bounds();
-
-				if ( player.collides( upper_neg_z_box ) )
-				{
-					collided = true;
-					move_speed.z = 0;
-					player.pos.z += upper_neg_z_box.front_intersect( player ) + 0.0001f;
-				}
-			}
-
-			Block upper_pos_z = world.get_block( Math.round(camera[0]), Math.round(camera[1]), Math.round(camera[2] + player.dim.z) );
-			if ( upper_pos_z != null )
-			{
-				AABB upper_pos_z_box = upper_pos_z.get_bounds();
-
-				if ( player.collides( upper_pos_z_box ) )
-				{
-					collided = true;
-					move_speed.z = 0;
-					player.pos.z += upper_pos_z_box.back_intersect( player ) - 0.0001f;
-				}
-			}
-
-			Block lower_neg_x = world.get_block( Math.round(camera[0] - player.dim.x), Math.round(camera[1] - 1 ), Math.round(camera[2]) );
-			if ( lower_neg_x != null )
-			{
-				AABB lower_neg_x_box = lower_neg_x.get_bounds();
-
-				if ( player.collides( lower_neg_x_box ) )
-				{
-					collided = true;
-					move_speed.x = 0;
-					player.pos.x += lower_neg_x_box.right_intersect( player ) + 0.0001f;
-				}
-			}
-
-			Block lower_pos_x = world.get_block( Math.round(camera[0] + player.dim.x), Math.round(camera[1] - 1 ), Math.round(camera[2]) );
-			if ( lower_pos_x != null )
-			{
-				AABB lower_pos_x_box = lower_pos_x.get_bounds();
-
-				if ( player.collides( lower_pos_x_box ) )
-				{
-					collided = true;
-					move_speed.x = 0;
-					player.pos.x += lower_pos_x_box.left_intersect( player ) - 0.0001f;
-				}
-			}
-
-			Block lower_neg_z = world.get_block( Math.round(camera[0]), Math.round(camera[1] - 1), Math.round(camera[2] - player.dim.z) );
-			if ( lower_neg_z != null )
-			{
-				AABB lower_neg_z_box = lower_neg_z.get_bounds();
-
-				if ( player.collides( lower_neg_z_box ) )
-				{
-					collided = true;
-					move_speed.z = 0;
-					player.pos.z += lower_neg_z_box.front_intersect( player ) + 0.0001f;
-				}
-			}
-
-			Block lower_pos_z = world.get_block( Math.round(camera[0]), Math.round(camera[1] - 1), Math.round(camera[2] + player.dim.z) );
-			if ( lower_pos_z != null )
-			{
-				AABB lower_pos_z_box = lower_pos_z.get_bounds();
-
-				if ( player.collides( lower_pos_z_box ) )
-				{
-					collided = true;
-					move_speed.z = 0;
-					player.pos.z += lower_pos_z_box.back_intersect( player ) - 0.0001f;
-				}
-			}
-
-*/
-
 			Block beneath = world.get_block( Math.round( player.pos.x), Math.round( player.bottom() - 0.01f ), Math.round(player.pos.z) );
 			if ( beneath != null )
 			{
-			//	System.out.println( "Got here" );
 				AABB beneath_box = beneath.get_bounds();
 
 				if ( player.collides( beneath_box ) && move_speed.y < 0 )
 				{
-					collided = true;
+					collided_y = true;
 					player.pos.y += beneath_box.top_intersect( player ) + 0.0001f;
 					move_speed.y = 0;
 					accel.y = 0;
@@ -428,16 +325,149 @@ public class Voxicity
 				jumping = true;
 			}
 
-			if ( collided )
-			{
-				// Set the player's new position after collision checking/handling
-				camera[0] = player.pos.x;
-				camera[1] = player.pos.y;
-				camera[2] = player.pos.z;
-
-				System.out.println( "Collided at " + i + " iterations" );
+			if ( collided_y )
 				break;
+		}
+
+		corrected_pos.y = slice_pos.y;
+		slice_pos = new Vector3f( last_pos );
+		player.pos = slice_pos;
+
+		// Check x axis for collisions
+		for ( int i = 0 ; i < slice_num ; i++ )
+		{
+
+			Vector3f.add( slice_pos, slice_distance, slice_pos );
+
+			Block upper_neg_x = world.get_block( Math.round(player.left()), Math.round(player.top()), Math.round(player.pos.z) );
+			if ( upper_neg_x != null )
+			{
+				AABB upper_neg_x_box = upper_neg_x.get_bounds();
+
+				if ( player.collides( upper_neg_x_box ) )
+				{
+					collided_x = true;
+					move_speed.x = 0;
+					player.pos.x += upper_neg_x_box.right_intersect( player ) + 0.0001f;
+				}
 			}
+
+			Block upper_pos_x = world.get_block( Math.round(player.right()), Math.round(player.top()), Math.round(player.pos.z) );
+			if ( upper_pos_x != null )
+			{
+				AABB upper_pos_x_box = upper_pos_x.get_bounds();
+
+				if ( player.collides( upper_pos_x_box ) )
+				{
+					collided_x = true;
+					move_speed.x = 0;
+					player.pos.x += upper_pos_x_box.left_intersect( player ) - 0.0001f;
+				}
+			}
+
+			Block lower_neg_x = world.get_block( Math.round(player.left()), Math.round(player.bottom()), Math.round(player.pos.z) );
+			if ( lower_neg_x != null )
+			{
+				AABB lower_neg_x_box = lower_neg_x.get_bounds();
+
+				if ( player.collides( lower_neg_x_box ) )
+				{
+					collided_x = true;
+					move_speed.x = 0;
+					player.pos.x += lower_neg_x_box.right_intersect( player ) + 0.0001f;
+				}
+			}
+
+			Block lower_pos_x = world.get_block( Math.round(player.right()), Math.round(player.bottom()), Math.round(player.pos.z) );
+			if ( lower_pos_x != null )
+			{
+				AABB lower_pos_x_box = lower_pos_x.get_bounds();
+
+				if ( player.collides( lower_pos_x_box ) )
+				{
+					collided_x = true;
+					move_speed.x = 0;
+					player.pos.x += lower_pos_x_box.left_intersect( player ) - 0.0001f;
+				}
+			}
+
+			if ( collided_x )
+				break;
+		}
+
+		corrected_pos.x = slice_pos.x;
+		slice_pos = new Vector3f( last_pos );
+		player.pos = slice_pos;
+
+		for ( int i = 0 ; i < slice_num ; i++ )
+		{
+			Vector3f.add( slice_pos, slice_distance, slice_pos );
+
+			Block upper_neg_z = world.get_block( Math.round(player.pos.x), Math.round(player.top()), Math.round(player.back()) );
+			if ( upper_neg_z != null )
+			{
+				AABB upper_neg_z_box = upper_neg_z.get_bounds();
+
+				if ( player.collides( upper_neg_z_box ) )
+				{
+					collided_z = true;
+					move_speed.z = 0;
+					player.pos.z += upper_neg_z_box.front_intersect( player ) + 0.0001f;
+				}
+			}
+
+			Block upper_pos_z = world.get_block( Math.round(player.pos.x), Math.round(player.top()), Math.round(player.front()) );
+			if ( upper_pos_z != null )
+			{
+				AABB upper_pos_z_box = upper_pos_z.get_bounds();
+
+				if ( player.collides( upper_pos_z_box ) )
+				{
+					collided_z = true;
+					move_speed.z = 0;
+					player.pos.z += upper_pos_z_box.back_intersect( player ) - 0.0001f;
+				}
+			}
+
+			Block lower_neg_z = world.get_block( Math.round(player.pos.x), Math.round(player.bottom()), Math.round(player.back()) );
+			if ( lower_neg_z != null )
+			{
+				AABB lower_neg_z_box = lower_neg_z.get_bounds();
+
+				if ( player.collides( lower_neg_z_box ) )
+				{
+					collided_z = true;
+					move_speed.z = 0;
+					player.pos.z += lower_neg_z_box.front_intersect( player ) + 0.0001f;
+				}
+			}
+
+			Block lower_pos_z = world.get_block( Math.round(player.pos.x), Math.round(player.bottom()), Math.round(player.front()) );
+			if ( lower_pos_z != null )
+			{
+				AABB lower_pos_z_box = lower_pos_z.get_bounds();
+
+				if ( player.collides( lower_pos_z_box ) )
+				{
+					collided_z = true;
+					move_speed.z = 0;
+					player.pos.z += lower_pos_z_box.back_intersect( player ) - 0.0001f;
+				}
+			}
+
+			if ( collided_z )
+				break;
+		}
+
+		corrected_pos.z = slice_pos.z;
+
+
+		if ( collided_x || collided_y || collided_z )
+		{
+			// Set the player's new position after collision checking/handling
+			camera[0] = corrected_pos.x;
+			camera[1] = corrected_pos.y;
+			camera[2] = corrected_pos.z;
 		}
 	}
 
