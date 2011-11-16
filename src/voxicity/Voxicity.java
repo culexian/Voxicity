@@ -374,7 +374,9 @@ public class Voxicity
 				{
 					collided_x = true;
 					move_speed.x = 0;
-					player.pos.x += lower_neg_x_box.right_intersect( player ) + 0.0001f;
+
+					if ( Math.abs( lower_neg_x_box.right_intersect( player ) ) < Math.abs( lower_neg_x_box.top_intersect( player ) ) )
+						player.pos.x += lower_neg_x_box.right_intersect( player ) + 0.0001f;
 				}
 			}
 
@@ -387,7 +389,8 @@ public class Voxicity
 				{
 					collided_x = true;
 					move_speed.x = 0;
-					player.pos.x += lower_pos_x_box.left_intersect( player ) - 0.0001f;
+					if ( Math.abs( lower_pos_x_box.left_intersect( player ) ) < Math.abs( lower_pos_x_box.top_intersect( player ) ) )
+						player.pos.x += lower_pos_x_box.left_intersect( player ) - 0.0001f;
 				}
 			}
 
@@ -438,7 +441,8 @@ public class Voxicity
 				{
 					collided_z = true;
 					move_speed.z = 0;
-					player.pos.z += lower_neg_z_box.front_intersect( player ) + 0.0001f;
+					if ( Math.abs( lower_neg_z_box.front_intersect( player ) ) < Math.abs( lower_neg_z_box.top_intersect( player ) ) )
+						player.pos.z += lower_neg_z_box.front_intersect( player ) + 0.0001f;
 				}
 			}
 
@@ -451,7 +455,8 @@ public class Voxicity
 				{
 					collided_z = true;
 					move_speed.z = 0;
-					player.pos.z += lower_pos_z_box.back_intersect( player ) - 0.0001f;
+					if ( Math.abs( lower_pos_z_box.back_intersect( player ) ) < Math.abs( lower_pos_z_box.top_intersect( player ) ) )
+						player.pos.z += lower_pos_z_box.back_intersect( player ) - 0.0001f;
 				}
 			}
 
