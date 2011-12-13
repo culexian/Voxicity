@@ -43,6 +43,8 @@ public class World
 			return chunks.get( id );
 		}
 
+		set_chunk( x, y, z, new Chunk( id.get(0), id.get(1), id.get(2) ) );
+
 		return null;
 	}
 

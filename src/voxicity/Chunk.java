@@ -34,6 +34,8 @@ public class Chunk
 		this.y = y * Constants.Chunk.side_length;
 		this.z = z * Constants.Chunk.side_length;
 
+		System.out.println( "Created chunk at " + x + " " + y + " " + z );
+
 		generate_blocks();
 	}
 
