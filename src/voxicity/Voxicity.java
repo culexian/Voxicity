@@ -27,6 +27,7 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.Color;
 import org.lwjgl.Sys;
 
@@ -55,6 +56,8 @@ public class Voxicity
 	Vector3f accel = new Vector3f( 0, 0, 0 );
 	Vector3f move_speed = new Vector3f();
 
+	Vector3f place_loc = new Vector3f( 0, 0, 0 );
+
 	boolean is_close_requested = false;
 	boolean jumping = true;
 	boolean flying = false;
@@ -62,6 +65,8 @@ public class Voxicity
 	List<Block> block_list = new ArrayList<Block>();
 
 	World world;
+
+	Block floating_block;
 
 	public void init()
 	{
@@ -81,6 +86,8 @@ public class Voxicity
 		setup_camera();
 		Mouse.setGrabbed( true );
 		world = new World();
+
+		floating_block = new Block( 0, 0, 0 );
 
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
@@ -162,6 +169,12 @@ public class Voxicity
 
 			}
 
+			if ( Mouse.isButtonDown( 0 ) )
+				place_block();
+
+			if ( Mouse.isButtonDown( 1 ) )
+				remove_block();
+
 			int x_delta = Mouse.getDX();
 			int y_delta = Mouse.getDY();
 
@@ -176,6 +189,8 @@ public class Voxicity
 
 			float cos_rot_x = ( float ) Math.cos( Math.toRadians( rot_x ) );
 			float sin_rot_x = ( float ) Math.sin( Math.toRadians( rot_x ) );
+			float cos_rot_y = ( float ) Math.cos( Math.toRadians( rot_y ) );
+			float sin_rot_y = ( float ) Math.sin( Math.toRadians( rot_y ) );
 
 			float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
 			float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
@@ -190,6 +205,13 @@ public class Voxicity
 			camera[0] += move_speed.x * delta;
 			camera[1] += move_speed.y * delta;
 			camera[2] += move_speed.z * delta;
+
+			// Add the directional vector to the camera vector
+			place_loc.set( sin_rot_x * cos_rot_y * 4 + camera[0], sin_rot_y * 4 + camera[1] + camera_offset, cos_rot_x * cos_rot_y * -4 + camera[2] );
+
+			floating_block.pos_x = (int)place_loc.x;
+			floating_block.pos_y = (int)place_loc.y;
+			floating_block.pos_z = (int)place_loc.z;
 		}
 
 		check_collisions();
@@ -207,6 +229,8 @@ public class Voxicity
 
 		// Clear the screen and depth buffer
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+		floating_block.render();
 
 		world.render();
 
@@ -474,6 +498,28 @@ public class Voxicity
 			camera[1] = corrected_pos.y;
 			camera[2] = corrected_pos.z;
 		}
+	}
+
+	void place_block()
+	{
+		if ( world.get_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z ) == null )
+		{
+			System.out.println( "Tried to place a block!" );
+			world.set_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z, new Block() );
+		}
+		else
+			System.out.println( "Block was already present! x:" + place_loc.x + " y:" + place_loc.y + " z:" + place_loc.z );
+	}
+
+	void remove_block()
+	{
+		if ( world.get_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z ) != null )
+		{
+			System.out.println( "Tried to remove a block!" );
+			world.set_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z, null );
+		}
+		else
+			System.out.println( "No block was there!" );
 	}
 
 	public static void main( String[] args )

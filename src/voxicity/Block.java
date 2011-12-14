@@ -43,6 +43,11 @@ public class Block
 	int index_buf = 0;
 	int tex_buffer = 0;
 
+	public Block()
+	{
+		this( 0, 0, 0 );
+	}
+
 	public Block( int pos_x, int pos_y, int pos_z )
 	{
 		this.pos_x = pos_x;

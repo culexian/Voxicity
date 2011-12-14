@@ -45,7 +45,7 @@ public class World
 
 		set_chunk( x, y, z, new Chunk( id.get(0), id.get(1), id.get(2) ) );
 
-		return null;
+		return chunks.get( id );
 	}
 
 	public void set_chunk( int x, int y, int z, Chunk chunk )
@@ -57,9 +57,11 @@ public class World
 	{
 		ArrayList<Integer> id = new ArrayList<Integer>();
 
-		id.add( x / Constants.Chunk.side_length - ( x < 0 ? 1 : 0 ) );
-		id.add( y / Constants.Chunk.side_length - ( y < 0 ? 1 : 0 ) );
-		id.add( z / Constants.Chunk.side_length - ( z < 0 ? 1 : 0 ) );
+		int[] coords = Coord.GlobalToChunk( x, y, z );
+
+		id.add( coords[0] );
+		id.add( coords[1] );
+		id.add( coords[2] );
 
 		return id;
 	}
@@ -69,6 +71,12 @@ public class World
 		BlockLoc loc = new BlockLoc( x, y, z, this );
 
 		return loc.get_block();
+	}
+
+	public void set_block( int x, int y, int z, Block block )
+	{
+		BlockLoc loc = new BlockLoc( x, y, z, this );
+		loc.get_chunk().set_block( x, y, z, block );
 	}
 
 	public void render()
