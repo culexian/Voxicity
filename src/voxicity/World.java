@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import org.lwjgl.util.vector.Vector3f;
 
 public class World
 {
@@ -77,6 +78,19 @@ public class World
 	{
 		BlockLoc loc = new BlockLoc( x, y, z, this );
 		loc.get_chunk().set_block( x, y, z, block );
+	}
+
+	public AABB get_hit_box( int x, int y, int z )
+	{
+		Block block = get_block( x, y, z );
+
+		if ( block == null )
+			return null;
+
+		AABB box = block.get_bounds();
+		int[] chunk = Coord.GlobalToChunkBase( x, y, z );
+		Vector3f.add( box.pos, new Vector3f( chunk[0], chunk[1], chunk[2] ), box.pos );
+		return box;
 	}
 
 	public void render()
