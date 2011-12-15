@@ -43,7 +43,7 @@ public class ChunkNode extends Node
 
 	Chunk chunk;
 
-	ChunkNode( Chunk chunk )
+	public ChunkNode( Chunk chunk )
 	{
 		this.chunk = chunk;
 		block_tex = TextureManager.get_texture( "textures/dirt.png" );
@@ -53,7 +53,7 @@ public class ChunkNode extends Node
 
 		this.vert_buf = int_buf.get(0);
 		this.index_buf = int_buf.get(1);
-		this.tex_buffer = int_buf.get(2);
+		this.tex_buf = int_buf.get(2);
 
 		this.num_elements = 0;
 	}

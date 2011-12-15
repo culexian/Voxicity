@@ -22,11 +22,14 @@ package voxicity;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Color;
 
+import voxicity.scene.Node;
+import voxicity.scene.ChunkNode;
+
 public class Chunk
 {
 	int x, y, z;
 
-	voxicity.scene.Node node;
+	Node node;
 
 	Block[] blocks = new Block[Constants.Chunk.block_number];
 
@@ -39,6 +42,8 @@ public class Chunk
 		System.out.println( "Created chunk at " + x + " " + y + " " + z );
 
 		generate_blocks();
+
+		node = new ChunkNode( this );
 	}
 
 	public int get_block_pos( int x, int y, int z )

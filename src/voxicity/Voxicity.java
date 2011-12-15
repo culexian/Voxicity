@@ -20,6 +20,7 @@
 package voxicity;
 
 import voxicity.scene.Node;
+import voxicity.scene.WorldNode;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -66,7 +67,7 @@ public class Voxicity
 
 	List<Block> block_list = new ArrayList<Block>();
 
-	Node root;
+	Node scene_root;
 	World world;
 
 	Block floating_block;
@@ -89,6 +90,7 @@ public class Voxicity
 		setup_camera();
 		Mouse.setGrabbed( true );
 		world = new World();
+		scene_root = new WorldNode( world );
 
 		floating_block = new Block( 0, 0, 0 );
 
@@ -236,6 +238,7 @@ public class Voxicity
 		floating_block.render();
 
 		world.render();
+		scene_root.render();
 
 		Display.update();
 	}
