@@ -20,9 +20,14 @@
 package voxicity;
 
 import java.util.list;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Vector3f;
 
 class Node
 {
+	Vector3f pos = new Vector3f();
+
+	Node parent = null;
 	List<Node> children = new ArrayList<Node>();
 
 	boolean dirty = true;
@@ -30,13 +35,34 @@ class Node
 	public void clean()
 	{
 		if ( dirty )
-			; // Do stuff
+		{
+			// Clean all child nodes
+			for ( Node child : children )
+				child.clean();
+
+			// Then clean this node
+			clean_self();
+		}
+	}
+
+	abstract void clean_self();
+
+	public void mark()
+	{
+		dirty = true;
+		if ( parent != null )
+			parent.mark();
 	}
 
 	public void render()
 	{
-		for( Node child : children )
-			child.render();
+		GL11.glPushMatrix();
+
+			GL11.glTranslatef( pos.x, pos.y, pos.z );
+			for( Node child : children )
+				child.render();
+
+		GL11.glPopMatrix();
 	}
 
 	public boolean has_child( Node child )
