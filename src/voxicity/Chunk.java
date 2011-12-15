@@ -66,7 +66,6 @@ public class Chunk
 		int block_pos = get_block_pos( offset[0], offset[1], offset[2] );
 		if ( ( block_pos < 0 ) || ( block_pos > Constants.Chunk.block_number - 1 ) )
 		{
-			System.out.println( "Invalid block array location: " + block_pos + " for offset x:" + offset[0] + " y:" + offset[1] + " z:" + offset[2] );
 			return;
 		}
 
@@ -75,12 +74,7 @@ public class Chunk
 			block.pos_x = offset[0];
 			block.pos_y = offset[1];
 			block.pos_z = offset[2];
-			System.out.println( "Chunk: " + this.x + " " + this.y + " " + this.z + ", Block:" + block.pos_x + " " + block.pos_y + " " + block.pos_z );
-
 		}
-			System.out.println( "x = " + offset[0] );
-			System.out.println( "y = " + offset[1] );
-			System.out.println( "z = " + offset[2] );
 
 		blocks[block_pos] = block;
 	}
