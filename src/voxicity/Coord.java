@@ -82,4 +82,13 @@ public class Coord
 	{
 		return new int[]{ chunk[0] * Constants.Chunk.side_length + offset[0], chunk[1] * Constants.Chunk.side_length + offset[1], chunk[2] * Constants.Chunk.side_length + offset[2] };
 	}
+
+	/*
+	 * Converts a global coord to a chunk 0,0,0 offset
+	 */
+	static int[] GlobalToChunkBase( int x, int y, int z )
+	{
+		int[] id = GlobalToChunk( x, y, z );
+		return ChunkToGlobal( id[0], id[1], id[2] );
+	}
 }
