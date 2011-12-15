@@ -25,7 +25,7 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
-class TextureManager
+public class TextureManager
 {
 	static HashMap<String, Texture> textures = new HashMap<String, Texture>();
 
@@ -34,7 +34,7 @@ class TextureManager
 
 	}
 
-	static int get_texture( String name )
+	public static int get_texture( String name )
 	{
 		if ( textures.containsKey( name ) )
 			return textures.get( name ).getTextureID();
