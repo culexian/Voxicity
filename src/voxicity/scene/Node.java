@@ -17,13 +17,15 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package voxicity;
+package voxicity.scene;
 
-import java.util.list;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
-class Node
+public abstract class Node
 {
 	Vector3f pos = new Vector3f();
 
@@ -42,6 +44,8 @@ class Node
 
 			// Then clean this node
 			clean_self();
+
+			dirty = false;
 		}
 	}
 
@@ -62,8 +66,12 @@ class Node
 			for( Node child : children )
 				child.render();
 
+			render_self();
+
 		GL11.glPopMatrix();
 	}
+
+	abstract void render_self();
 
 	public boolean has_child( Node child )
 	{

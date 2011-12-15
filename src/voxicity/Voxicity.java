@@ -64,6 +64,7 @@ public class Voxicity
 
 	List<Block> block_list = new ArrayList<Block>();
 
+	Node root;
 	World world;
 
 	Block floating_block;

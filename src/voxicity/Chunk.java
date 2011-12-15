@@ -26,6 +26,8 @@ public class Chunk
 {
 	int x, y, z;
 
+	voxicity.scene.Node node;
+
 	Block[] blocks = new Block[Constants.Chunk.block_number];
 
 	public Chunk( int x, int y, int z )

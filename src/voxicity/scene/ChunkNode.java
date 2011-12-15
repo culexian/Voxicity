@@ -17,10 +17,22 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package voxicity;
+package voxicity.scene;
 
-class ChunkNode : public Node
+import voxicity.Chunk;
+
+public class ChunkNode extends Node
 {
+	Chunk chunk;
 
+	void clean_self()
+	{
+
+	}
+
+	void render_self()
+	{
+
+	}
 }
 
