@@ -86,6 +86,8 @@ public abstract class Node
 	{
 		if ( !has_child( child ) )
 			children.add( child );
+			child.parent = this;
+			mark();
 	}
 
 	public void remove_child( Node child )
@@ -94,6 +96,10 @@ public abstract class Node
 
 		while ( iter.hasNext() )
 			if ( iter.next() == child )
+			{
 				iter.remove();
+				child.parent = null;
+				mark();
+			}
 	}
 }

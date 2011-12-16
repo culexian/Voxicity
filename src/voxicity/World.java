@@ -23,15 +23,21 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+
 import org.lwjgl.util.vector.Vector3f;
+
+import voxicity.scene.WorldNode;
 
 public class World
 {
 	// Chunk lookup map
 	Map< Collection< Integer >, Chunk > chunks = new HashMap< Collection< Integer >, Chunk >();
 
+	WorldNode node;
+
 	public World()
 	{
+		node = new WorldNode( this );
 		set_chunk( 0, 0, 0, new Chunk( 0, 0, 0 ) );
 	}
 
@@ -51,6 +57,7 @@ public class World
 
 	public void set_chunk( int x, int y, int z, Chunk chunk )
 	{
+		node.add_child( chunk.node );
 		chunks.put( get_chunk_id( x, y, z ), chunk );
 	}
 

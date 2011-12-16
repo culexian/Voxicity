@@ -238,6 +238,7 @@ public class Voxicity
 		floating_block.render();
 
 		world.render();
+		scene_root.clean();
 		scene_root.render();
 
 		Display.update();

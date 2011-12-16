@@ -22,14 +22,13 @@ package voxicity;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Color;
 
-import voxicity.scene.Node;
 import voxicity.scene.ChunkNode;
 
 public class Chunk
 {
 	int x, y, z;
 
-	Node node;
+	ChunkNode node;
 
 	Block[] blocks = new Block[Constants.Chunk.block_number];
 
