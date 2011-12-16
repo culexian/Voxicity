@@ -90,7 +90,7 @@ public class Voxicity
 		setup_camera();
 		Mouse.setGrabbed( true );
 		world = new World();
-		scene_root = new WorldNode( world );
+		scene_root = world.node;
 
 		floating_block = new Block( 0, 0, 0 );
 
@@ -237,7 +237,7 @@ public class Voxicity
 
 		floating_block.render();
 
-		world.render();
+		//world.render();
 		scene_root.clean();
 		scene_root.render();
 
@@ -491,22 +491,22 @@ public class Voxicity
 	{
 		if ( world.get_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z ) == null )
 		{
-			System.out.println( "Tried to place a block!" );
+			//System.out.println( "Tried to place a block!" );
 			world.set_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z, new Block() );
 		}
-		else
-			System.out.println( "Block was already present! x:" + place_loc.x + " y:" + place_loc.y + " z:" + place_loc.z );
+		//else
+			//System.out.println( "Block was already present! x:" + place_loc.x + " y:" + place_loc.y + " z:" + place_loc.z );
 	}
 
 	void remove_block()
 	{
 		if ( world.get_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z ) != null )
 		{
-			System.out.println( "Tried to remove a block!" );
+			//System.out.println( "Tried to remove a block!" );
 			world.set_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z, null );
 		}
-		else
-			System.out.println( "No block was there!" );
+		//else
+			//System.out.println( "No block was there!" );
 	}
 
 	public static void main( String[] args )

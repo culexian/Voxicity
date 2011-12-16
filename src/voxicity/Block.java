@@ -61,9 +61,9 @@ public class Block
 		this.index_buf = int_buf.get(1);
 		this.tex_buffer = int_buf.get(2);
 
-		gen_vert_buffer();
-		gen_index_buffer();
-		gen_tex_buffer();
+		//gen_vert_buffer();
+		//gen_index_buffer();
+		//gen_tex_buffer();
 	}
 
 	public void render()

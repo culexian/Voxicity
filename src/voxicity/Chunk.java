@@ -30,7 +30,7 @@ public class Chunk
 
 	ChunkNode node;
 
-	Block[] blocks = new Block[Constants.Chunk.block_number];
+	public Block[] blocks = new Block[Constants.Chunk.block_number];
 
 	public Chunk( int x, int y, int z )
 	{
@@ -40,9 +40,10 @@ public class Chunk
 
 		System.out.println( "Created chunk at " + x + " " + y + " " + z );
 
-		generate_blocks();
-
 		node = new ChunkNode( this );
+		node.set_pos( this.x, this.y, this.z );
+
+		generate_blocks();
 	}
 
 	public int get_block_pos( int x, int y, int z )
@@ -83,6 +84,7 @@ public class Chunk
 		}
 
 		blocks[block_pos] = block;
+		node.mark();
 	}
 
 	public void render()

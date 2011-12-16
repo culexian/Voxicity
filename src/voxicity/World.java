@@ -38,7 +38,6 @@ public class World
 	public World()
 	{
 		node = new WorldNode( this );
-		set_chunk( 0, 0, 0, new Chunk( 0, 0, 0 ) );
 	}
 
 	public Chunk get_chunk( int x, int y, int z )

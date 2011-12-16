@@ -85,9 +85,11 @@ public abstract class Node
 	public void add_child( Node child )
 	{
 		if ( !has_child( child ) )
+		{
 			children.add( child );
 			child.parent = this;
 			mark();
+		}
 	}
 
 	public void remove_child( Node child )
@@ -101,5 +103,12 @@ public abstract class Node
 				child.parent = null;
 				mark();
 			}
+	}
+
+	public void set_pos( float x, float y, float z )
+	{
+		pos.x = x;
+		pos.y = y;
+		pos.z = z;
 	}
 }

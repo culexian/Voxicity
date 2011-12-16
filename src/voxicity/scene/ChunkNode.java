@@ -21,6 +21,8 @@ package voxicity.scene;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
@@ -29,14 +31,16 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.vector.Vector3f;
 
+import voxicity.Block;
 import voxicity.Chunk;
+import voxicity.Constants;
 import voxicity.TextureManager;
 
 public class ChunkNode extends Node
 {
-	int vert_buf;
 	int index_buf;
 	int tex_buf;
+	int vert_buf;
 	int num_elements;
 
 	int block_tex;
@@ -45,6 +49,8 @@ public class ChunkNode extends Node
 
 	public ChunkNode( Chunk chunk )
 	{
+		dirty = true;
+
 		this.chunk = chunk;
 		block_tex = TextureManager.get_texture( "textures/dirt.png" );
 
@@ -60,7 +66,49 @@ public class ChunkNode extends Node
 
 	void clean_self()
 	{
+		System.out.println( "Got here!" );
+		int offset = 0;
+		FloatBuffer verts = BufferUtils.createFloatBuffer( 3 * 24 * Constants.Chunk.block_number );
+		FloatBuffer tex_coords = BufferUtils.createFloatBuffer( 2 * 24 * Constants.Chunk.block_number );
+		IntBuffer indices = BufferUtils.createIntBuffer( 24 * Constants.Chunk.block_number );
 
+		for ( Block block : chunk.blocks )
+		{
+			if ( block != null )
+			{
+				FloatBuffer block_verts = block.gen_clean_vert_nio();
+				while ( block_verts.hasRemaining() )
+					verts.put( block_verts.get() );
+
+				FloatBuffer block_tex = block.gen_tex_nio();
+				while ( block_tex.hasRemaining() )
+					tex_coords.put( block_tex.get() );
+
+				IntBuffer block_indices = block.gen_index_nio();
+				while ( block_indices.hasRemaining() )
+					indices.put( block_indices.get() + offset );
+
+				offset += block_indices.limit();
+			}
+		}
+
+		verts.limit( verts.position() ).rewind();
+		tex_coords.limit( tex_coords.position() ).rewind();
+		indices.limit( indices.position() ).rewind();
+		num_elements = offset;
+		System.out.println( verts.limit() + " " + tex_coords.limit() + " " + indices.limit() );
+
+		// Pass the buffer to a VBO
+		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, vert_buf );
+		GL15.glBufferData( GL15.GL_ARRAY_BUFFER, verts, GL15.GL_STATIC_DRAW );
+
+		// Pass the buffer to a VBO
+		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, tex_buf );
+		GL15.glBufferData( GL15.GL_ARRAY_BUFFER, tex_coords, GL15.GL_STATIC_DRAW );
+
+		// Pass the buffer to an IBO
+		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, index_buf );
+		GL15.glBufferData( GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW );
 	}
 
 	void render_self()
