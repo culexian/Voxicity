@@ -3,7 +3,7 @@ all:
 	jar cvfme Voxicity.jar Manifest.mf voxicity.Voxicity -C src/ .
 
 test:
-	java -jar Voxicity.jar voxicity.Voxicity
+	java -Djava.library.path=native/linux -jar Voxicity.jar voxicity.Voxicity
 
 pack:
 	
