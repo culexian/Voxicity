@@ -520,8 +520,6 @@ public class Voxicity
 	{
 		try
 		{
-			System.setProperty("sun.java2d.noddraw", "true");
-			System.setProperty("sun.java2d.opengl", "false");
 			File new_out = new File( "voxicity.log" );
 			System.setOut( new PrintStream( new_out ) );
 
