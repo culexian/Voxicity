@@ -109,22 +109,12 @@ public class Chunk
 			{
 				for ( int z = 0 ; z < Constants.Chunk.side_length ; z++ )
 				{
-					if ( y < 1 )
+					if ( (y + this.y) > Math.max( 0.001f * (x + this.x)*(x + this.x) , 0.001f * (z + this.z)*(z + this.z) ) )
+						set_block( x, y, z, null );
+					else
 						set_block( x, y, z, new Block( x, y, z ) );
 				}
 			}
-		}
-
-		for ( int x = 0 ; x < Constants.Chunk.side_length ; x++ )
-		{
-			set_block( x, 1, 0, new Block( x, 1, 0 ) );
-			set_block( x, 1, 31, new Block( x, 1, 31 ) );
-		}
-
-		for ( int z = 0 ; z < Constants.Chunk.side_length ; z++ )
-		{
-			set_block( 0, 1, z, new Block( 0, 1, z ) );
-			set_block( 31, 1, z, new Block( 31, 1, z ) );
 		}
 	}
 }
