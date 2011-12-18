@@ -76,8 +76,10 @@ public class Voxicity
 	{
 		try
 		{
+			System.out.println( "Intializing display" );
 			Display.setDisplayMode( new DisplayMode( 800, 600 ) );
 			Display.create();
+			System.out.println( "Display created" );
 		}
 		catch ( LWJGLException e )
 		{
@@ -94,6 +96,7 @@ public class Voxicity
 
 		floating_block = new Block( 0, 0, 0 );
 
+		System.out.println( "Setting up OpenGL states" );
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
 		GL11.glEnable( GL11.GL_TEXTURE_2D );
@@ -105,6 +108,7 @@ public class Voxicity
 
 			is_close_requested |= Display.isCloseRequested();
 		}
+			System.out.println( "Destroying display" );
 			Display.destroy();
 	}
 
@@ -267,9 +271,9 @@ public class Voxicity
 		GLU.gluPerspective( 45.0f, 1.333f, 0.1f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
-		camera[0] = 5;
+		camera[0] = 16;
 		camera[1] = 20;
-		camera[2] = 5;
+		camera[2] = 16;
 		rot_x = 180;
 		rot_y = 0;
 	}
@@ -509,12 +513,19 @@ public class Voxicity
 			//System.out.println( "No block was there!" );
 	}
 
+	void get_system_info()
+	{
+		
+	}
+
 	public static void main( String[] args )
 	{
 		try
 		{
+			System.setProperty("sun.java2d.noddraw", "true");
+			System.setProperty("sun.java2d.opengl", "false");
 			File new_out = new File( "voxicity.log" );
-			//System.setOut( new PrintStream( new_out ) );
+			System.setOut( new PrintStream( new_out ) );
 
 			Voxicity voxy = new Voxicity();
 			voxy.init();

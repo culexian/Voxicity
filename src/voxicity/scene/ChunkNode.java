@@ -29,6 +29,7 @@ import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.OpenGLException;
 import org.lwjgl.util.vector.Vector3f;
 
 import voxicity.Block;
@@ -99,16 +100,48 @@ public class ChunkNode extends Node
 		System.out.println( verts.limit() + " " + tex_coords.limit() + " " + indices.limit() );
 
 		// Pass the buffer to a VBO
+		System.out.println( "Binding vertex buffer" );
+		System.out.flush();
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, vert_buf );
+		gl_error_test();
+		System.out.println( "Setting buffer data" );
+		System.out.flush();
 		GL15.glBufferData( GL15.GL_ARRAY_BUFFER, verts, GL15.GL_STATIC_DRAW );
+		gl_error_test();
+		System.out.println( "Vertex buffer data set" );
+		System.out.flush();
+
+
+		System.out.println( "Size of vertex buffer is: " + GL15.glGetBufferParameter( GL15.GL_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE ) );
 
 		// Pass the buffer to a VBO
+		System.out.println( "Binding tex coord buffer" );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, tex_buf );
+		gl_error_test();
+		System.out.println( "Setting buffer data" );
 		GL15.glBufferData( GL15.GL_ARRAY_BUFFER, tex_coords, GL15.GL_STATIC_DRAW );
+		gl_error_test();
+
+		System.out.println( "Size of tex coord buffer is: " + GL15.glGetBufferParameter( GL15.GL_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE ) );
 
 		// Pass the buffer to an IBO
+		System.out.println( "Binding index buffer" );
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, index_buf );
+		gl_error_test();
+		System.out.println( "Setting buffer data" );
 		GL15.glBufferData( GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW );
+		gl_error_test();
+
+		System.out.println( "Size of index buffer is: " + GL15.glGetBufferParameter( GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE ) );
+	}
+
+	void gl_error_test()
+	{
+		int err_code = GL11.glGetError();
+		if ( err_code != GL11.GL_NO_ERROR )
+		{
+			throw new OpenGLException( err_code );
+		}
 	}
 
 	void render_self()
