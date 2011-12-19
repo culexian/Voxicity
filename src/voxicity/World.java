@@ -98,12 +98,4 @@ public class World
 		Vector3f.add( box.pos, new Vector3f( chunk[0], chunk[1], chunk[2] ), box.pos );
 		return box;
 	}
-
-	public void render()
-	{
-		for ( Chunk chunk : chunks.values() )
-		{
-			chunk.render();
-		}
-	}
 }

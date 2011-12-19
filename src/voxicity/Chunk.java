@@ -19,9 +19,6 @@
 
 package voxicity;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.Color;
-
 import voxicity.scene.ChunkNode;
 
 public class Chunk
@@ -85,20 +82,6 @@ public class Chunk
 
 		blocks[block_pos] = block;
 		node.mark();
-	}
-
-	public void render()
-	{
-		GL11.glPushMatrix();
-		GL11.glTranslatef( x, y, z );
-
-		for ( Block block : blocks )
-		{
-			if ( block != null )
-				block.render();
-		}
-
-		GL11.glPopMatrix();
 	}
 
 	public void generate_blocks()
