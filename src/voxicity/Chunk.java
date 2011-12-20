@@ -92,8 +92,8 @@ public class Chunk
 			{
 				for ( int z = 0 ; z < Constants.Chunk.side_length ; z++ )
 				{
-					System.out.println( "Perlin value - " + Noise.perlin( 1, x / 10.0f, y / 10.0f, z / 10.0f ) );
-					if ( Noise.perlin( 1, x / 10.0f, y / 10.0f, z / 10.0f ) > 0 )
+					System.out.println( "Perlin value - " + Noise.perlin( 0, ( this.x + x) / 10.0f, (this.y + y) / 10.0f, (this.z + z) / 10.0f ) );
+					if ( Noise.perlin( 0, (this.x + x) / 10.0f, (this.y + y) / 10.0f, (this.z + z) / 10.0f ) > -0.00 )
 						set_block( x, y, z, null );
 					else
 						set_block( x, y, z, new Block( x, y, z ) );

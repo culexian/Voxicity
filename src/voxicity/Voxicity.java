@@ -63,7 +63,7 @@ public class Voxicity
 
 	boolean is_close_requested = false;
 	boolean jumping = true;
-	boolean flying = false;
+	boolean flying = true;
 
 	Node scene_root;
 	World world;
@@ -75,7 +75,7 @@ public class Voxicity
 		try
 		{
 			System.out.println( "Intializing display" );
-			Display.setDisplayMode( new DisplayMode( 800, 600 ) );
+			Display.setDisplayMode( new DisplayMode( 1000, 800 ) );
 			Display.create();
 			System.out.println( "Display created" );
 		}
@@ -99,6 +99,9 @@ public class Voxicity
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
 		GL11.glEnable( GL11.GL_TEXTURE_2D );
 
+		init_first_chunks();
+		scene_root.clean();
+
 		while ( !is_close_requested )
 		{
 			update( get_time_delta() / 1000.0f );
@@ -108,6 +111,16 @@ public class Voxicity
 		}
 			System.out.println( "Destroying display" );
 			Display.destroy();
+	}
+
+	void init_first_chunks()
+	{
+		for ( int x = -1 ; x < 1 ; x++ )
+			for ( int y = -1 ; y < 1 ; y++ )
+				for ( int z = -1 ; z < 1 ; z++ )
+				{
+					world.get_chunk( x * Constants.Chunk.side_length, y * Constants.Chunk.side_length, z * Constants.Chunk.side_length );
+				}
 	}
 
 	int get_time_delta()
@@ -267,9 +280,9 @@ public class Voxicity
 		GLU.gluPerspective( 45.0f, 1.333f, 0.1f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
-		camera[0] = 16;
-		camera[1] = 20;
-		camera[2] = 16;
+		camera[0] = 10;
+		camera[1] = 05;
+		camera[2] = 10;
 		rot_x = 180;
 		rot_y = 0;
 	}
