@@ -65,8 +65,6 @@ public class Voxicity
 	boolean jumping = true;
 	boolean flying = false;
 
-	List<Block> block_list = new ArrayList<Block>();
-
 	Node scene_root;
 	World world;
 

@@ -20,7 +20,6 @@
 
 package voxicity;
 
-import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.BufferUtils;
 import java.nio.IntBuffer;
 import java.nio.FloatBuffer;

@@ -92,7 +92,8 @@ public class Chunk
 			{
 				for ( int z = 0 ; z < Constants.Chunk.side_length ; z++ )
 				{
-					if ( (y + this.y) > Math.max( 0.001f * (x + this.x)*(x + this.x) , 0.001f * (z + this.z)*(z + this.z) ) )
+					System.out.println( "Perlin value - " + Noise.perlin( 1, x / 10.0f, y / 10.0f, z / 10.0f ) );
+					if ( Noise.perlin( 1, x / 10.0f, y / 10.0f, z / 10.0f ) > 0 )
 						set_block( x, y, z, null );
 					else
 						set_block( x, y, z, new Block( x, y, z ) );
