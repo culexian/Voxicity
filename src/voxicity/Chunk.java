@@ -93,11 +93,11 @@ public class Chunk
 				for ( int z = 0 ; z < Constants.Chunk.side_length ; z++ )
 				{
 					double noise = Noise.perlin( 0, (this.x + x) / 10.0f, (this.y + y) / 10.0f, (this.z + z) / 10.0f );
-					double height_factor = Noise.perlin( 0, ( this.x + x ) / 10.0f, 0, ( this.z + z ) / 10.0f );
+					double height_factor = Noise.perlin( 0, ( this.x + x ) / 1000.0f, 0, ( this.z + z ) / 1000.0f );
 
 
 					System.out.println( "Height factor: " + height_factor );
-					if ( height_factor * 10 < ( this.y + y ) )
+					if ( ( height_factor * 1000 + noise * 5 < ( this.y + y ) ) )
 						set_block( x, y, z, null );
 					else
 						set_block( x, y, z, new Block( x, y, z ) );

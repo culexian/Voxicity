@@ -63,7 +63,7 @@ public class Voxicity
 
 	boolean is_close_requested = false;
 	boolean jumping = true;
-	boolean flying = true;
+	boolean flying = false;
 
 	Node scene_root;
 	World world;
@@ -85,8 +85,6 @@ public class Voxicity
 			System.exit(0);
 		}
 
-		last_fps_update = get_time_ms();
-		get_time_delta();
 		setup_camera();
 		Mouse.setGrabbed( true );
 		world = new World();
@@ -101,6 +99,9 @@ public class Voxicity
 
 		init_first_chunks();
 		scene_root.clean();
+
+		last_fps_update = get_time_ms();
+		get_time_delta();
 
 		while ( !is_close_requested )
 		{
@@ -160,16 +161,16 @@ public class Voxicity
 			float z_move = 0;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
-				x_move -= 3;
+				x_move -= 5;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
-				x_move += 3;
+				x_move += 5;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
-				z_move -= 3;
+				z_move -= 5;
 
 			if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
-				z_move += 3;
+				z_move += 5;
 
 			if ( flying )
 			{
