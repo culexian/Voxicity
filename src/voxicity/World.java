@@ -80,6 +80,11 @@ public class World
 		return loc.get_block();
 	}
 
+	public Block get_block( float x, float y, float z )
+	{
+		return get_block( Math.round( x ), Math.round( y ), Math.round( z ) );
+	}
+
 	public void set_block( int x, int y, int z, Block block )
 	{
 		BlockLoc loc = new BlockLoc( x, y, z, this );

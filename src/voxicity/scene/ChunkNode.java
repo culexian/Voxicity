@@ -19,6 +19,8 @@
 
 package voxicity.scene;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
@@ -29,6 +31,7 @@ import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.OpenGLException;
 import org.lwjgl.opengl.Util;
 import org.lwjgl.util.vector.Vector3f;
@@ -49,6 +52,8 @@ public class ChunkNode extends Node
 
 	Chunk chunk;
 
+	static int shader_prog;
+
 	public ChunkNode( Chunk chunk )
 	{
 		dirty = true;
@@ -64,6 +69,9 @@ public class ChunkNode extends Node
 		this.tex_buf = int_buf.get(2);
 
 		this.num_elements = 0;
+
+		if ( shader_prog == 0 )
+			create_shader_prog();
 	}
 
 	void clean_self()
@@ -134,6 +142,9 @@ public class ChunkNode extends Node
 
 	void render_self()
 	{
+		if ( shader_prog != 0 )
+			GL20.glUseProgram( shader_prog );
+
 		// Bind VBO to vertex pointer
 		GL11.glEnableClientState( GL11.GL_VERTEX_ARRAY );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, vert_buf );
@@ -160,6 +171,137 @@ public class ChunkNode extends Node
 
 		// Disable Vertex pointer
 		GL11.glDisableClientState( GL11.GL_VERTEX_ARRAY );
+
+		// Disable the shader once more
+		if ( shader_prog != 0 )
+			GL20.glUseProgram( 0 );
+	}
+
+	void create_shader_prog()
+	{
+		shader_prog = GL20.glCreateProgram();
+
+		int vert_shader = create_vert_shader( "shader/block.vert" );
+		int frag_shader = create_frag_shader( "shader/block.frag" );
+
+		GL20.glAttachShader( shader_prog, vert_shader );
+		GL20.glAttachShader( shader_prog, frag_shader );
+		GL20.glLinkProgram( shader_prog );
+
+		if ( check_shader_error( shader_prog ) )
+		{
+			GL20.glDeleteProgram( shader_prog );
+			shader_prog = 0;
+		}
+
+		GL20.glUseProgram( shader_prog );
+
+		int uniform;
+		if ( ( uniform = GL20.glGetUniformLocation( shader_prog, "textures" ) ) != -1 )
+		{
+			
+			GL11.glBindTexture( GL11.GL_TEXTURE_2D, block_tex );
+			GL20.glUniform1i( uniform, 0 );
+			GL11.glBindTexture( GL11.GL_TEXTURE_2D, 0 );
+		}
+
+		System.out.println( "Textures at: " + GL20.glGetUniformLocation( shader_prog, "textures" ) );
+
+		GL20.glUseProgram( 0 );
+	}
+
+	int create_vert_shader( String filename )
+	{
+		int shader = GL20.glCreateShader( GL20.GL_VERTEX_SHADER );
+
+		String code_text = "";
+		String line;
+		try
+		{
+			BufferedReader reader=new BufferedReader(new FileReader(filename));
+			while ( ( line = reader.readLine() ) != null )
+			{
+				code_text += line + "\n";
+			}
+		}
+		catch ( Exception e )
+		{
+			System.out.println( "Reading vertex shader code failed" );
+			e.printStackTrace();
+		}
+
+		GL20.glShaderSource( shader, code_text );
+
+		GL20.glCompileShader( shader );
+
+		System.out.println( "Compiling vertex shader: " + filename );
+		if ( GL20.glGetShader( shader, GL20.GL_COMPILE_STATUS ) == GL11.GL_FALSE )
+		{
+			print_shader_log( shader );
+		}
+
+		if ( check_shader_error( shader ) )
+		{
+			GL20.glDeleteShader( shader );
+			shader = 0;
+		}
+
+		return shader;
+	}
+
+	int create_frag_shader( String filename )
+	{
+		int shader = GL20.glCreateShader( GL20.GL_FRAGMENT_SHADER );
+
+		String code_text = "";
+		String line;
+		try
+		{
+			BufferedReader reader=new BufferedReader(new FileReader(filename));
+			while ( ( line = reader.readLine() ) != null )
+			{
+				code_text += line + "\n";
+			}
+		}
+		catch ( Exception e )
+		{
+			System.out.println( "Reading vertex shader code failed" );
+			e.printStackTrace();
+		}
+
+		GL20.glShaderSource( shader, code_text );
+
+		System.out.println( "Compiling fragment shader: " + filename );
+		GL20.glCompileShader( shader );
+
+		if ( GL20.glGetShader( shader, GL20.GL_COMPILE_STATUS ) == GL11.GL_FALSE )
+		{
+			print_shader_log( shader );
+		}
+
+		if ( check_shader_error( shader ) )
+		{
+			GL20.glDeleteShader( shader );
+			shader = 0;
+		}
+
+		return shader;
+	}
+
+	boolean check_shader_error( int shader )
+	{
+		return false;
+	}
+
+	static void print_shader_log( int shader )
+	{
+		IntBuffer log_length = BufferUtils.createIntBuffer(1);
+		GL20.glGetShader( shader, GL20.GL_INFO_LOG_LENGTH, log_length );
+
+		if ( log_length.get(0) > 1 )
+		{
+			System.out.println( "Shader log:\n" + GL20.glGetShaderInfoLog( shader, log_length.get(0) ) );
+			
+		}
 	}
 }
-

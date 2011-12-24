@@ -27,7 +27,10 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.EXTTextureArray;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Matrix3f;
@@ -63,7 +66,7 @@ public class Voxicity
 
 	boolean is_close_requested = false;
 	boolean jumping = true;
-	boolean flying = false;
+	boolean flying = true;
 
 	Node scene_root;
 	World world;
@@ -97,7 +100,12 @@ public class Voxicity
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
 		GL11.glEnable( GL11.GL_TEXTURE_2D );
 
-		init_first_chunks();
+		System.out.println( "Checking for GL_TEXTURE_2D_ARRAY_EXT: " + GLContext.getCapabilities().GL_EXT_texture_array );
+		GL11.glEnable( EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT );
+
+		System.out.println( GL11.glGetInteger( GL13.GL_MAX_TEXTURE_UNITS ) );
+
+//		load_chunks();
 		scene_root.clean();
 
 		last_fps_update = get_time_ms();
@@ -114,13 +122,13 @@ public class Voxicity
 			Display.destroy();
 	}
 
-	void init_first_chunks()
+	void load_chunks()
 	{
-		for ( int x = -1 ; x < 1 ; x++ )
-			for ( int y = -1 ; y < 1 ; y++ )
-				for ( int z = -1 ; z < 1 ; z++ )
+		for ( int x = -2 ; x < 3 ; x++ )
+			for ( int y = -2 ; y < 3 ; y++ )
+				for ( int z = -2 ; z < 3 ; z++ )
 				{
-					world.get_chunk( x * Constants.Chunk.side_length, y * Constants.Chunk.side_length, z * Constants.Chunk.side_length );
+					world.get_block( camera[0] + Constants.Chunk.side_length * x, camera[1] + Constants.Chunk.side_length * y, camera[2] + Constants.Chunk.side_length * z );
 				}
 	}
 
@@ -135,6 +143,8 @@ public class Voxicity
 
 	void update( float delta )
 	{
+//		load_chunks();
+
 		//Store the new last position
 		last_pos.set( camera[0], camera[1], camera[2] );
 
@@ -284,7 +294,7 @@ public class Voxicity
 		camera[0] = 10;
 		camera[1] = 50;
 		camera[2] = 10;
-		rot_x = 180;
+		rot_x = 0;
 		rot_y = 0;
 	}
 

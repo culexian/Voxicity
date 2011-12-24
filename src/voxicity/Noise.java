@@ -30,14 +30,10 @@ public class Noise
 		int Y = (int)Math.floor(y);
 		int Z = (int)Math.floor(z);
 
-		System.out.println( X + " " + Y + " " + Z );
-
 		/* Extract the less significant part of the decimal */
 		x -= Math.floor(x);
 		y -= Math.floor(y);
 		z -= Math.floor(z);
-
-		System.out.println( x + " " + y + " " + z );
 
 		/* Get fade values for each coord */
 		double u = fade(x);
@@ -51,8 +47,6 @@ public class Noise
 		int B = first_rand( seed + X + 1 ) + Y;
 		int BA = first_rand( seed + B ) + Z;
 		int BB = first_rand( seed + B + 1 ) + Z;
-
-		System.out.println( "A " + A + " AA " + AA + " AB " + AB + " B " + B + " BA " + BA + " BB " + BB );
 
 		return lerp( w, lerp( v, lerp( u, grad( first_rand(AA), x, y, z),
 		                         grad( first_rand(BA), x - 1, y, z ) ),
