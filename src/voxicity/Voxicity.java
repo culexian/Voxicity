@@ -105,7 +105,7 @@ public class Voxicity
 
 		System.out.println( GL11.glGetInteger( GL13.GL_MAX_TEXTURE_UNITS ) );
 
-//		load_chunks();
+		load_chunks();
 		scene_root.clean();
 
 		last_fps_update = get_time_ms();
@@ -143,7 +143,7 @@ public class Voxicity
 
 	void update( float delta )
 	{
-//		load_chunks();
+		load_chunks();
 
 		//Store the new last position
 		last_pos.set( camera[0], camera[1], camera[2] );
