@@ -78,7 +78,7 @@ public class Voxicity
 		try
 		{
 			System.out.println( "Intializing display" );
-			Display.setDisplayMode( new DisplayMode( 1000, 800 ) );
+			Display.setDisplayMode( new DisplayMode( 1200, 720 ) );
 			Display.create();
 			System.out.println( "Display created" );
 		}
