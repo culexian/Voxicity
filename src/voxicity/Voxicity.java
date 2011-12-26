@@ -128,13 +128,12 @@ public class Voxicity
 
 	void load_chunks()
 	{
-/*		for ( int x = -2 ; x < 3 ; x++ )
+		for ( int x = -2 ; x < 3 ; x++ )
 			for ( int y = -2 ; y < 3 ; y++ )
 				for ( int z = -2 ; z < 3 ; z++ )
 				{
 					world.get_block( camera[0] + Constants.Chunk.side_length * x, camera[1] + Constants.Chunk.side_length * y, camera[2] + Constants.Chunk.side_length * z );
 				}
-*/
 	}
 
 	int get_time_delta()
@@ -293,7 +292,7 @@ public class Voxicity
 	{
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GLU.gluPerspective( 45.0f, 1.333f, 0.1f, 10000f );
+		GLU.gluPerspective( 45.0f, 1200 / 720.0f, 0.1f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		camera[0] = 10;
