@@ -17,21 +17,18 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 package voxicity;
 
-public class Constants
+class Stone extends Block
 {
-	public static class Chunk
 	{
-		public static final Integer
-			side_length = 16,
-			block_number = side_length * side_length * side_length;
+		id = Constants.Blocks.stone;
+		tex = TextureManager.get_texture( "textures/stone.png" );
 	}
 
-	public static class Blocks
+	public Stone( int x, int y, int z )
 	{
-		public static final Integer
-			dirt = 0,
-			stone = 1;
+		super( x, y, z );
 	}
 }

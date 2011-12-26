@@ -23,8 +23,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
@@ -43,32 +45,43 @@ import voxicity.TextureManager;
 
 public class ChunkNode extends Node
 {
-	int index_buf;
 	int tex_buf;
 	int vert_buf;
-	int num_elements;
 
 	int block_tex;
 
 	Chunk chunk;
 
+	List<Batch> batches = new ArrayList<Batch>();
+
 	static int shader_prog;
+
+	private class Batch
+	{
+		public final int tex;
+		public final int indices;
+		public final int num_elements;
+
+		public Batch( int tex, int indices, int num_elements )
+		{
+			this.tex = tex;
+			this.indices = indices;
+			this.num_elements = num_elements;
+		}
+	}
 
 	public ChunkNode( Chunk chunk )
 	{
 		dirty = true;
 
 		this.chunk = chunk;
-		block_tex = TextureManager.get_texture( "textures/dirt.png" );
+		block_tex = TextureManager.get_texture( "textures/stone.png" );
 
-		IntBuffer int_buf = BufferUtils.createIntBuffer(3);
+		IntBuffer int_buf = BufferUtils.createIntBuffer(2);
 		GL15.glGenBuffers( int_buf );
 
 		this.vert_buf = int_buf.get(0);
-		this.index_buf = int_buf.get(1);
-		this.tex_buf = int_buf.get(2);
-
-		this.num_elements = 0;
+		this.tex_buf = int_buf.get(1);
 
 		if ( shader_prog == 0 )
 			create_shader_prog();
@@ -76,37 +89,36 @@ public class ChunkNode extends Node
 
 	void clean_self()
 	{
-		System.out.println( "Got here!" );
 		int offset = 0;
+		batches.clear();
 		FloatBuffer verts = BufferUtils.createFloatBuffer( 3 * 24 * Constants.Chunk.block_number );
 		FloatBuffer tex_coords = BufferUtils.createFloatBuffer( 2 * 24 * Constants.Chunk.block_number );
-		IntBuffer indices = BufferUtils.createIntBuffer( 24 * Constants.Chunk.block_number );
+
+		Map< Integer, IntBuffer> id_ind = new HashMap< Integer, IntBuffer >();
 
 		for ( Block block : chunk.blocks )
 		{
 			if ( block != null )
 			{
-				FloatBuffer block_verts = block.gen_clean_vert_nio();
-				while ( block_verts.hasRemaining() )
-					verts.put( block_verts.get() );
+				verts.put( block.gen_clean_vert_nio() );
+				tex_coords.put( block.gen_tex_nio() );
 
-				FloatBuffer block_tex = block.gen_tex_nio();
-				while ( block_tex.hasRemaining() )
-					tex_coords.put( block_tex.get() );
+				if ( !id_ind.containsKey( block.get_tex() ) )
+					id_ind.put( block.get_tex(), BufferUtils.createIntBuffer( 24 * Constants.Chunk.block_number ) );
+
+				IntBuffer ind_buf = id_ind.get( block.get_tex() );
 
 				IntBuffer block_indices = block.gen_index_nio();
 				while ( block_indices.hasRemaining() )
-					indices.put( block_indices.get() + offset );
+					ind_buf.put( block_indices.get() + offset );
 
-				offset += block_indices.limit();
+				offset += block_indices.position();
 			}
 		}
 
 		verts.limit( verts.position() ).rewind();
 		tex_coords.limit( tex_coords.position() ).rewind();
-		indices.limit( indices.position() ).rewind();
-		num_elements = offset;
-		System.out.println( verts.limit() + " " + tex_coords.limit() + " " + indices.limit() );
+		System.out.println( verts.limit() + " " + tex_coords.limit() );
 
 		// Pass the buffer to a VBO
 		System.out.println( "Binding vertex buffer" );
@@ -129,15 +141,25 @@ public class ChunkNode extends Node
 
 		System.out.println( "Size of tex coord buffer is: " + GL15.glGetBufferParameter( GL15.GL_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE ) );
 
-		// Pass the buffer to an IBO
-		System.out.println( "Binding index buffer" );
-		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, index_buf );
-		Util.checkGLError();
-		System.out.println( "Setting buffer data" );
-		GL15.glBufferData( GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW );
-		Util.checkGLError();
+		for ( Map.Entry< Integer, IntBuffer > entry : id_ind.entrySet() )
+		{
+			entry.getValue().limit( entry.getValue().position() ).rewind();
 
-		System.out.println( "Size of index buffer is: " + GL15.glGetBufferParameter( GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE ) );
+			IntBuffer ibo = BufferUtils.createIntBuffer(1);
+			GL15.glGenBuffers( ibo );
+
+			if ( ibo.get(0) == 0 )
+				System.out.println( "Could not generate buffer object!" );
+
+			GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, ibo.get(0) );
+			Util.checkGLError();
+			GL15.glBufferData( GL15.GL_ELEMENT_ARRAY_BUFFER, entry.getValue(), GL15.GL_STATIC_DRAW );
+			Util.checkGLError();
+			System.out.println( "Size of index buffer is: " + GL15.glGetBufferParameter( GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE )  + " with " + entry.getValue().limit() + " indices" );
+
+			System.out.println( "Creating batch: " + entry.getKey() + " " + ibo.get(0) + " " + entry.getValue().limit() );
+			batches.add( new Batch( entry.getKey(), ibo.get(0), entry.getValue().limit() ) );
+		}
 	}
 
 	void render_self()
@@ -153,16 +175,21 @@ public class ChunkNode extends Node
 		// Bind the texture coord VBO to texture pointer
 		GL11.glEnableClientState( GL11.GL_TEXTURE_COORD_ARRAY );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, tex_buf );
-		GL11.glBindTexture( GL11.GL_TEXTURE_2D, block_tex );
 		GL11.glTexCoordPointer( 2, GL11.GL_FLOAT, 0, 0 );
 
-		// Bind index array
-		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, index_buf );
+		for ( Batch batch : batches )
+		{
+			// Bind the texture for this batch
+			GL11.glBindTexture( GL11.GL_TEXTURE_2D, batch.tex );
 
-		// Draw the block
-		GL12.glDrawRangeElements( GL11.GL_QUADS, 0, num_elements -1, num_elements, GL11.GL_UNSIGNED_INT, 0 );
+			// Bind index array
+			GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, batch.indices );
 
-		// Unbind both buffers
+			// Draw the block
+			GL12.glDrawRangeElements( GL11.GL_QUADS, 0, Constants.Chunk.block_number * 24 -1, batch.num_elements, GL11.GL_UNSIGNED_INT, 0 );
+		}
+
+		// Unbind all buffers
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
 
@@ -174,7 +201,7 @@ public class ChunkNode extends Node
 
 		// Disable the shader once more
 		if ( shader_prog != 0 )
-			GL20.glUseProgram( 0 );
+		GL20.glUseProgram( 0 );
 	}
 
 	void create_shader_prog()

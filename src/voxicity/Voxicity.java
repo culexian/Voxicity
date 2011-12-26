@@ -30,6 +30,7 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.EXTTextureArray;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector3f;
@@ -103,7 +104,10 @@ public class Voxicity
 		System.out.println( "Checking for GL_TEXTURE_2D_ARRAY_EXT: " + GLContext.getCapabilities().GL_EXT_texture_array );
 		GL11.glEnable( EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT );
 
-		System.out.println( GL11.glGetInteger( GL13.GL_MAX_TEXTURE_UNITS ) );
+		System.out.println( "Number of texture units: " + GL11.glGetInteger( GL13.GL_MAX_TEXTURE_UNITS ) );
+		System.out.println( "Number of image texture units: " + GL11.glGetInteger( GL20.GL_MAX_TEXTURE_IMAGE_UNITS ) );
+		System.out.println( "Number of vertex texture units: " + GL11.glGetInteger( GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS ) );
+		System.out.println( "Number of combined vertex/image texture units: " + GL11.glGetInteger( GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS ) );
 
 		load_chunks();
 		scene_root.clean();
@@ -124,12 +128,13 @@ public class Voxicity
 
 	void load_chunks()
 	{
-		for ( int x = -2 ; x < 3 ; x++ )
+/*		for ( int x = -2 ; x < 3 ; x++ )
 			for ( int y = -2 ; y < 3 ; y++ )
 				for ( int z = -2 ; z < 3 ; z++ )
 				{
 					world.get_block( camera[0] + Constants.Chunk.side_length * x, camera[1] + Constants.Chunk.side_length * y, camera[2] + Constants.Chunk.side_length * z );
 				}
+*/
 	}
 
 	int get_time_delta()

@@ -26,8 +26,10 @@ import java.nio.FloatBuffer;
 
 public class Block
 {
-	int block_id = 0;
-	int block_data = 0;
+	int id = 0;
+	int data = 0;
+
+	int tex = TextureManager.get_texture( "textures/dirt.png" );
 
 	int pos_x,pos_y,pos_z;
 
@@ -41,6 +43,16 @@ public class Block
 		this.pos_x = pos_x;
 		this.pos_y = pos_y;
 		this.pos_z = pos_z;
+	}
+
+	public int get_id()
+	{
+		return id;
+	}
+
+	public int get_tex()
+	{
+		return tex;
 	}
 
 	float[] gen_vert_data()
