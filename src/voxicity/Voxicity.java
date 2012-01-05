@@ -100,6 +100,7 @@ public class Voxicity
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
 		GL11.glEnable( GL11.GL_TEXTURE_2D );
+		GL11.glClearColor( 0.66f, 1.0f, 1.0f, 1.0f );
 
 		System.out.println( "Checking for GL_TEXTURE_2D_ARRAY_EXT: " + GLContext.getCapabilities().GL_EXT_texture_array );
 		GL11.glEnable( EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT );
@@ -242,11 +243,11 @@ public class Voxicity
 			camera[2] += move_speed.z * delta;
 
 			// Add the directional vector to the camera vector
-			place_loc.set( sin_rot_x * cos_rot_y * 4 + camera[0], sin_rot_y * 4 + camera[1] + camera_offset, cos_rot_x * cos_rot_y * -4 + camera[2] );
+			place_loc.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
 
-			floating_block.pos_x = (int)place_loc.x;
-			floating_block.pos_y = (int)place_loc.y;
-			floating_block.pos_z = (int)place_loc.z;
+			floating_block.pos_x = (int)(place_loc.x + camera[0]);
+			floating_block.pos_y = (int)(place_loc.y + camera[1] + camera_offset);
+			floating_block.pos_z = (int)(place_loc.z + camera[2]);
 		}
 
 		check_collisions();
@@ -517,10 +518,11 @@ public class Voxicity
 
 	void place_block()
 	{
-		if ( world.get_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z ) == null )
+		Block block = world.get_block( place_loc.x, place_loc.y, place_loc.z );
+		if ( block == null )
 		{
 			//System.out.println( "Tried to place a block!" );
-			world.set_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z, new Block() );
+			world.set_block( place_loc.x, place_loc.y, place_loc.z, new Block() );
 		}
 		//else
 			//System.out.println( "Block was already present! x:" + place_loc.x + " y:" + place_loc.y + " z:" + place_loc.z );
@@ -528,10 +530,10 @@ public class Voxicity
 
 	void remove_block()
 	{
-		if ( world.get_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z ) != null )
+		if ( world.get_block( place_loc.x, place_loc.y, place_loc.z ) != null )
 		{
 			//System.out.println( "Tried to remove a block!" );
-			world.set_block( (int)place_loc.x, (int)place_loc.y, (int)place_loc.z, null );
+			world.set_block( place_loc.x, place_loc.y, place_loc.z, null );
 		}
 		//else
 			//System.out.println( "No block was there!" );
