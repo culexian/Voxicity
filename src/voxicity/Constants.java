@@ -34,4 +34,9 @@ public class Constants
 			dirt = 0,
 			stone = 1;
 	}
+
+	public enum Direction
+	{
+		North, East, South, West, Up, Down, All, None
+	}
 }

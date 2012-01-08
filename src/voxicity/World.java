@@ -91,6 +91,11 @@ public class World
 		loc.get_chunk().set_block( x, y, z, block );
 	}
 
+	public void set_block( float x, float y, float z, Block block )
+	{
+		set_block( Math.round( x ), Math.round( y ), Math.round( z ), block );
+	}
+
 	public AABB get_hit_box( int x, int y, int z )
 	{
 		Block block = get_block( x, y, z );

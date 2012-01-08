@@ -64,6 +64,7 @@ public class Voxicity
 	Vector3f move_speed = new Vector3f();
 
 	Vector3f place_loc = new Vector3f( 0, 0, 0 );
+	Vector3f look_vec = new Vector3f();
 
 	boolean is_close_requested = false;
 	boolean jumping = true;
@@ -133,7 +134,7 @@ public class Voxicity
 			for ( int y = -2 ; y < 3 ; y++ )
 				for ( int z = -2 ; z < 3 ; z++ )
 				{
-					world.get_block( camera[0] + Constants.Chunk.side_length * x, camera[1] + Constants.Chunk.side_length * y, camera[2] + Constants.Chunk.side_length * z );
+//					world.get_block( camera[0] + Constants.Chunk.side_length * x, camera[1] + Constants.Chunk.side_length * y, camera[2] + Constants.Chunk.side_length * z );
 				}
 	}
 
@@ -242,15 +243,17 @@ public class Voxicity
 			camera[1] += move_speed.y * delta;
 			camera[2] += move_speed.z * delta;
 
-			// Add the directional vector to the camera vector
-			place_loc.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
+			// Set the look vector
+			look_vec.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
 
-			floating_block.pos_x = (int)(place_loc.x + camera[0]);
-			floating_block.pos_y = (int)(place_loc.y + camera[1] + camera_offset);
-			floating_block.pos_z = (int)(place_loc.z + camera[2]);
+			floating_block.pos_x = (int)(look_vec.x + camera[0]);
+			floating_block.pos_y = (int)(look_vec.y + camera[1] + camera_offset);
+			floating_block.pos_z = (int)(look_vec.z + camera[2]);
 		}
 
 		check_collisions();
+
+		calc_place_loc();
 
 		update_fps();
 	}
@@ -297,7 +300,7 @@ public class Voxicity
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		camera[0] = 10;
-		camera[1] = 50;
+		camera[1] = 20;
 		camera[2] = 10;
 		rot_x = 0;
 		rot_y = 0;
@@ -516,6 +519,38 @@ public class Voxicity
 		}
 	}
 
+	void calc_place_loc()
+	{
+		float nearest_distance = Float.POSITIVE_INFINITY;
+		BlockLoc nearest_block = new BlockLoc( Math.round( camera[0] + look_vec.x ), Math.round( camera[1] + camera_offset + look_vec.y ), Math.round( camera[2] + look_vec.z ), world );
+
+		int x_incr = (int)Math.signum( look_vec.x );
+		int y_incr = (int)Math.signum( look_vec.y );
+		int z_incr = (int)Math.signum( look_vec.z );
+
+		for ( int x = Math.round( camera[0] ) ; x != Math.round( camera[0] + look_vec.x ) + x_incr ; x += x_incr)
+			for ( int y = Math.round( camera[1] + camera_offset ) ; y != Math.round( camera[1] + camera_offset + look_vec.y ) + y_incr ; y += y_incr )
+				for ( int z = Math.round( camera[2] ) ; z != Math.round( camera[2] + look_vec.z ) + z_incr ; z += z_incr )
+				{
+					AABB box = world.get_hit_box( x, y, z );
+
+					if ( box != null )
+					{
+						Float distance = box.collision_distance( new Vector3f( camera[0], camera[1] + camera_offset, camera[2] ), look_vec );
+						
+						if ( distance < nearest_distance )
+						{
+							nearest_distance = distance;
+							nearest_block.x = x;
+							nearest_block.y = y;
+							nearest_block.z = z;
+						}
+					}
+				}
+
+		place_loc.set( nearest_block.x, nearest_block.y, nearest_block.z );
+	}
+
 	void place_block()
 	{
 		Block block = world.get_block( place_loc.x, place_loc.y, place_loc.z );
@@ -523,6 +558,31 @@ public class Voxicity
 		{
 			//System.out.println( "Tried to place a block!" );
 			world.set_block( place_loc.x, place_loc.y, place_loc.z, new Block() );
+		}
+		else
+		{
+			switch( world.get_hit_box( Math.round(place_loc.x), Math.round(place_loc.y), Math.round(place_loc.z) ).collision_side( new Vector3f( camera[0], camera[1] + camera_offset, camera[2] ), look_vec ) )
+			{
+				case Up:
+					world.set_block( place_loc.x, place_loc.y + 1, place_loc.z, new Block() );
+					break;
+				case Down:
+					world.set_block( place_loc.x, place_loc.y - 1, place_loc.z, new Block() );
+					break;
+				case West:
+					world.set_block( place_loc.x - 1, place_loc.y, place_loc.z, new Block() );
+					break;
+				case East:
+					world.set_block( place_loc.x + 1, place_loc.y, place_loc.z, new Block() );
+					break;
+				case North:
+					world.set_block( place_loc.x, place_loc.y, place_loc.z + 1, new Block() );
+					break;
+				case South:
+					world.set_block( place_loc.x, place_loc.y, place_loc.z - 1, new Block() );
+					break;
+			}
+
 		}
 		//else
 			//System.out.println( "Block was already present! x:" + place_loc.x + " y:" + place_loc.y + " z:" + place_loc.z );
@@ -549,7 +609,7 @@ public class Voxicity
 		try
 		{
 			File new_out = new File( "voxicity.log" );
-			System.setOut( new PrintStream( new_out ) );
+			//System.setOut( new PrintStream( new_out ) );
 
 			Voxicity voxy = new Voxicity();
 			voxy.init();
