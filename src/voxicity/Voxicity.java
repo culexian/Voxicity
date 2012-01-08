@@ -51,6 +51,8 @@ public class Voxicity
 
 	long last_frame = 0;
 
+	long last_block_change = 0;
+
 	float rot_x;
 	float rot_y;
 	float mouse_speed = 2.0f;
@@ -551,8 +553,18 @@ public class Voxicity
 		place_loc.set( nearest_block.x, nearest_block.y, nearest_block.z );
 	}
 
+	boolean can_change_block()
+	{
+		return get_time_ms() - last_block_change > ( 1000 / 5 );
+	}
+
 	void place_block()
 	{
+		if ( can_change_block() )
+			last_block_change = get_time_ms();
+		else
+			return;
+
 		Block block = world.get_block( place_loc.x, place_loc.y, place_loc.z );
 		if ( block == null )
 		{
@@ -590,6 +602,11 @@ public class Voxicity
 
 	void remove_block()
 	{
+		if ( can_change_block() )
+			last_block_change = get_time_ms();
+		else
+			return;
+
 		if ( world.get_block( place_loc.x, place_loc.y, place_loc.z ) != null )
 		{
 			//System.out.println( "Tried to remove a block!" );
