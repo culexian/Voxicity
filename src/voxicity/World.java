@@ -30,6 +30,8 @@ import voxicity.scene.WorldNode;
 
 public class World
 {
+	ChunkServer chunk_server;
+
 	// Chunk lookup map
 	Map< Collection< Integer >, Chunk > chunks = new HashMap< Collection< Integer >, Chunk >();
 
@@ -38,6 +40,17 @@ public class World
 	public World()
 	{
 		node = new WorldNode( this );
+		chunk_server = new ChunkServer();
+	}
+
+	public void load_new_chunks()
+	{
+		Chunk new_chunk = chunk_server.get_next_chunk();
+
+		if ( new_chunk == null )
+			return;
+
+		set_chunk( new_chunk.x, new_chunk.y, new_chunk.z, new_chunk );
 	}
 
 	public Chunk get_chunk( int x, int y, int z )
@@ -49,9 +62,9 @@ public class World
 			return chunks.get( id );
 		}
 
-		set_chunk( x, y, z, new Chunk( id.get(0), id.get(1), id.get(2) ) );
+		chunk_server.load_chunk( id );
 
-		return chunks.get( id );
+		return null;
 	}
 
 	public void set_chunk( int x, int y, int z, Chunk chunk )

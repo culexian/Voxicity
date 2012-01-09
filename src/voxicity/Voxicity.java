@@ -122,6 +122,7 @@ public class Voxicity
 		while ( !is_close_requested )
 		{
 			update( get_time_delta() / 1000.0f );
+			world.load_new_chunks();
 			render();
 
 			is_close_requested |= Display.isCloseRequested();
@@ -136,7 +137,7 @@ public class Voxicity
 			for ( int y = -2 ; y < 3 ; y++ )
 				for ( int z = -2 ; z < 3 ; z++ )
 				{
-//					world.get_block( camera[0] + Constants.Chunk.side_length * x, camera[1] + Constants.Chunk.side_length * y, camera[2] + Constants.Chunk.side_length * z );
+					world.get_block( camera[0] + Constants.Chunk.side_length * x, camera[1] + Constants.Chunk.side_length * y, camera[2] + Constants.Chunk.side_length * z );
 				}
 	}
 
