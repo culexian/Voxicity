@@ -113,6 +113,8 @@ public class Voxicity
 		System.out.println( "Number of vertex texture units: " + GL11.glGetInteger( GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS ) );
 		System.out.println( "Number of combined vertex/image texture units: " + GL11.glGetInteger( GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS ) );
 
+		load_texture_pack();
+
 		load_chunks();
 		scene_root.clean();
 
@@ -127,8 +129,7 @@ public class Voxicity
 
 			is_close_requested |= Display.isCloseRequested();
 		}
-			System.out.println( "Destroying display" );
-			Display.destroy();
+			shutdown();
 	}
 
 	void load_chunks()
@@ -622,12 +623,25 @@ public class Voxicity
 		
 	}
 
+	void shutdown()
+	{
+		world.shutdown();
+		System.out.println( "Destroying display" );
+		Display.destroy();
+	}
+
+	void load_texture_pack()
+	{
+		TextureManager.get_texture( "textures/stone.png" );
+		TextureManager.get_texture( "textures/dirt.png" );
+	}
+
 	public static void main( String[] args )
 	{
 		try
 		{
 			File new_out = new File( "voxicity.log" );
-			//System.setOut( new PrintStream( new_out ) );
+			System.setOut( new PrintStream( new_out ) );
 
 			Voxicity voxy = new Voxicity();
 			voxy.init();

@@ -20,28 +20,76 @@
 package voxicity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChunkServer
 {
-	HashSet< ArrayList<Integer > > chunks_to_load = new HashSet< ArrayList<Integer> >();
+	HashMap< ArrayList<Integer>, Loader > chunk_loaders = new HashMap< ArrayList<Integer>, Loader >();
+	ExecutorService executor = Executors.newSingleThreadExecutor();
+
+	private class Loader implements Runnable
+	{
+		final ArrayList<Integer> id;
+		Chunk result;
+
+		public Loader( ArrayList<Integer> id )
+		{
+			this.id = id;
+		}
+
+		public void run()
+		{
+			Chunk new_chunk = new Chunk( id.get(0), id.get(1), id.get(2) );
+			result = new_chunk;
+		}
+
+		public Chunk result()
+		{
+			return result;
+		}
+	}
 
 	public void load_chunk( ArrayList<Integer> id )
 	{
-		chunks_to_load.add( id );
+		if ( chunk_loaders.containsKey( id ) )
+			return;
+
+		Loader new_loader = new Loader( id );
+		chunk_loaders.put( id, new_loader );
+		executor.execute( new_loader );
 	}
 
 	public Chunk get_next_chunk()
 	{
-		if ( chunks_to_load.isEmpty() )
+		if ( chunk_loaders.isEmpty() )
 			return null;
 
-		ArrayList<Integer> id = chunks_to_load.iterator().next();
+		Map.Entry< ArrayList<Integer>, Loader > entry = chunk_loaders.entrySet().iterator().next();
 
-		chunks_to_load.remove( id );
+		Loader loader = entry.getValue();
 
-		Chunk new_chunk = new Chunk( id.get(0), id.get(1), id.get(2) );
+		if ( entry.getValue() == null )
+		{
+			chunk_loaders.remove( entry.getKey() );
+			return null;
+		}
+		else
+		{
+			if ( loader.result() == null )
+				return null;
+			else
+			{
+				chunk_loaders.remove( entry.getKey() );
+				return loader.result();
+			}
+		}
+	}
 
-		return new_chunk;
+	public void shutdown()
+	{
+		executor.shutdownNow();
 	}
 }

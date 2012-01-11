@@ -50,11 +50,11 @@ public class ChunkNode extends Node
 
 	int block_tex;
 
-	Chunk chunk;
-
 	List<Batch> batches = new ArrayList<Batch>();
 
 	static int shader_prog;
+
+	Chunk chunk;
 
 	private class Batch
 	{
@@ -76,19 +76,28 @@ public class ChunkNode extends Node
 
 		this.chunk = chunk;
 		block_tex = TextureManager.get_texture( "textures/stone.png" );
-
-		IntBuffer int_buf = BufferUtils.createIntBuffer(2);
-		GL15.glGenBuffers( int_buf );
-
-		this.vert_buf = int_buf.get(0);
-		this.tex_buf = int_buf.get(1);
-
-		if ( shader_prog == 0 )
-			create_shader_prog();
 	}
 
 	void clean_self()
 	{
+
+		if ( vert_buf == 0 )
+		{
+			IntBuffer buf = BufferUtils.createIntBuffer(1);
+			GL15.glGenBuffers( buf );
+			vert_buf = buf.get(0);
+		}
+
+		if ( tex_buf == 0 )
+		{
+			IntBuffer buf = BufferUtils.createIntBuffer(1);
+			GL15.glGenBuffers( buf );
+			tex_buf = buf.get(0);
+		}
+
+		if ( shader_prog == 0 )
+			create_shader_prog();
+
 		int offset = 0;
 		batches.clear();
 		FloatBuffer verts = BufferUtils.createFloatBuffer( 3 * 24 * Constants.Chunk.block_number );
