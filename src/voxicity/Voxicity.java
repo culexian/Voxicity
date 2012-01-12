@@ -49,6 +49,8 @@ public class Voxicity
 	long last_fps_update = 0;
 	int fps_count = 0;
 
+	int fps = 0;
+
 	long last_frame = 0;
 
 	long last_block_change = 0;
@@ -92,6 +94,8 @@ public class Voxicity
 			System.exit(0);
 		}
 
+		TextRenderer.init();
+
 		setup_camera();
 		Mouse.setGrabbed( true );
 		world = new World();
@@ -103,6 +107,8 @@ public class Voxicity
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
 		GL11.glEnable( GL11.GL_TEXTURE_2D );
+		GL11.glEnable( GL11.GL_BLEND );
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glClearColor( 0.66f, 1.0f, 1.0f, 1.0f );
 
 		System.out.println( "Checking for GL_TEXTURE_2D_ARRAY_EXT: " + GLContext.getCapabilities().GL_EXT_texture_array );
@@ -264,6 +270,7 @@ public class Voxicity
 
 	void render()
 	{
+		
 		GL11.glLoadIdentity();
 		GL11.glRotatef( -rot_y, 1, 0, 0 );
 		GL11.glRotatef( rot_x, 0, 1, 0 );
@@ -277,6 +284,9 @@ public class Voxicity
 		scene_root.clean();
 		scene_root.render();
 
+		GL11.glLoadIdentity();
+		TextRenderer.draw( Integer.toString(fps), 0, 0 );
+
 		Display.update();
 	}
 
@@ -285,6 +295,7 @@ public class Voxicity
 		if ( get_time_ms() - last_fps_update > 1000 )
 		{
 			Display.setTitle( "FPS: " + fps_count );
+			fps = fps_count;
 			fps_count = 0;
 			last_fps_update += 1000;
 		}
@@ -303,9 +314,9 @@ public class Voxicity
 		GLU.gluPerspective( 45.0f, 1200 / 720.0f, 0.1f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
-		camera[0] = 10;
-		camera[1] = 20;
-		camera[2] = 10;
+		camera[0] = 0;
+		camera[1] = 0;
+		camera[2] = 0;
 		rot_x = 0;
 		rot_y = 0;
 	}

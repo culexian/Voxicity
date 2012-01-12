@@ -167,6 +167,9 @@ public class ChunkNode extends Node
 
 			System.out.println( "Creating batch: " + entry.getKey() + " " + ibo.get(0) + " " + entry.getValue().limit() );
 			batches.add( new Batch( entry.getKey(), ibo.get(0), entry.getValue().limit() ) );
+
+			GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
+			GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
 		}
 	}
 
@@ -195,7 +198,11 @@ public class ChunkNode extends Node
 
 			// Draw the block
 			GL12.glDrawRangeElements( GL11.GL_QUADS, 0, Constants.Chunk.block_number * 24 -1, batch.num_elements, GL11.GL_UNSIGNED_INT, 0 );
+
 		}
+
+		// Unbind the texture
+		GL11.glBindTexture( GL11.GL_TEXTURE_2D, 0 );
 
 		// Unbind all buffers
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
@@ -234,10 +241,9 @@ public class ChunkNode extends Node
 		int uniform;
 		if ( ( uniform = GL20.glGetUniformLocation( shader_prog, "textures" ) ) != -1 )
 		{
-			
-			GL11.glBindTexture( GL11.GL_TEXTURE_2D, block_tex );
+			//GL11.glBindTexture( GL11.GL_TEXTURE_2D, block_tex );
 			GL20.glUniform1i( uniform, 0 );
-			GL11.glBindTexture( GL11.GL_TEXTURE_2D, 0 );
+			//GL11.glBindTexture( GL11.GL_TEXTURE_2D, 0 );
 		}
 
 		System.out.println( "Textures at: " + GL20.glGetUniformLocation( shader_prog, "textures" ) );
