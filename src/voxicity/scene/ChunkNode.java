@@ -80,7 +80,6 @@ public class ChunkNode extends Node
 
 	void clean_self()
 	{
-
 		if ( vert_buf == 0 )
 		{
 			IntBuffer buf = BufferUtils.createIntBuffer(1);
