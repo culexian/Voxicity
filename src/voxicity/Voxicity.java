@@ -60,7 +60,7 @@ public class Voxicity
 	float mouse_speed = 2.0f;
 	float camera_offset = 0.75f;
 
-	float camera[] = new float[3];
+	Vector3f camera = new Vector3f();
 
 	Vector3f last_pos = new Vector3f();
 
@@ -144,7 +144,7 @@ public class Voxicity
 			for ( int y = -2 ; y < 3 ; y++ )
 				for ( int z = -2 ; z < 3 ; z++ )
 				{
-					world.get_block( camera[0] + Constants.Chunk.side_length * x, camera[1] + Constants.Chunk.side_length * y, camera[2] + Constants.Chunk.side_length * z );
+					world.get_block( camera.x + Constants.Chunk.side_length * x, camera.y + Constants.Chunk.side_length * y, camera.z + Constants.Chunk.side_length * z );
 				}
 	}
 
@@ -162,7 +162,7 @@ public class Voxicity
 		load_chunks();
 
 		//Store the new last position
-		last_pos.set( camera[0], camera[1], camera[2] );
+		last_pos.set( camera );
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) )
 			is_close_requested = true;
@@ -200,8 +200,8 @@ public class Voxicity
 
 			if ( flying )
 			{
-				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera[1] += 5 * delta;
-				if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera[1] -= 5 * delta;
+				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera.y += 5 * delta;
+				if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera.y -= 5 * delta;
 			}
 			else
 			{
@@ -249,16 +249,16 @@ public class Voxicity
 			move_speed.y += accel.y * delta;
 			move_speed.z = accel.z;
 
-			camera[0] += move_speed.x * delta;
-			camera[1] += move_speed.y * delta;
-			camera[2] += move_speed.z * delta;
+			camera.x += move_speed.x * delta;
+			camera.y+= move_speed.y * delta;
+			camera.z += move_speed.z * delta;
 
 			// Set the look vector
 			look_vec.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
 
-			floating_block.pos_x = (int)(look_vec.x + camera[0]);
-			floating_block.pos_y = (int)(look_vec.y + camera[1] + camera_offset);
-			floating_block.pos_z = (int)(look_vec.z + camera[2]);
+			floating_block.pos_x = (int)(look_vec.x + camera.x);
+			floating_block.pos_y = (int)(look_vec.y + camera.y + camera_offset);
+			floating_block.pos_z = (int)(look_vec.z + camera.z);
 		}
 
 		check_collisions();
@@ -274,7 +274,7 @@ public class Voxicity
 		GL11.glLoadIdentity();
 		GL11.glRotatef( -rot_y, 1, 0, 0 );
 		GL11.glRotatef( rot_x, 0, 1, 0 );
-		GLU.gluLookAt( camera[0], camera[1] + camera_offset, camera[2], camera[0], camera[1] + camera_offset, camera[2] - 10, 0,1,0 );
+		GLU.gluLookAt( camera.x, camera.y + camera_offset, camera.z, camera.x, camera.y + camera_offset, camera.z - 10, 0,1,0 );
 
 
 		// Clear the screen and depth buffer
@@ -285,9 +285,9 @@ public class Voxicity
 		scene_root.render();
 
 		TextRenderer.draw( "FPS: " + Integer.toString(fps), 5, 5 + TextRenderer.line_height() * 0 );
-		TextRenderer.draw( "X: " + Float.toString(camera[0]), 5, 5 + TextRenderer.line_height() * 1 );
-		TextRenderer.draw( "Y: " + Float.toString(camera[1] + camera_offset), 5, 5 + TextRenderer.line_height() * 2 );
-		TextRenderer.draw( "Z: " + Float.toString(camera[2]), 5, 5 + TextRenderer.line_height() * 3 );
+		TextRenderer.draw( "X: " + Float.toString(camera.x), 5, 5 + TextRenderer.line_height() * 1 );
+		TextRenderer.draw( "Y: " + Float.toString(camera.y + camera_offset), 5, 5 + TextRenderer.line_height() * 2 );
+		TextRenderer.draw( "Z: " + Float.toString(camera.z), 5, 5 + TextRenderer.line_height() * 3 );
 
 		Display.update();
 	}
@@ -316,9 +316,9 @@ public class Voxicity
 		GLU.gluPerspective( 45.0f, 1200 / 720.0f, 0.1f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
-		camera[0] = 0;
-		camera[1] = 0;
-		camera[2] = 0;
+		camera.x = 0;
+		camera.y = 0;
+		camera.z = 0;
 		rot_x = 0;
 		rot_y = 0;
 	}
@@ -355,7 +355,7 @@ public class Voxicity
 
 		AABB player = new AABB( 0.5f, 1.7f, 0.5f );
 
-		Vector3f new_pos = new Vector3f( camera[0], camera[1], camera[2] );
+		Vector3f new_pos = new Vector3f( camera.x, camera.y, camera.z );
 
 		Vector3f slice_distance = new Vector3f();
 		Vector3f.sub( new_pos, last_pos, slice_distance );
@@ -530,30 +530,30 @@ public class Voxicity
 		if ( collided_x || collided_y || collided_z )
 		{
 			// Set the player's new position after collision checking/handling
-			camera[0] = corrected_pos.x;
-			camera[1] = corrected_pos.y;
-			camera[2] = corrected_pos.z;
+			camera.x = corrected_pos.x;
+			camera.y = corrected_pos.y;
+			camera.z = corrected_pos.z;
 		}
 	}
 
 	void calc_place_loc()
 	{
 		float nearest_distance = Float.POSITIVE_INFINITY;
-		BlockLoc nearest_block = new BlockLoc( Math.round( camera[0] + look_vec.x ), Math.round( camera[1] + camera_offset + look_vec.y ), Math.round( camera[2] + look_vec.z ), world );
+		BlockLoc nearest_block = new BlockLoc( Math.round( camera.x + look_vec.x ), Math.round( camera.y + camera_offset + look_vec.y ), Math.round( camera.z + look_vec.z ), world );
 
 		int x_incr = (int)Math.signum( look_vec.x );
 		int y_incr = (int)Math.signum( look_vec.y );
 		int z_incr = (int)Math.signum( look_vec.z );
 
-		for ( int x = Math.round( camera[0] ) ; x != Math.round( camera[0] + look_vec.x ) + x_incr ; x += x_incr)
-			for ( int y = Math.round( camera[1] + camera_offset ) ; y != Math.round( camera[1] + camera_offset + look_vec.y ) + y_incr ; y += y_incr )
-				for ( int z = Math.round( camera[2] ) ; z != Math.round( camera[2] + look_vec.z ) + z_incr ; z += z_incr )
+		for ( int x = Math.round( camera.x ) ; x != Math.round( camera.x + look_vec.x ) + x_incr ; x += x_incr)
+			for ( int y = Math.round( camera.y + camera_offset ) ; y != Math.round( camera.y + camera_offset + look_vec.y ) + y_incr ; y += y_incr )
+				for ( int z = Math.round( camera.z ) ; z != Math.round( camera.z + look_vec.z ) + z_incr ; z += z_incr )
 				{
 					AABB box = world.get_hit_box( x, y, z );
 
 					if ( box != null )
 					{
-						Float distance = box.collision_distance( new Vector3f( camera[0], camera[1] + camera_offset, camera[2] ), look_vec );
+						Float distance = box.collision_distance( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), look_vec );
 						
 						if ( distance < nearest_distance )
 						{
@@ -588,7 +588,7 @@ public class Voxicity
 		}
 		else
 		{
-			switch( world.get_hit_box( Math.round(place_loc.x), Math.round(place_loc.y), Math.round(place_loc.z) ).collision_side( new Vector3f( camera[0], camera[1] + camera_offset, camera[2] ), look_vec ) )
+			switch( world.get_hit_box( Math.round(place_loc.x), Math.round(place_loc.y), Math.round(place_loc.z) ).collision_side( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), look_vec ) )
 			{
 				case Up:
 					world.set_block( place_loc.x, place_loc.y + 1, place_loc.z, new Block() );
