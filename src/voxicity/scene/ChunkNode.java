@@ -188,6 +188,8 @@ public class ChunkNode extends Node
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, tex_buf );
 		GL11.glTexCoordPointer( 2, GL11.GL_FLOAT, 0, 0 );
 
+		int tex_bak = GL11.glGetInteger( GL11.GL_TEXTURE_BINDING_2D );
+
 		for ( Batch batch : batches )
 		{
 			// Bind the texture for this batch
@@ -202,7 +204,7 @@ public class ChunkNode extends Node
 		}
 
 		// Unbind the texture
-		GL11.glBindTexture( GL11.GL_TEXTURE_2D, 0 );
+		GL11.glBindTexture( GL11.GL_TEXTURE_2D, tex_bak );
 
 		// Unbind all buffers
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );

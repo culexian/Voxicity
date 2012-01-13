@@ -32,7 +32,7 @@ public class TextRenderer
 
 	public static void init()
 	{
-		Font awt_font = new Font( "Monospace", Font.BOLD, 24 );
+		Font awt_font = new Font( "Monospace", Font.BOLD, 16 );
 		font = new TrueTypeFont( awt_font, true );
 	}
 
@@ -49,7 +49,7 @@ public class TextRenderer
 		// disable depth testing and enable orthographic view
      GL11.glDisable(GL11.GL_DEPTH_TEST);
 //
-		font.drawString( x, y, text, Color.green );
+		font.drawString( x, y, text, Color.white );
 
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 
@@ -58,5 +58,10 @@ public class TextRenderer
     GL11.glMatrixMode( GL11.GL_MODELVIEW );  // Select Modelview
     GL11.glPopMatrix();    // Pop The Matrix
 
+	}
+
+	public static int line_height()
+	{
+		return font.getLineHeight();
 	}
 }

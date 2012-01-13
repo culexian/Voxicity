@@ -109,7 +109,7 @@ public class Voxicity
 		GL11.glEnable( GL11.GL_TEXTURE_2D );
 		GL11.glEnable( GL11.GL_BLEND );
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glClearColor( 0.66f, 1.0f, 1.0f, 1.0f );
+		GL11.glClearColor( 126.0f / 255.0f, 169.0f / 255.0f, 254.0f / 255.0f, 1.0f );
 
 		System.out.println( "Checking for GL_TEXTURE_2D_ARRAY_EXT: " + GLContext.getCapabilities().GL_EXT_texture_array );
 		GL11.glEnable( EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT );
@@ -284,8 +284,10 @@ public class Voxicity
 		scene_root.clean();
 		scene_root.render();
 
-		GL11.glLoadIdentity();
-		TextRenderer.draw( Integer.toString(fps), 0, 0 );
+		TextRenderer.draw( "FPS: " + Integer.toString(fps), 5, 5 + TextRenderer.line_height() * 0 );
+		TextRenderer.draw( "X: " + Float.toString(camera[0]), 5, 5 + TextRenderer.line_height() * 1 );
+		TextRenderer.draw( "Y: " + Float.toString(camera[1] + camera_offset), 5, 5 + TextRenderer.line_height() * 2 );
+		TextRenderer.draw( "Z: " + Float.toString(camera[2]), 5, 5 + TextRenderer.line_height() * 3 );
 
 		Display.update();
 	}
