@@ -130,29 +130,29 @@ public class AABB
 		switch ( dir )
 		{
 			case North:
-				distance = line_plane_intersect_distance( start, length, new Vector3f( 0.0f, 0.0f, 1.0f ), new Vector3f( pos.x, pos.y, front() ) );
+				distance = ray_plane_intersect( start, length, new Vector3f( 0.0f, 0.0f, 1.0f ), new Vector3f( pos.x, pos.y, front() ) );
 			break;
 			case East:
-				distance = line_plane_intersect_distance( start, length, new Vector3f( 1.0f, 0.0f, 0.0f ), new Vector3f( right(), pos.y, pos.z ) );
+				distance = ray_plane_intersect( start, length, new Vector3f( 1.0f, 0.0f, 0.0f ), new Vector3f( right(), pos.y, pos.z ) );
 			break;
 			case South:
-				distance = line_plane_intersect_distance( start, length, new Vector3f( 0.0f, 0.0f, -1.0f ), new Vector3f( pos.x, pos.y, back() ) );
+				distance = ray_plane_intersect( start, length, new Vector3f( 0.0f, 0.0f, -1.0f ), new Vector3f( pos.x, pos.y, back() ) );
 			break;
 			case West:
-				distance = line_plane_intersect_distance( start, length, new Vector3f( -1.0f, 0.0f, 0.0f ), new Vector3f( left(), pos.y, front() ) );
+				distance = ray_plane_intersect( start, length, new Vector3f( -1.0f, 0.0f, 0.0f ), new Vector3f( left(), pos.y, front() ) );
 			break;
 			case Up:
-				distance = line_plane_intersect_distance( start, length, new Vector3f( 0.0f, 1.0f, 0.0f ), new Vector3f( pos.x, top(), pos.z ) );
+				distance = ray_plane_intersect( start, length, new Vector3f( 0.0f, 1.0f, 0.0f ), new Vector3f( pos.x, top(), pos.z ) );
 			break;
 			case Down:
-				distance = line_plane_intersect_distance( start, length, new Vector3f( 0.0f, -1.0f, 0.0f ), new Vector3f( pos.x, bottom(), pos.z ) );
+				distance = ray_plane_intersect( start, length, new Vector3f( 0.0f, -1.0f, 0.0f ), new Vector3f( pos.x, bottom(), pos.z ) );
 			break;
 		}
 
 		return distance;
 	}
 
-	public float line_plane_intersect_distance( final Vector3f line_start, final Vector3f line_dir, final Vector3f plane_normal, final Vector3f plane_point )
+	public float ray_plane_intersect( final Vector3f line_start, final Vector3f line_dir, final Vector3f plane_normal, final Vector3f plane_point )
 	{
 
 		System.out.println( "Tracing ray to plane" );
