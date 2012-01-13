@@ -101,29 +101,23 @@ public class Chunk
 			{
 				for ( int z = 0 ; z < Constants.Chunk.side_length ; z++ )
 				{
-					double noise = Noise.perlin( 0, (this.x + x) / 10.0f, (this.y + y) / 10.0f, (this.z + z) / 10.0f );
+					double noise = Noise.perlin( 0, (this.x + x) / 10.0f, (this.y + y) / 20.0f, (this.z + z) / 10.0f );
 
 					//System.out.println( "Height factor: " + height_factor );
-					int ground_level = (int)Math.round(heightmap[x][z] * 1200 + noise * 7);
-					System.out.println( "x: " + ( this.x + x ) + " y: " + ( this.y + y ) + " z: " + ( this.z + z ) );
-					System.out.println( "Ground level: " + ground_level );
+					int ground_level = (int)Math.round(heightmap[x][z] * 2 + noise * 3);
+					//System.out.println( "x: " + ( this.x + x ) + " y: " + ( this.y + y ) + " z: " + ( this.z + z ) );
+					//System.out.println( "Ground level: " + ground_level );
 
 					if ( ( this.y + y ) > ground_level )
 						set_block( x, y, z, null );
 					else
 					{
-					System.out.println( "Ground level: " + ground_level + " y-coord: " + ( this.y + y ) );
-						System.out.println( "ground_level - ( y-coord ) = " + ( ground_level - ( this.y + y ) ) );
+					//System.out.println( "Ground level: " + ground_level + " y-coord: " + ( this.y + y ) );
+						//System.out.println( "ground_level - ( y-coord ) = " + ( ground_level - ( this.y + y ) ) );
 						if ( ground_level - ( this.y + y ) <= 1 )
-						{
 							set_block( x, y, z, new Block( x, y, z ) );
-							System.out.println( "Made dirt here" );
-						}
 						else
-						{
 							set_block( x, y, z, new Stone( x, y, z ) );
-							System.out.println( "Made stone here" );
-						}
 					}
 				}
 			}

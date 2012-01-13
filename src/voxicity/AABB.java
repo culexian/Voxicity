@@ -154,28 +154,18 @@ public class AABB
 
 	public float ray_plane_intersect( final Vector3f line_start, final Vector3f line_dir, final Vector3f plane_normal, final Vector3f plane_point )
 	{
-
-		System.out.println( "Tracing ray to plane" );
 		float distance = Float.POSITIVE_INFINITY;
 
 		Vector3f line_dir_norm = line_dir.normalise( null );
 
 		float dot_dir = Vector3f.dot( line_dir_norm, plane_normal );
 
-		System.out.println( "DOT of direction and plane normal " + dot_dir );
-
 		if ( dot_dir == 0.0f || dot_dir == -0.0f )
 			return Float.POSITIVE_INFINITY;
 
-		System.out.println( "Found to be non-parallel to plane" );
-
 		Vector3f line_start_plane_delta = Vector3f.sub( plane_point, line_start, null );
 
-		System.out.println( "Distance from ray to plane " + line_start_plane_delta );
-
 		float line_plane_distance = ( Vector3f.dot( plane_normal, line_start_plane_delta ) / dot_dir );
-
-		System.out.println( "Distance from ray to plane " + line_plane_distance );
 
 		if ( line_plane_distance < 0.0f )
 			return Float.POSITIVE_INFINITY;
