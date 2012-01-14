@@ -27,6 +27,8 @@ public class Chunk
 
 	ChunkNode node;
 
+	World world;
+
 	public Block[] blocks = new Block[Constants.Chunk.block_number];
 
 	public Chunk( int x, int y, int z )
@@ -43,12 +45,38 @@ public class Chunk
 		generate_blocks();
 	}
 
+	public int get_x()
+	{
+		return x;
+	}
+
+	public int get_y()
+	{
+		return y;
+	}
+
+	public int get_z()
+	{
+		return z;
+	}
+
+	public World get_world()
+	{
+		return world;
+	}
+
 	public int get_block_pos( int x, int y, int z )
 	{
+		if ( ( x < 0 ) || ( y < 0 ) || ( z < 0 ) )
+			return Constants.Chunk.block_number;
+
+		if ( ( x >= Constants.Chunk.side_length ) || ( y >= Constants.Chunk.side_length ) || ( z >= Constants.Chunk.side_length ) )
+			return Constants.Chunk.block_number;
+
 		int block_pos = 0;
-		block_pos += Math.abs(x);
-		block_pos += Math.abs(y) * Constants.Chunk.side_length * Constants.Chunk.side_length;
-		block_pos += Math.abs(z) * Constants.Chunk.side_length;
+		block_pos += x;
+		block_pos += y * Constants.Chunk.side_length * Constants.Chunk.side_length;
+		block_pos += z * Constants.Chunk.side_length;
 
 		return block_pos;
 	}
@@ -58,7 +86,7 @@ public class Chunk
 		int[] offset = Coord.GlobalToChunkOffset( x, y, z );
 		int block_pos = get_block_pos( offset[0], offset[1], offset[2] );
 
-		if ( ( block_pos < 0 ) || ( block_pos > Constants.Chunk.block_number - 1 ) )
+		if ( ( block_pos < 0 ) || ( block_pos >= Constants.Chunk.block_number ) )
 			return null;
 
 		return blocks[block_pos];
@@ -68,7 +96,7 @@ public class Chunk
 	{
 		int[] offset = Coord.GlobalToChunkOffset( x, y, z );
 		int block_pos = get_block_pos( offset[0], offset[1], offset[2] );
-		if ( ( block_pos < 0 ) || ( block_pos > Constants.Chunk.block_number - 1 ) )
+		if ( ( block_pos < 0 ) || ( block_pos >= Constants.Chunk.block_number ) )
 		{
 			return;
 		}

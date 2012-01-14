@@ -39,6 +39,8 @@ import org.lwjgl.opengl.Util;
 import org.lwjgl.util.vector.Vector3f;
 
 import voxicity.Block;
+import voxicity.BlockLoc;
+import voxicity.BlockChunkLoc;
 import voxicity.Chunk;
 import voxicity.Constants;
 import voxicity.TextureManager;
@@ -55,6 +57,8 @@ public class ChunkNode extends Node
 	static int shader_prog;
 
 	Chunk chunk;
+
+	boolean empty = true;
 
 	private class Batch
 	{
@@ -98,30 +102,47 @@ public class ChunkNode extends Node
 			create_shader_prog();
 
 		int offset = 0;
-		batches.clear();
+
+		clear_batches();
+
 		FloatBuffer verts = BufferUtils.createFloatBuffer( 3 * 24 * Constants.Chunk.block_number );
 		FloatBuffer tex_coords = BufferUtils.createFloatBuffer( 2 * 24 * Constants.Chunk.block_number );
 
 		Map< Integer, IntBuffer> id_ind = new HashMap< Integer, IntBuffer >();
 
+		BlockChunkLoc loc = new BlockChunkLoc( 0, 0, 0, chunk );
+
 		for ( Block block : chunk.blocks )
 		{
 			if ( block != null )
 			{
-				verts.put( block.gen_clean_vert_nio() );
-				tex_coords.put( block.gen_tex_nio() );
+				loc.x = block.get_x();
+				loc.y = block.get_y();
+				loc.z = block.get_z();
 
-				if ( !id_ind.containsKey( block.get_tex() ) )
-					id_ind.put( block.get_tex(), BufferUtils.createIntBuffer( 24 * Constants.Chunk.block_number ) );
+				if ( !cull( loc ) && !chunk_edge_cull( loc ) )
+				{
+					verts.put( block.gen_clean_vert_nio() );
+					tex_coords.put( block.gen_tex_nio() );
 
-				IntBuffer ind_buf = id_ind.get( block.get_tex() );
+					if ( !id_ind.containsKey( block.get_tex() ) )
+						id_ind.put( block.get_tex(), BufferUtils.createIntBuffer( 24 * Constants.Chunk.block_number ) );
 
-				IntBuffer block_indices = block.gen_index_nio();
-				while ( block_indices.hasRemaining() )
-					ind_buf.put( block_indices.get() + offset );
+					IntBuffer ind_buf = id_ind.get( block.get_tex() );
 
-				offset += block_indices.position();
+					IntBuffer block_indices = block.gen_index_nio();
+					while ( block_indices.hasRemaining() )
+						ind_buf.put( block_indices.get() + offset );
+
+					offset += block_indices.position();
+				}
 			}
+		}
+
+		if ( verts.position() == 0 )
+		{
+			empty = true;
+			return;
 		}
 
 		verts.limit( verts.position() ).rewind();
@@ -170,11 +191,19 @@ public class ChunkNode extends Node
 
 			GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
 			GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
+
+			empty = false;
 		}
 	}
 
 	void render_self()
 	{
+		if ( empty )
+			return;
+
+
+		voxicity.Voxicity.draw_calls++;
+
 		if ( shader_prog != 0 )
 			GL20.glUseProgram( shader_prog );
 
@@ -201,6 +230,8 @@ public class ChunkNode extends Node
 			// Draw the block
 			GL12.glDrawRangeElements( GL11.GL_QUADS, 0, Constants.Chunk.block_number * 24 -1, batch.num_elements, GL11.GL_UNSIGNED_INT, 0 );
 
+			voxicity.Voxicity.batch_draw_calls++;
+			voxicity.Voxicity.quads += batch.num_elements;
 		}
 
 		// Unbind the texture
@@ -346,5 +377,44 @@ public class ChunkNode extends Node
 			System.out.println( "Shader log:\n" + GL20.glGetShaderInfoLog( shader, log_length.get(0) ) );
 			
 		}
+	}
+
+	boolean cull( BlockChunkLoc loc )
+	{
+		for ( Constants.Direction dir : Constants.Direction.values() )
+		{
+			if ( loc.get( dir ).get() == null )
+				return false;
+		}
+
+		return true;
+	}
+
+	boolean chunk_edge_cull( BlockChunkLoc loc )
+	{
+		BlockLoc world_loc = new BlockLoc( loc );
+
+		for ( Constants.Direction dir : Constants.Direction.values() )
+		{
+			BlockLoc dir_loc = world_loc.get( dir );
+
+			if ( !dir_loc.available() )
+				return false;
+
+			if ( dir_loc.get_block() == null )
+				return false;
+		}
+
+		return true;
+	}
+
+	void clear_batches()
+	{
+		for ( Batch batch : batches )
+		{
+			GL15.glDeleteBuffers( batch.indices );
+		}
+
+		batches.clear();
 	}
 }

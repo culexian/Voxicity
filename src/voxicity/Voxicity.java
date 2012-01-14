@@ -46,6 +46,10 @@ import java.util.ArrayList;
 
 public class Voxicity
 {
+	public static int quads = 0;
+	public static int draw_calls = 0;
+	public static int batch_draw_calls = 0;
+
 	long last_fps_update = 0;
 	int fps_count = 0;
 
@@ -140,9 +144,9 @@ public class Voxicity
 
 	void load_chunks()
 	{
-		for ( int x = -2 ; x < 3 ; x++ )
-			for ( int y = -2 ; y < 3 ; y++ )
-				for ( int z = -2 ; z < 3 ; z++ )
+		for ( int x = -8 ; x <= 8 ; x++ )
+			for ( int y = -8 ; y <= 8 ; y++ )
+				for ( int z = -8 ; z <= 8 ; z++ )
 				{
 					world.get_block( camera.x + Constants.Chunk.side_length * x, camera.y + Constants.Chunk.side_length * y, camera.z + Constants.Chunk.side_length * z );
 				}
@@ -270,7 +274,10 @@ public class Voxicity
 
 	void render()
 	{
-		
+		quads = 0;
+		draw_calls = 0;
+		batch_draw_calls = 0;
+
 		GL11.glLoadIdentity();
 		GL11.glRotatef( -rot_y, 1, 0, 0 );
 		GL11.glRotatef( rot_x, 0, 1, 0 );
@@ -288,6 +295,10 @@ public class Voxicity
 		TextRenderer.draw( "X: " + Float.toString(camera.x), 5, 5 + TextRenderer.line_height() * 1 );
 		TextRenderer.draw( "Y: " + Float.toString(camera.y + camera_offset), 5, 5 + TextRenderer.line_height() * 2 );
 		TextRenderer.draw( "Z: " + Float.toString(camera.z), 5, 5 + TextRenderer.line_height() * 3 );
+		TextRenderer.draw( "Verts: " + Integer.toString(quads * 4), 5, 5 + TextRenderer.line_height() * 4 );
+		TextRenderer.draw( "Tris: " + Integer.toString(quads * 2), 5, 5 + TextRenderer.line_height() * 5 );
+		TextRenderer.draw( "Render chunks: " + Integer.toString(draw_calls), 5, 5 + TextRenderer.line_height() * 6 );
+		TextRenderer.draw( "Render batches: " + Integer.toString(batch_draw_calls), 5, 5 + TextRenderer.line_height() * 7 );
 
 		Display.update();
 	}

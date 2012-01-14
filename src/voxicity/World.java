@@ -50,7 +50,13 @@ public class World
 		if ( new_chunk == null )
 			return;
 
+		new_chunk.world = this;
 		set_chunk( new_chunk.x, new_chunk.y, new_chunk.z, new_chunk );
+	}
+
+	public boolean is_chunk_loaded( int x, int y, int z )
+	{
+		return chunks.containsKey( get_chunk_id( x, y, z ) );
 	}
 
 	public Chunk get_chunk( int x, int y, int z )
@@ -71,6 +77,28 @@ public class World
 	{
 		node.add_child( chunk.node );
 		chunks.put( get_chunk_id( x, y, z ), chunk );
+		mark_neighbors( x, y, z );
+	}
+
+	void mark_neighbors( int x, int y, int z )
+	{
+		if ( chunks.containsKey( get_chunk_id( x - Constants.Chunk.side_length, y, z ) ) )
+			chunks.get( get_chunk_id( x - Constants.Chunk.side_length, y, z ) ).node.mark();
+
+		if ( chunks.containsKey( get_chunk_id( x + Constants.Chunk.side_length, y, z ) ) )
+			chunks.get( get_chunk_id( x + Constants.Chunk.side_length, y, z ) ).node.mark();
+
+		if ( chunks.containsKey( get_chunk_id( x, y - Constants.Chunk.side_length, z ) ) )
+			chunks.get( get_chunk_id( x, y - Constants.Chunk.side_length, z ) ).node.mark();
+
+		if ( chunks.containsKey( get_chunk_id( x, y + Constants.Chunk.side_length, z ) ) )
+			chunks.get( get_chunk_id( x, y + Constants.Chunk.side_length, z ) ).node.mark();
+
+		if ( chunks.containsKey( get_chunk_id( x, y, z - Constants.Chunk.side_length ) ) )
+			chunks.get( get_chunk_id( x, y, z - Constants.Chunk.side_length ) ).node.mark();
+
+		if ( chunks.containsKey( get_chunk_id( x, y, z + Constants.Chunk.side_length ) ) )
+			chunks.get( get_chunk_id( x, y, z + Constants.Chunk.side_length ) ).node.mark();
 	}
 
 	public ArrayList<Integer> get_chunk_id( int x, int y, int z )

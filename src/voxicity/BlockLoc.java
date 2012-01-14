@@ -33,12 +33,22 @@ public class BlockLoc
 		this.z = z;
 	}
 
+	public BlockLoc( BlockChunkLoc loc )
+	{
+		this( loc.chunk.x + loc.x, loc.chunk.y + loc.y, loc.chunk.z + loc.z, loc.chunk.get_world() );
+	}
+
 	public Chunk get_chunk()
 	{
 		if ( world == null )
 			return null;
 
 		return world.get_chunk( x, y, z );
+	}
+
+	public boolean available()
+	{
+		return world.is_chunk_loaded( x, y, z );
 	}
 
 	public Block get_block()

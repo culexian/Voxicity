@@ -45,6 +45,21 @@ public class Block
 		this.pos_z = pos_z;
 	}
 
+	public int get_x()
+	{
+		return pos_x;
+	}
+
+	public int get_y()
+	{
+		return pos_y;
+	}
+
+	public int get_z()
+	{
+		return pos_z;
+	}
+
 	public int get_id()
 	{
 		return id;
