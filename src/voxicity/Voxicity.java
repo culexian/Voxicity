@@ -111,6 +111,7 @@ public class Voxicity
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
 		GL11.glEnable( GL11.GL_TEXTURE_2D );
+		GL11.glEnable( GL11.GL_CULL_FACE );
 		GL11.glEnable( GL11.GL_BLEND );
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glClearColor( 126.0f / 255.0f, 169.0f / 255.0f, 254.0f / 255.0f, 1.0f );
@@ -144,9 +145,10 @@ public class Voxicity
 
 	void load_chunks()
 	{
-		for ( int x = -8 ; x <= 8 ; x++ )
-			for ( int y = -8 ; y <= 8 ; y++ )
-				for ( int z = -8 ; z <= 8 ; z++ )
+		int view = 2;
+		for ( int x = -view ; x <= view ; x++ )
+			for ( int y = -view ; y <= view ; y++ )
+				for ( int z = -view ; z <= view ; z++ )
 				{
 					world.get_block( camera.x + Constants.Chunk.side_length * x, camera.y + Constants.Chunk.side_length * y, camera.z + Constants.Chunk.side_length * z );
 				}
