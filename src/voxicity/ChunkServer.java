@@ -20,19 +20,19 @@
 package voxicity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class ChunkServer
 {
-	HashMap< ArrayList<Integer>, Loader > chunk_loaders = new HashMap< ArrayList<Integer>, Loader >();
+	Queue<Loader> queue = new LinkedList<Loader>();
 	ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	private class Loader implements Runnable
 	{
-		final ArrayList<Integer> id;
+		public final ArrayList<Integer> id;
 		Chunk result;
 
 		public Loader( ArrayList<Integer> id )
@@ -54,38 +54,34 @@ public class ChunkServer
 
 	public void load_chunk( ArrayList<Integer> id )
 	{
-		if ( chunk_loaders.containsKey( id ) )
+		if ( chunk_queued( id ) )
 			return;
 
-		Loader new_loader = new Loader( id );
-		chunk_loaders.put( id, new_loader );
-		executor.execute( new_loader );
+		Loader loader = new Loader( id );
+		queue.offer( loader );
+		executor.execute( loader );
 	}
 
 	public Chunk get_next_chunk()
 	{
-		if ( chunk_loaders.isEmpty() )
+		if ( queue.isEmpty() )
 			return null;
 
-		Map.Entry< ArrayList<Integer>, Loader > entry = chunk_loaders.entrySet().iterator().next();
-
-		Loader loader = entry.getValue();
-
-		if ( entry.getValue() == null )
-		{
-			chunk_loaders.remove( entry.getKey() );
+		if ( queue.peek().result() == null )
 			return null;
-		}
 		else
+			return queue.remove().result();
+	}
+
+	boolean chunk_queued( ArrayList<Integer> id )
+	{
+		for ( Loader loader : queue )
 		{
-			if ( loader.result() == null )
-				return null;
-			else
-			{
-				chunk_loaders.remove( entry.getKey() );
-				return loader.result();
-			}
+			if ( loader.id.equals( id ) )
+				return true;
 		}
+
+		return false;
 	}
 
 	public void shutdown()
