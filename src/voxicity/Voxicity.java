@@ -283,7 +283,7 @@ public class Voxicity
 		GL11.glLoadIdentity();
 		GL11.glRotatef( -rot_y, 1, 0, 0 );
 		GL11.glRotatef( rot_x, 0, 1, 0 );
-		GLU.gluLookAt( camera.x, camera.y + camera_offset, camera.z, camera.x, camera.y + camera_offset, camera.z - 10, 0,1,0 );
+		GLU.gluLookAt( camera.x, camera.y + camera_offset, camera.z, camera.x, camera.y + camera_offset, camera.z - 1, 0,1,0 );
 
 
 		// Clear the screen and depth buffer
