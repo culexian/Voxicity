@@ -66,7 +66,7 @@ public class Voxicity
 
 	public static Frustum cam_vol = new Frustum();
 
-	Vector3f camera = new Vector3f();
+	static Vector3f camera = new Vector3f();
 
 	Vector3f last_pos = new Vector3f();
 
@@ -103,7 +103,7 @@ public class Voxicity
 		TextRenderer.init();
 
 		setup_camera();
-		//Mouse.setGrabbed( true );
+		Mouse.setGrabbed( true );
 		world = new World();
 		scene_root = world.node;
 
@@ -332,7 +332,7 @@ public class Voxicity
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		camera.x = 0;
-		camera.y = 0;
+		camera.y = 5;
 		camera.z = 0;
 		rot_x = 0;
 		rot_y = 0;

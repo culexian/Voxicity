@@ -23,11 +23,26 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Queue;
+
+import org.lwjgl.util.vector.Vector3f;
 
 public class ChunkServer
 {
-	Queue<Loader> queue = new LinkedList<Loader>();
+	Queue<Loader> queue = new PriorityQueue<Loader>( 1, new java.util.Comparator<Loader>()
+		{
+			public int compare( Loader o1, Loader o2 )
+			{
+				float o1_dist = Vector3f.sub( new Vector3f( o1.id.get(0), o1.id.get(1), o1.id.get(2) ), Voxicity.camera, null ).lengthSquared();
+				float o2_dist = Vector3f.sub( new Vector3f( o2.id.get(0), o2.id.get(1), o2.id.get(2) ), Voxicity.camera, null ).lengthSquared();
+				if ( o1_dist < o2_dist )
+					return -1;
+				else
+					return 1;
+			}
+		}
+	);
 	ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	private class Loader implements Runnable
