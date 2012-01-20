@@ -64,6 +64,8 @@ public class Voxicity
 	float mouse_speed = 2.0f;
 	float camera_offset = 0.75f;
 
+	public static Frustum cam_vol = new Frustum();
+
 	Vector3f camera = new Vector3f();
 
 	Vector3f last_pos = new Vector3f();
@@ -101,7 +103,7 @@ public class Voxicity
 		TextRenderer.init();
 
 		setup_camera();
-		Mouse.setGrabbed( true );
+		//Mouse.setGrabbed( true );
 		world = new World();
 		scene_root = world.node;
 
@@ -126,7 +128,7 @@ public class Voxicity
 
 		load_texture_pack();
 
-		load_chunks();
+		//load_chunks();
 		scene_root.clean();
 
 		last_fps_update = get_time_ms();
@@ -145,7 +147,7 @@ public class Voxicity
 
 	void load_chunks()
 	{
-		int view = 2;
+		int view = 4;
 		for ( int x = -view ; x <= view ; x++ )
 			for ( int y = -view ; y <= view ; y++ )
 				for ( int z = -view ; z <= view ; z++ )
@@ -276,14 +278,14 @@ public class Voxicity
 
 	void render()
 	{
+		cam_vol.set_pos( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), new Vector3f( camera.x + look_vec.x, camera.y + camera_offset + look_vec.y, camera.z + look_vec.z ), new Vector3f( 0, 1, 0 ) );
+
 		quads = 0;
 		draw_calls = 0;
 		batch_draw_calls = 0;
 
 		GL11.glLoadIdentity();
-		GL11.glRotatef( -rot_y, 1, 0, 0 );
-		GL11.glRotatef( rot_x, 0, 1, 0 );
-		GLU.gluLookAt( camera.x, camera.y + camera_offset, camera.z, camera.x, camera.y + camera_offset, camera.z - 1, 0,1,0 );
+		GLU.gluLookAt( camera.x, camera.y + camera_offset, camera.z, camera.x + look_vec.x, camera.y + camera_offset + look_vec.y, camera.z  + look_vec.z, 0,1,0 );
 
 
 		// Clear the screen and depth buffer
@@ -334,6 +336,8 @@ public class Voxicity
 		camera.z = 0;
 		rot_x = 0;
 		rot_y = 0;
+
+		cam_vol.set_attribs( 45.0f, 1200 / 720.0f, 0.1f, 10000f );
 	}
 
 	void toggle_mouse_grab()

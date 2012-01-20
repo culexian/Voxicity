@@ -38,6 +38,7 @@ import org.lwjgl.opengl.OpenGLException;
 import org.lwjgl.opengl.Util;
 import org.lwjgl.util.vector.Vector3f;
 
+import voxicity.AABB;
 import voxicity.Block;
 import voxicity.BlockLoc;
 import voxicity.BlockChunkLoc;
@@ -201,6 +202,12 @@ public class ChunkNode extends Node
 		if ( empty )
 			return;
 
+		AABB chunk_box = new AABB( Constants.Chunk.side_length, Constants.Chunk.side_length, Constants.Chunk.side_length );
+
+		chunk_box.pos.set( chunk.get_x() + chunk_box.dim.x, chunk.get_y() + chunk_box.dim.y, chunk.get_z() + chunk_box.dim.z );
+
+		if ( !voxicity.Voxicity.cam_vol.collides( chunk_box ) )
+			return;
 
 		voxicity.Voxicity.draw_calls++;
 
