@@ -309,12 +309,12 @@ public class Voxicity
 
 	void update_fps()
 	{
-		if ( get_time_ms() - last_fps_update > 1000 )
+		if ( get_time_ms() - last_fps_update > 250 )
 		{
 			Display.setTitle( "FPS: " + fps_count );
-			fps = fps_count;
+			fps = fps_count * 4;
 			fps_count = 0;
-			last_fps_update += 1000;
+			last_fps_update += 250;
 		}
 		fps_count++;
 	}
