@@ -129,6 +129,10 @@ public class World
 	public void set_block( int x, int y, int z, Block block )
 	{
 		BlockLoc loc = new BlockLoc( x, y, z, this );
+
+		if ( loc.get_chunk() == null )
+			return;
+
 		loc.get_chunk().set_block( x, y, z, block );
 	}
 
