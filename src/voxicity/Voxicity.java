@@ -147,7 +147,7 @@ public class Voxicity
 
 	void load_chunks()
 	{
-		int view = 4;
+		int view = 6;
 		for ( int x = -view ; x <= view ; x++ )
 			for ( int y = -view ; y <= view ; y++ )
 				for ( int z = -view ; z <= view ; z++ )
@@ -332,7 +332,7 @@ public class Voxicity
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		camera.x = 0;
-		camera.y = 5;
+		camera.y = 3;
 		camera.z = 0;
 		rot_x = 0;
 		rot_y = 0;

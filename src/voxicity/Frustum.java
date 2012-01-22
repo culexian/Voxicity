@@ -185,9 +185,6 @@ public class Frustum
 
 		planes[Side.near.ordinal()] = new Plane( look, near_center );
 		planes[Side.far.ordinal()] = new Plane( look.negate( null), far_center );
-
-		System.out.println( planes[Side.near.ordinal()] );
-		System.out.println( planes[Side.far.ordinal()] );
 	}
 
 	public boolean contains_point( Vector3f point )
