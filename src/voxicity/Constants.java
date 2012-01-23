@@ -32,7 +32,9 @@ public class Constants
 	{
 		public static final Integer
 			dirt = 0,
-			stone = 1;
+			stone = 1,
+			grass = 2
+			;
 	}
 
 	public enum Direction

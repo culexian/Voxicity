@@ -664,6 +664,7 @@ public class Voxicity
 	{
 		TextureManager.get_texture( "textures/stone.png" );
 		TextureManager.get_texture( "textures/dirt.png" );
+		TextureManager.get_texture( "textures/grass.png" );
 	}
 
 	public static void main( String[] args )

@@ -138,6 +138,8 @@ public class Chunk
 
 					if ( ( this.y + y ) > ground_level )
 						set_block( x, y, z, null );
+					else if ( ( this.y + y ) == ground_level )
+						set_block( x, y, z, new Grass( x, y, z ) );
 					else
 					{
 					//System.out.println( "Ground level: " + ground_level + " y-coord: " + ( this.y + y ) );

@@ -21,6 +21,10 @@
 package voxicity;
 
 import java.util.HashMap;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -41,10 +45,17 @@ public class TextureManager
 
 		try
 		{
-			Texture new_tex = TextureLoader.getTexture( "PNG", ResourceLoader.getResourceAsStream( name ) );
+			Texture new_tex = TextureLoader.getTexture( "PNG", ResourceLoader.getResourceAsStream( name ), true, GL11.GL_NEAREST );
 			System.out.println( "Loaded texture: " + new_tex );
 
 			textures.put( name, new_tex );
+
+			int tex_bak = GL11.glGetInteger( GL11.GL_TEXTURE_BINDING_2D );
+			
+			GL11.glBindTexture( GL11.GL_TEXTURE_2D, new_tex.getTextureID() );
+			GL11.glTexParameteri( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE );
+
+			GL11.glBindTexture( GL11.GL_TEXTURE_2D, tex_bak );
 
 			return new_tex.getTextureID();
 		}
