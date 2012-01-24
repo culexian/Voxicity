@@ -30,6 +30,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class ChunkServer
 {
+	Queue<Loader> loading = new LinkedList<Loader>();
 	Queue<Loader> queue = new PriorityQueue<Loader>( 1, new java.util.Comparator<Loader>()
 		{
 			public int compare( Loader o1, Loader o2 )
@@ -37,9 +38,13 @@ public class ChunkServer
 				float o1_dist = Vector3f.sub( new Vector3f( o1.id.get(0), o1.id.get(1), o1.id.get(2) ), Voxicity.camera, null ).lengthSquared();
 				float o2_dist = Vector3f.sub( new Vector3f( o2.id.get(0), o2.id.get(1), o2.id.get(2) ), Voxicity.camera, null ).lengthSquared();
 				if ( o1_dist < o2_dist )
+				{
 					return -1;
+				}
 				else
+				{
 					return 1;
+				}
 			}
 		}
 	);
@@ -58,6 +63,8 @@ public class ChunkServer
 		public void run()
 		{
 			Chunk new_chunk = new Chunk( id.get(0), id.get(1), id.get(2) );
+			float dist = Vector3f.sub( new Vector3f( id.get(0), id.get(1), id.get(2) ), Voxicity.camera, null ).lengthSquared();
+			System.out.println( "New chunk is ready: x - " + id.get(0) + " y - " + id.get(1) + " z - " + id.get(2) + " at distance " + dist );
 			result = new_chunk;
 		}
 
@@ -74,23 +81,34 @@ public class ChunkServer
 
 		Loader loader = new Loader( id );
 		queue.offer( loader );
-		executor.execute( loader );
 	}
 
 	public Chunk get_next_chunk()
 	{
-		if ( queue.isEmpty() )
-			return null;
+		while( !queue.isEmpty() )
+		{
+			Loader loader = queue.poll();
+			loading.add( loader );
+			executor.execute( loader );
+		}
 
-		if ( queue.peek().result() == null )
+		if ( loading.isEmpty() || loading.peek().result() == null )
+		{
 			return null;
+		}
 		else
-			return queue.remove().result();
+			return loading.poll().result();
 	}
 
 	boolean chunk_queued( ArrayList<Integer> id )
 	{
 		for ( Loader loader : queue )
+		{
+			if ( loader.id.equals( id ) )
+				return true;
+		}
+
+		for ( Loader loader : loading )
 		{
 			if ( loader.id.equals( id ) )
 				return true;
