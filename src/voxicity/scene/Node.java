@@ -34,13 +34,22 @@ public abstract class Node
 
 	boolean dirty = true;
 
+	public boolean is_dirty()
+	{
+		return dirty;
+	}
+
 	public void clean()
 	{
 		if ( dirty )
 		{
 			// Clean all child nodes
 			for ( Node child : children )
-				child.clean();
+				if ( child.is_dirty() )
+				{
+					child.clean();
+					return;
+				}
 
 			// Then clean this node
 			clean_self();

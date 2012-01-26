@@ -85,6 +85,8 @@ public class Voxicity
 
 	Block floating_block;
 
+	Thread chunk_loader;
+
 	public void init()
 	{
 		try
@@ -128,7 +130,7 @@ public class Voxicity
 
 		load_texture_pack();
 
-		//load_chunks();
+		start_chunk_loader();
 		scene_root.clean();
 
 		last_fps_update = get_time_ms();
@@ -136,24 +138,52 @@ public class Voxicity
 
 		while ( !is_close_requested )
 		{
+			System.out.println( "Update at " + get_time_ms() );
 			update( get_time_delta() / 1000.0f );
+			System.out.println( "Load new chunks at " + get_time_ms() );
 			world.load_new_chunks();
+			System.out.println( "Render at " + get_time_ms() );
 			render();
+			System.out.println( "Loop done" );
 
 			is_close_requested |= Display.isCloseRequested();
 		}
 			shutdown();
 	}
 
-	void load_chunks()
+	void start_chunk_loader()
 	{
-		int view = 6;
-		for ( int x = -view ; x <= view ; x++ )
-			for ( int y = -view ; y <= view ; y++ )
-				for ( int z = -view ; z <= view ; z++ )
+		final Thread chunk_loader = new Thread()
+		{
+			public void run()
+			{
+				while( true )
 				{
-					world.get_block( camera.x + Constants.Chunk.side_length * x, camera.y + Constants.Chunk.side_length * y, camera.z + Constants.Chunk.side_length * z );
+					int view = 16;
+					for ( int x = -view ; x <= view ; x++ )
+						for ( int y = -view ; y <= view ; y++ )
+							for ( int z = -view ; z <= view ; z++ )
+							{
+								if ( is_close_requested )
+									return;
+
+								world.get_block( camera.x + Constants.Chunk.side_length * x, camera.y + Constants.Chunk.side_length * y, camera.z + Constants.Chunk.side_length * z );
+
+							}
+					try
+					{
+						Thread.currentThread().sleep( 1000 );
+					}
+					catch ( Exception e )
+					{
+						e.printStackTrace();
+					}
 				}
+			}
+		};
+
+		chunk_loader.start();
+		this.chunk_loader = chunk_loader;
 	}
 
 	int get_time_delta()
@@ -167,8 +197,6 @@ public class Voxicity
 
 	void update( float delta )
 	{
-		load_chunks();
-
 		//Store the new last position
 		last_pos.set( camera );
 
@@ -269,7 +297,9 @@ public class Voxicity
 			floating_block.pos_z = (int)(look_vec.z + camera.z);
 		}
 
+		System.out.println( "Check collisions at " + get_time_ms() );
 		check_collisions();
+		System.out.println( "Done checking collisions at " + get_time_ms() );
 
 		calc_place_loc();
 
@@ -292,8 +322,12 @@ public class Voxicity
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		//world.render();
+		
+		System.out.println( "Before clean " + get_time_ms() );
 		scene_root.clean();
+		System.out.println( "Before render " + get_time_ms() );
 		scene_root.render();
+		System.out.println( "After render " + get_time_ms() );
 
 		TextRenderer.draw( "FPS: " + Integer.toString(fps), 5, 5 + TextRenderer.line_height() * 0 );
 		TextRenderer.draw( "X: " + Float.toString(camera.x), 5, 5 + TextRenderer.line_height() * 1 );
@@ -301,7 +335,7 @@ public class Voxicity
 		TextRenderer.draw( "Z: " + Float.toString(camera.z), 5, 5 + TextRenderer.line_height() * 3 );
 		TextRenderer.draw( "Verts: " + Integer.toString(quads * 4), 5, 5 + TextRenderer.line_height() * 4 );
 		TextRenderer.draw( "Tris: " + Integer.toString(quads * 2), 5, 5 + TextRenderer.line_height() * 5 );
-		TextRenderer.draw( "Render chunks: " + Integer.toString(draw_calls), 5, 5 + TextRenderer.line_height() * 6 );
+		TextRenderer.draw( "Render chunks: " + Integer.toString(draw_calls) + "/" + world.chunks.size(), 5, 5 + TextRenderer.line_height() * 6 );
 		TextRenderer.draw( "Render batches: " + Integer.toString(batch_draw_calls), 5, 5 + TextRenderer.line_height() * 7 );
 
 		Display.update();
@@ -311,10 +345,10 @@ public class Voxicity
 	{
 		if ( get_time_ms() - last_fps_update > 250 )
 		{
-			Display.setTitle( "FPS: " + fps_count );
 			fps = fps_count * 4;
 			fps_count = 0;
 			last_fps_update += 250;
+			Display.setTitle( "Voxicity - FPS: " + fps );
 		}
 		fps_count++;
 	}
@@ -655,6 +689,15 @@ public class Voxicity
 
 	void shutdown()
 	{
+		try
+		{
+			chunk_loader.join();
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+		}
+
 		world.shutdown();
 		System.out.println( "Destroying display" );
 		Display.destroy();

@@ -22,16 +22,16 @@ package voxicity;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.lwjgl.util.vector.Vector3f;
 
 public class ChunkServer
 {
-	Queue<Loader> loading = new LinkedList<Loader>();
-	Queue<Loader> queue = new PriorityQueue<Loader>( 1, new java.util.Comparator<Loader>()
+	BlockingQueue<Loader> loading = new LinkedBlockingQueue<Loader>();
+	BlockingQueue<Loader> queue = new PriorityBlockingQueue<Loader>( 1, new java.util.Comparator<Loader>()
 		{
 			public int compare( Loader o1, Loader o2 )
 			{
@@ -66,6 +66,7 @@ public class ChunkServer
 			float dist = Vector3f.sub( new Vector3f( id.get(0), id.get(1), id.get(2) ), Voxicity.camera, null ).lengthSquared();
 			System.out.println( "New chunk is ready: x - " + id.get(0) + " y - " + id.get(1) + " z - " + id.get(2) + " at distance " + dist );
 			result = new_chunk;
+			Thread.currentThread().yield();
 		}
 
 		public Chunk result()
@@ -85,7 +86,7 @@ public class ChunkServer
 
 	public Chunk get_next_chunk()
 	{
-		while( !queue.isEmpty() )
+		if( !queue.isEmpty() )
 		{
 			Loader loader = queue.poll();
 			loading.add( loader );

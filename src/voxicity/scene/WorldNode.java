@@ -23,21 +23,21 @@ import voxicity.World;
 
 public class WorldNode extends Node
 {
-		World world;
+	World world;
 
-		public WorldNode( World world )
-		{
-			this.world = world;
-		}
+	public WorldNode( World world )
+	{
+		this.world = world;
+	}
 
-		void render_self()
-		{
+	void render_self()
+	{
 
-		}
+	}
 
-		void clean_self()
-		{
+	void clean_self()
+	{
 
-		}
+	}
 }
 

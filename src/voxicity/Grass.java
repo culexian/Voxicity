@@ -24,7 +24,7 @@ public class Grass extends Block
 {
 	{
 		id = Constants.Blocks.grass;
-		tex = TextureManager.get_texture( "textures/grass.png" );
+		register_block_tex( id, TextureManager.get_texture( "textures/grass.png" ) );
 	}
 
 	public Grass( int x, int y, int z )

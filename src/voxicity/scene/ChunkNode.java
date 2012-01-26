@@ -61,6 +61,9 @@ public class ChunkNode extends Node
 
 	boolean empty = true;
 
+	static FloatBuffer verts = BufferUtils.createFloatBuffer( 3 * 24 * Constants.Chunk.block_number );
+	static FloatBuffer tex_coords = BufferUtils.createFloatBuffer( 2 * 24 * Constants.Chunk.block_number );
+
 	private class Batch
 	{
 		public final int tex;
@@ -106,8 +109,8 @@ public class ChunkNode extends Node
 
 		clear_batches();
 
-		FloatBuffer verts = BufferUtils.createFloatBuffer( 3 * 24 * Constants.Chunk.block_number );
-		FloatBuffer tex_coords = BufferUtils.createFloatBuffer( 2 * 24 * Constants.Chunk.block_number );
+		verts.clear();
+		tex_coords.clear();
 
 		Map< Integer, IntBuffer> id_ind = new HashMap< Integer, IntBuffer >();
 

@@ -24,7 +24,7 @@ class Stone extends Block
 {
 	{
 		id = Constants.Blocks.stone;
-		tex = TextureManager.get_texture( "textures/stone.png" );
+		register_block_tex( id, TextureManager.get_texture( "textures/stone.png" ) );
 	}
 
 	public Stone( int x, int y, int z )

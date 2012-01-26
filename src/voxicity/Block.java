@@ -20,18 +20,35 @@
 
 package voxicity;
 
-import org.lwjgl.BufferUtils;
 import java.nio.IntBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+
+import org.lwjgl.BufferUtils;
 
 public class Block
 {
-	int id = 0;
+	int id = Constants.Blocks.dirt;
 	int data = 0;
 
-	int tex = TextureManager.get_texture( "textures/dirt.png" );
+	static ArrayList<Integer> block_texes = new ArrayList<Integer>();
 
 	int pos_x,pos_y,pos_z;
+
+	{
+		register_block_tex( id, TextureManager.get_texture( "textures/dirt.png" ) );
+	}
+
+	protected static void register_block_tex( int id, int tex )
+	{
+		block_texes.ensureCapacity( id + 1 );
+
+		if ( block_texes.size() < id + 1 )
+			for ( int i = id + 1 - block_texes.size() ; i <= id + 1 ; i++ )
+				block_texes.add( 0 );
+
+		block_texes.set( id, tex );
+	}
 
 	public Block()
 	{
@@ -67,7 +84,7 @@ public class Block
 
 	public int get_tex()
 	{
-		return tex;
+		return block_texes.get( id );
 	}
 
 	float[] gen_vert_data()
