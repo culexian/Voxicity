@@ -61,6 +61,7 @@ public class TextureManager
 		}
 		catch ( java.io.IOException e )
 		{
+			System.out.println( "Failed to load texture " + name );
 			e.printStackTrace();
 			System.exit(0);
 		}

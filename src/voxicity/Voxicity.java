@@ -159,7 +159,7 @@ public class Voxicity
 			{
 				while( true )
 				{
-					int view = 16;
+					int view = 8;
 					for ( int x = -view ; x <= view ; x++ )
 						for ( int y = -view ; y <= view ; y++ )
 							for ( int z = -view ; z <= view ; z++ )
