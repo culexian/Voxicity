@@ -209,6 +209,32 @@ public class Frustum
 		return true;
 	}
 
+	public boolean collides_plane_check( AABB box )
+	{
+		boolean collides = true;
+
+		int out, in;
+
+		for ( int i = 0 ; i < 6 ; i++ )
+		{
+			out = 0;
+			in = 0;
+
+			for ( int j = 0 ; j < 8 && ( in == 0 || out == 0 ) ; j++ )
+			{
+				if ( planes[i].distance( box.get_vert( j ) ) < 0 )
+					out++;
+				else
+					in++;
+			}
+
+			if ( in == 0 )
+				return false;
+		}
+
+		return collides;
+	}
+
 	public boolean collides( AABB box )
 	{
 		if ( contains_point( new Vector3f( box.left(), box.top(), box.front() ) ) ||

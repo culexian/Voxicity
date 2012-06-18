@@ -35,6 +35,15 @@ public class AABB
 		dim.z = depth / 2;
 	}
 
+	public Vector3f get_vert( int i )
+	{
+		float x_coord = ( i - 1 ) / 4 < 1 ? left() : right();
+		float y_coord = ( i - 1 ) % 4 / 2 < 1 ? bottom() : top();
+		float z_coord = ( i - 1 ) % 2 < 1 ? back() : front();
+
+		return new Vector3f( x_coord, y_coord, z_coord );
+	}
+
 	public boolean collides( final AABB rhs )
 	{
 		if ( ( left() < rhs.right() && right() > rhs.left() ) &&

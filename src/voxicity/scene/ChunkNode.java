@@ -209,6 +209,7 @@ public class ChunkNode extends Node
 
 		chunk_box.pos.set( chunk.get_x() + chunk_box.dim.x, chunk.get_y() + chunk_box.dim.y, chunk.get_z() + chunk_box.dim.z );
 
+		//if ( !voxicity.Voxicity.cam_vol.collides_plane_check( chunk_box ) )
 		if ( !voxicity.Voxicity.cam_vol.collides( chunk_box ) )
 			return;
 
