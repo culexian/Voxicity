@@ -10,4 +10,5 @@ pack:
 
 clean:
 	rm -rv src/voxicity/*.class
+	rm -rv src/voxicity/scene/*.class
 	rm -v Voxicity.jar
