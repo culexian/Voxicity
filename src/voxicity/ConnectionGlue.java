@@ -17,27 +17,42 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package voxicity.scene;
+package voxicity;
 
-import voxicity.World;
-
-public class WorldNode extends Node
+public class ConnectionGlue implements Runnable
 {
-	World world;
+	Connection a, b;
+	boolean quitting = false;
 
-	public WorldNode( World world )
+	public ConnectionGlue( Connection a, Connection b )
 	{
-		this.world = world;
+		this.a = a;
+		this.b = b;
 	}
 
-	void render_self()
+	public void quit()
 	{
-
+		quitting = true;
 	}
 
-	void clean_self()
+	public void run()
 	{
+		while( !quitting )
+		{
+			while( a.outgoing.peek() != null )
+				b.incoming.add( a.outgoing.remove() );
 
+			while( b.outgoing.peek() != null )
+				a.incoming.add( b.outgoing.remove() );
+
+			try
+			{
+				Thread.currentThread().sleep( 20 );
+			}
+			catch ( Exception e )
+			{
+				System.out.println( e );
+			}
+		}
 	}
 }
-

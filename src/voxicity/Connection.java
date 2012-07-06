@@ -19,7 +19,22 @@
 
 package voxicity;
 
+import java.net.Socket;
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class Connection
 {
+	Queue< Packet > incoming = new LinkedList< Packet >();
+	Queue< Packet > outgoing = new LinkedList< Packet >();
 
+	public void send( Packet packet )
+	{
+		outgoing.add( packet );
+	}
+
+	public Packet recieve()
+	{
+		return incoming.poll();
+	}
 }

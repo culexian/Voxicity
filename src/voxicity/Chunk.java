@@ -25,6 +25,8 @@ public class Chunk
 {
 	int x, y, z;
 
+	long write_timestamp = Time.get_time_ms();
+ 
 	ChunkNode node;
 
 	World world;
@@ -109,6 +111,7 @@ public class Chunk
 		}
 
 		blocks[block_pos] = block;
+		update_timestamp();
 		node.mark();
 	}
 
@@ -155,5 +158,15 @@ public class Chunk
 		long end = System.nanoTime();
 
 		System.out.println( "Chunk generation time: " + ( end - start ) / 1000 + "ms" );
+	}
+
+	void update_timestamp()
+	{
+		write_timestamp = Time.get_time_ms();
+	}
+
+	public long get_timestamp()
+	{
+		return write_timestamp;
 	}
 }

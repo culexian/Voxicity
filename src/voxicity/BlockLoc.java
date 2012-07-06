@@ -63,6 +63,11 @@ public class BlockLoc
 		return get_chunk().get_block( chunk_x, chunk_y, chunk_z );
 	}
 
+	public void set( Block block )
+	{
+		world.set_block( x, y, z, block );
+	}
+
 	public BlockLoc get( Constants.Direction dir )
 	{
 		switch ( dir )

@@ -20,7 +20,6 @@
 package voxicity;
 
 import voxicity.scene.Node;
-import voxicity.scene.WorldNode;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -53,7 +52,7 @@ public class Voxicity
 	long last_fps_update = 0;
 	int fps_count = 0;
 
-	int fps = 0;
+	static int fps = 0;
 
 	long last_frame = 0;
 
@@ -80,12 +79,22 @@ public class Voxicity
 	boolean jumping = true;
 	boolean flying = true;
 
+	Server server;
+	Client client;
+	static ConnectionGlue conn_glue;
+
 	Node scene_root;
 	World world;
 
 	Block floating_block;
 
 	Thread chunk_loader;
+
+	public Voxicity( Server server, Client client )
+	{
+		this.server = server;
+		this.client = client;
+	}
 
 	public void init()
 	{
@@ -106,7 +115,8 @@ public class Voxicity
 
 		setup_camera();
 		Mouse.setGrabbed( true );
-		world = new World();
+		world = server.world;
+		server.world = world;
 		scene_root = world.node;
 
 		floating_block = new Block( 0, 0, 0 );
@@ -131,35 +141,37 @@ public class Voxicity
 		load_texture_pack();
 
 		start_chunk_loader();
-		scene_root.clean();
 
-		last_fps_update = get_time_ms();
+		last_fps_update = Time.get_time_ms();
 		get_time_delta();
 
 		while ( !is_close_requested )
 		{
-			System.out.println( "Update at " + get_time_ms() );
+			System.out.println( "Update at " + Time.get_time_ms() );
+			client.update();
 			update( get_time_delta() / 1000.0f );
-			System.out.println( "Load new chunks at " + get_time_ms() );
-			world.load_new_chunks();
-			System.out.println( "Render at " + get_time_ms() );
+			System.out.println( "Load new chunks at " + Time.get_time_ms() );
+			server.update();
+			System.out.println( "Render at " + Time.get_time_ms() );
+			client.renderer.render( cam_vol );
 			render();
 			System.out.println( "Loop done" );
 
 			is_close_requested |= Display.isCloseRequested();
 		}
-			shutdown();
+
+		shutdown();
 	}
 
 	void start_chunk_loader()
 	{
-		final Thread chunk_loader = new Thread()
+		Thread chunk_loader = new Thread()
 		{
 			public void run()
 			{
 				while( true )
 				{
-					int view = 8;
+					int view = 4;
 					for ( int x = -view ; x <= view ; x++ )
 						for ( int y = -view ; y <= view ; y++ )
 							for ( int z = -view ; z <= view ; z++ )
@@ -167,7 +179,7 @@ public class Voxicity
 								if ( is_close_requested )
 									return;
 
-								world.get_block( camera.x + Constants.Chunk.side_length * x, camera.y + Constants.Chunk.side_length * y, camera.z + Constants.Chunk.side_length * z );
+								server.load_chunk(camera.x + Constants.Chunk.side_length * x, camera.y + Constants.Chunk.side_length * y, camera.z + Constants.Chunk.side_length * z ); 
 
 							}
 					try
@@ -189,7 +201,7 @@ public class Voxicity
 	int get_time_delta()
 	{
 		// Get the time in milliseconds
-		long new_time = get_time_ms();
+		long new_time = Time.get_time_ms();
 		int delta = (int) ( new_time - last_frame );
 		last_frame = new_time;
 		return delta;
@@ -297,37 +309,36 @@ public class Voxicity
 			floating_block.pos_z = (int)(look_vec.z + camera.z);
 		}
 
-		System.out.println( "Check collisions at " + get_time_ms() );
+		System.out.println( "Check collisions at " + Time.get_time_ms() );
 		check_collisions();
-		System.out.println( "Done checking collisions at " + get_time_ms() );
+		System.out.println( "Done checking collisions at " + Time.get_time_ms() );
 
 		calc_place_loc();
+
+		cam_vol.set_pos( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), new Vector3f( camera.x + look_vec.x, camera.y + camera_offset + look_vec.y, camera.z + look_vec.z ), new Vector3f( 0, 1, 0 ) );
 
 		update_fps();
 	}
 
 	void render()
 	{
-		cam_vol.set_pos( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), new Vector3f( camera.x + look_vec.x, camera.y + camera_offset + look_vec.y, camera.z + look_vec.z ), new Vector3f( 0, 1, 0 ) );
 
 		quads = 0;
 		draw_calls = 0;
 		batch_draw_calls = 0;
 
 		GL11.glLoadIdentity();
-		GLU.gluLookAt( camera.x, camera.y + camera_offset, camera.z, camera.x + look_vec.x, camera.y + camera_offset + look_vec.y, camera.z  + look_vec.z, 0,1,0 );
+		GLU.gluLookAt( cam_vol.pos.x, cam_vol.pos.y + camera_offset, cam_vol.pos.z, cam_vol.pos.x + cam_vol.look.x, cam_vol.pos.y + camera_offset + cam_vol.look.y, cam_vol.pos.z + cam_vol.look.z, 0,1,0 );
 
 
 		// Clear the screen and depth buffer
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-		//world.render();
-		
-		System.out.println( "Before clean " + get_time_ms() );
+		System.out.println( "Before clean " + Time.get_time_ms() );
 		scene_root.clean();
-		System.out.println( "Before render " + get_time_ms() );
+		System.out.println( "Before render " + Time.get_time_ms() );
 		scene_root.render();
-		System.out.println( "After render " + get_time_ms() );
+		System.out.println( "After render " + Time.get_time_ms() );
 
 		TextRenderer.draw( "FPS: " + Integer.toString(fps), 5, 5 + TextRenderer.line_height() * 0 );
 		TextRenderer.draw( "X: " + Float.toString(camera.x), 5, 5 + TextRenderer.line_height() * 1 );
@@ -343,7 +354,7 @@ public class Voxicity
 
 	void update_fps()
 	{
-		if ( get_time_ms() - last_fps_update > 250 )
+		if ( Time.get_time_ms() - last_fps_update > 250 )
 		{
 			fps = fps_count * 4;
 			fps_count = 0;
@@ -353,10 +364,6 @@ public class Voxicity
 		fps_count++;
 	}
 
-	long get_time_ms()
-	{
-		return (Sys.getTime() * 1000)  / Sys.getTimerResolution();
-	}
 
 	void setup_camera()
 	{
@@ -621,13 +628,13 @@ public class Voxicity
 
 	boolean can_change_block()
 	{
-		return get_time_ms() - last_block_change > ( 1000 / 5 );
+		return Time.get_time_ms() - last_block_change > ( 1000 / 5 );
 	}
 
 	void place_block()
 	{
 		if ( can_change_block() )
-			last_block_change = get_time_ms();
+			last_block_change = Time.get_time_ms();
 		else
 			return;
 
@@ -669,7 +676,7 @@ public class Voxicity
 	void remove_block()
 	{
 		if ( can_change_block() )
-			last_block_change = get_time_ms();
+			last_block_change = Time.get_time_ms();
 		else
 			return;
 
@@ -689,6 +696,7 @@ public class Voxicity
 
 	void shutdown()
 	{
+		conn_glue.quit();
 		try
 		{
 			chunk_loader.join();
@@ -698,7 +706,7 @@ public class Voxicity
 			e.printStackTrace();
 		}
 
-		world.shutdown();
+		server.shutdown();
 		System.out.println( "Destroying display" );
 		Display.destroy();
 	}
@@ -717,7 +725,20 @@ public class Voxicity
 			File new_out = new File( "voxicity.log" );
 			System.setOut( new PrintStream( new_out ) );
 
-			Voxicity voxy = new Voxicity();
+			Config config = new Config( "voxicity.properties" );
+
+			Connection server_conn = new Connection();
+			Connection client_conn = new Connection();
+
+			conn_glue = new ConnectionGlue( server_conn, client_conn );
+			new Thread( conn_glue ).start();
+
+			Server server = new Server( config );
+			Client client = new Client( config, client_conn );
+
+			server.new_connection( server_conn );
+
+			Voxicity voxy = new Voxicity( server, client );
 			voxy.init();
 		}
 		catch ( Exception e )

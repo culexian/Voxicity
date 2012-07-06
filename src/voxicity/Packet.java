@@ -21,12 +21,17 @@ package voxicity;
 
 public abstract class Packet
 {
-	abstract public int get_id();
+	public Packet()
+	{
 
-	abstract public byte[] serialize();
+	}
 
 	public Packet( byte[] raw_packet )
 	{
 
 	}
+
+	abstract public int get_id();
+
+	abstract public byte[] serialize();
 }

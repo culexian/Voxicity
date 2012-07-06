@@ -19,37 +19,31 @@
 
 package voxicity;
 
-public class Client
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+public class Config
 {
-	boolean quitting = false;
+	String filename;
+	Properties config = new Properties();
 
-	Config config;
-	Connection connection;
-	Renderer renderer;
-	WorldCache world_cache;
-
-	public Client( Config config, Connection connection )
+	public Config( String filename )
 	{
-		this.config = config;
-		this.connection = connection;
-		this.renderer = new Renderer( config );
+		this.filename = filename;
+		load_config();
 	}
 
-	public void init()
+	public void load_config()
 	{
-
-	}
-
-	public void run()
-	{
-		while( !quitting )
+		try
 		{
-			
+			config.load( new FileInputStream( filename ) );
 		}
-	}
-
-	void update()
-	{
-
+		catch ( IOException e )
+		{
+			System.out.println( "Could not read config from: " + filename );
+			System.out.println( e );
+		}
 	}
 }

@@ -26,32 +26,21 @@ import java.util.HashMap;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import voxicity.scene.WorldNode;
+import voxicity.scene.Node;
 
 public class World
 {
-	ChunkServer chunk_server;
+	Config config;
 
 	// Chunk lookup map
 	Map< Collection< Integer >, Chunk > chunks = new HashMap< Collection< Integer >, Chunk >();
 
-	WorldNode node;
+	Node node;
 
-	public World()
+	public World( Config config )
 	{
-		node = new WorldNode( this );
-		chunk_server = new ChunkServer();
-	}
-
-	public void load_new_chunks()
-	{
-		Chunk new_chunk = chunk_server.get_next_chunk();
-
-		if ( new_chunk == null )
-			return;
-
-		new_chunk.world = this;
-		set_chunk( new_chunk.x, new_chunk.y, new_chunk.z, new_chunk );
+		this.config = config;
+		node = new Node();
 	}
 
 	public boolean is_chunk_loaded( int x, int y, int z )
@@ -67,8 +56,6 @@ public class World
 		{
 			return chunks.get( id );
 		}
-
-		chunk_server.load_chunk( id );
 
 		return null;
 	}
@@ -101,7 +88,7 @@ public class World
 			chunks.get( get_chunk_id( x, y, z + Constants.Chunk.side_length ) ).node.mark();
 	}
 
-	public ArrayList<Integer> get_chunk_id( int x, int y, int z )
+	public static ArrayList<Integer> get_chunk_id( int x, int y, int z )
 	{
 		ArrayList<Integer> id = new ArrayList<Integer>();
 
@@ -152,10 +139,5 @@ public class World
 		int[] chunk = Coord.GlobalToChunkBase( x, y, z );
 		Vector3f.add( box.pos, new Vector3f( chunk[0], chunk[1], chunk[2] ), box.pos );
 		return box;
-	}
-
-	public void shutdown()
-	{
-		chunk_server.shutdown();
 	}
 }

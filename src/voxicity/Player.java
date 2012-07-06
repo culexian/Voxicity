@@ -19,37 +19,9 @@
 
 package voxicity;
 
-public class Client
+import org.lwjgl.util.vector.Vector3f;
+
+public class Player
 {
-	boolean quitting = false;
-
-	Config config;
-	Connection connection;
-	Renderer renderer;
-	WorldCache world_cache;
-
-	public Client( Config config, Connection connection )
-	{
-		this.config = config;
-		this.connection = connection;
-		this.renderer = new Renderer( config );
-	}
-
-	public void init()
-	{
-
-	}
-
-	public void run()
-	{
-		while( !quitting )
-		{
-			
-		}
-	}
-
-	void update()
-	{
-
-	}
+	Vector3f pos = new Vector3f();
 }

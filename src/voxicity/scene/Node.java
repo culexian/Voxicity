@@ -25,7 +25,7 @@ import java.util.Iterator;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
-public abstract class Node
+public class Node
 {
 	Vector3f pos = new Vector3f();
 
@@ -58,7 +58,10 @@ public abstract class Node
 		}
 	}
 
-	abstract void clean_self();
+	void clean_self()
+	{
+
+	}
 
 	public void mark()
 	{
@@ -80,7 +83,10 @@ public abstract class Node
 		GL11.glPopMatrix();
 	}
 
-	abstract void render_self();
+	void render_self()
+	{
+
+	}
 
 	public boolean has_child( Node child )
 	{

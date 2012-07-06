@@ -19,37 +19,12 @@
 
 package voxicity;
 
-public class Client
+import org.lwjgl.Sys;
+
+public class Time
 {
-	boolean quitting = false;
-
-	Config config;
-	Connection connection;
-	Renderer renderer;
-	WorldCache world_cache;
-
-	public Client( Config config, Connection connection )
+	public static long get_time_ms()
 	{
-		this.config = config;
-		this.connection = connection;
-		this.renderer = new Renderer( config );
-	}
-
-	public void init()
-	{
-
-	}
-
-	public void run()
-	{
-		while( !quitting )
-		{
-			
-		}
-	}
-
-	void update()
-	{
-
+		return (Sys.getTime() * 1000)  / Sys.getTimerResolution();
 	}
 }

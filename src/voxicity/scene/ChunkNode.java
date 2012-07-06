@@ -45,6 +45,7 @@ import voxicity.BlockChunkLoc;
 import voxicity.Chunk;
 import voxicity.Constants;
 import voxicity.TextureManager;
+import voxicity.Time;
 
 public class ChunkNode extends Node
 {
@@ -58,6 +59,7 @@ public class ChunkNode extends Node
 	static int shader_prog;
 
 	Chunk chunk;
+	long last_update;
 
 	boolean empty = true;
 
@@ -86,8 +88,13 @@ public class ChunkNode extends Node
 		block_tex = TextureManager.get_texture( "textures/stone.png" );
 	}
 
-	void clean_self()
+	public void clean()
 	{
+		if ( !dirty && ( last_update >= chunk.get_timestamp() ) )
+			return;
+
+		last_update = Time.get_time_ms();
+
 		if ( vert_buf == 0 )
 		{
 			IntBuffer buf = BufferUtils.createIntBuffer(1);
@@ -146,6 +153,7 @@ public class ChunkNode extends Node
 		if ( verts.position() == 0 )
 		{
 			empty = true;
+			dirty = false;
 			return;
 		}
 
@@ -197,6 +205,7 @@ public class ChunkNode extends Node
 			GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
 
 			empty = false;
+			dirty = false;
 		}
 	}
 
