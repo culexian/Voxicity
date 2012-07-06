@@ -26,8 +26,6 @@ import java.util.HashMap;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import voxicity.scene.Node;
-
 public class World
 {
 	Config config;

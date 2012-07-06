@@ -19,8 +19,6 @@
 
 package voxicity;
 
-import voxicity.scene.ChunkNode;
-
 public class Client
 {
 	boolean quitting = false;

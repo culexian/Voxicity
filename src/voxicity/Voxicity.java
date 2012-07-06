@@ -43,9 +43,6 @@ import java.util.ArrayList;
 
 public class Voxicity
 {
-	public static int quads = 0;
-	public static int draw_calls = 0;
-	public static int batch_draw_calls = 0;
 
 	long last_fps_update = 0;
 	int fps_count = 0;

@@ -27,10 +27,12 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
-import voxicity.scene.ChunkNode;
-
 public class Renderer
 {
+	public static int quads = 0;
+	public static int draw_calls = 0;
+	public static int batch_draw_calls = 0;
+
 	Config config;
 	Map< Collection< Integer >, ChunkNode > chunks = new HashMap< Collection< Integer >, ChunkNode >();
 
@@ -52,9 +54,9 @@ public class Renderer
 
 	public void render( Frustum camera )
 	{
-		Voxicity.quads = 0;
-		Voxicity.draw_calls = 0;
-		Voxicity.batch_draw_calls = 0;
+		quads = 0;
+		draw_calls = 0;
+		batch_draw_calls = 0;
 
 		GL11.glLoadIdentity();
 		GLU.gluLookAt( camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.x + camera.look.x, camera.pos.y + camera.look.y, camera.pos.z  + camera.look.z, 0,1,0 );
@@ -78,10 +80,10 @@ public class Renderer
 		TextRenderer.draw( "X: " + Float.toString(camera.pos.x), 5, 5 + TextRenderer.line_height() * 1 );
 		TextRenderer.draw( "Y: " + Float.toString(camera.pos.y), 5, 5 + TextRenderer.line_height() * 2 );
 		TextRenderer.draw( "Z: " + Float.toString(camera.pos.z), 5, 5 + TextRenderer.line_height() * 3 );
-		TextRenderer.draw( "Verts: " + Integer.toString(Voxicity.quads * 4), 5, 5 + TextRenderer.line_height() * 4 );
-		TextRenderer.draw( "Tris: " + Integer.toString(Voxicity.quads * 2), 5, 5 + TextRenderer.line_height() * 5 );
-		TextRenderer.draw( "Render chunks: " + Integer.toString( Voxicity.draw_calls) + "/" + chunks.size(), 5, 5 + TextRenderer.line_height() * 6 );
-		TextRenderer.draw( "Render batches: " + Integer.toString( Voxicity.batch_draw_calls), 5, 5 + TextRenderer.line_height() * 7 );
+		TextRenderer.draw( "Verts: " + Integer.toString(quads * 4), 5, 5 + TextRenderer.line_height() * 4 );
+		TextRenderer.draw( "Tris: " + Integer.toString(quads * 2), 5, 5 + TextRenderer.line_height() * 5 );
+		TextRenderer.draw( "Render chunks: " + Integer.toString(draw_calls) + "/" + chunks.size(), 5, 5 + TextRenderer.line_height() * 6 );
+		TextRenderer.draw( "Render batches: " + Integer.toString(batch_draw_calls), 5, 5 + TextRenderer.line_height() * 7 );
 
 		Display.update();
 	}

@@ -1,5 +1,5 @@
 all:
-	javac -cp .:jar/* src/voxicity/*.java src/voxicity/*/*.java
+	javac -cp .:jar/* src/voxicity/*.java
 	jar cvfme Voxicity.jar Manifest.mf voxicity.Voxicity -C src/ .
 
 test:
