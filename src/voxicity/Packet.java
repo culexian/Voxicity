@@ -31,7 +31,7 @@ public abstract class Packet
 
 	}
 
-	abstract public int get_id();
+	public abstract int get_id();
 
 	abstract public byte[] serialize();
 }

@@ -19,6 +19,8 @@
 
 package voxicity;
 
+import voxicity.scene.ChunkNode;
+
 public class Client
 {
 	boolean quitting = false;
@@ -26,7 +28,7 @@ public class Client
 	Config config;
 	Connection connection;
 	Renderer renderer;
-	WorldCache world_cache;
+	World world_cache = new World( config );
 
 	public Client( Config config, Connection connection )
 	{
@@ -50,6 +52,26 @@ public class Client
 
 	void update()
 	{
+		handle_packets();
+	}
 
+	void handle_packets()
+	{
+		Packet packet = connection.recieve();
+
+		if ( packet == null )
+			return;
+
+		switch ( packet.get_id() )
+		{
+			case Constants.Packet.Chunk:
+			{
+				ChunkPacket p = (ChunkPacket)packet;
+				world_cache.set_chunk( p.x, p.y, p.z, p.chunk );
+				renderer.set_chunk( p.x, p.y, p.z, p.chunk );
+				break;
+			}
+		}
+		
 	}
 }

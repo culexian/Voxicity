@@ -41,4 +41,12 @@ public class Constants
 	{
 		North, East, South, West, Up, Down, All, None
 	}
+
+	public static class Packet
+	{
+		public static final int
+		Chunk = 0,
+		BlockUpdate = 1
+		;
+	}
 }

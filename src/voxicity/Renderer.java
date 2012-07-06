@@ -39,7 +39,18 @@ public class Renderer
 		this.config = config;
 	}
 
-	void render( Frustum camera )
+	public void set_chunk( int x, int y, int z, Chunk chunk )
+	{
+		if ( chunk == null )
+			return;
+
+		ChunkNode node = new ChunkNode( chunk );
+		node.set_pos( x, y, z );
+
+		chunks.put( World.get_chunk_id( x, y, z ), node );
+	}
+
+	public void render( Frustum camera )
 	{
 		Voxicity.quads = 0;
 		Voxicity.draw_calls = 0;

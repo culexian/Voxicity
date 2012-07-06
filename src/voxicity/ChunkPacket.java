@@ -19,12 +19,26 @@
 
 package voxicity;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-public class WorldCache
+public class ChunkPacket extends Packet
 {
-	// Chunk lookup map
-	Map< Collection< Integer >, Chunk > chunks = new HashMap< Collection< Integer >, Chunk >();
+	int x, y, z;
+	Chunk chunk;
+
+	public ChunkPacket( int x, int y, int z, Chunk chunk )
+	{
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.chunk = chunk;
+	}
+
+	public int get_id()
+	{
+		return Constants.Packet.Chunk;
+	}
+
+	public byte[] serialize()
+	{
+		return null;
+	}
 }

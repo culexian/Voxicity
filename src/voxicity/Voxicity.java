@@ -19,8 +19,6 @@
 
 package voxicity;
 
-import voxicity.scene.Node;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -83,7 +81,6 @@ public class Voxicity
 	Client client;
 	static ConnectionGlue conn_glue;
 
-	Node scene_root;
 	World world;
 
 	Block floating_block;
@@ -115,9 +112,7 @@ public class Voxicity
 
 		setup_camera();
 		Mouse.setGrabbed( true );
-		world = server.world;
-		server.world = world;
-		scene_root = world.node;
+		world = client.world_cache;
 
 		floating_block = new Block( 0, 0, 0 );
 
@@ -154,7 +149,6 @@ public class Voxicity
 			server.update();
 			System.out.println( "Render at " + Time.get_time_ms() );
 			client.renderer.render( cam_vol );
-			render();
 			System.out.println( "Loop done" );
 
 			is_close_requested |= Display.isCloseRequested();
@@ -318,38 +312,6 @@ public class Voxicity
 		cam_vol.set_pos( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), new Vector3f( camera.x + look_vec.x, camera.y + camera_offset + look_vec.y, camera.z + look_vec.z ), new Vector3f( 0, 1, 0 ) );
 
 		update_fps();
-	}
-
-	void render()
-	{
-
-		quads = 0;
-		draw_calls = 0;
-		batch_draw_calls = 0;
-
-		GL11.glLoadIdentity();
-		GLU.gluLookAt( cam_vol.pos.x, cam_vol.pos.y + camera_offset, cam_vol.pos.z, cam_vol.pos.x + cam_vol.look.x, cam_vol.pos.y + camera_offset + cam_vol.look.y, cam_vol.pos.z + cam_vol.look.z, 0,1,0 );
-
-
-		// Clear the screen and depth buffer
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-
-		System.out.println( "Before clean " + Time.get_time_ms() );
-		scene_root.clean();
-		System.out.println( "Before render " + Time.get_time_ms() );
-		scene_root.render();
-		System.out.println( "After render " + Time.get_time_ms() );
-
-		TextRenderer.draw( "FPS: " + Integer.toString(fps), 5, 5 + TextRenderer.line_height() * 0 );
-		TextRenderer.draw( "X: " + Float.toString(camera.x), 5, 5 + TextRenderer.line_height() * 1 );
-		TextRenderer.draw( "Y: " + Float.toString(camera.y + camera_offset), 5, 5 + TextRenderer.line_height() * 2 );
-		TextRenderer.draw( "Z: " + Float.toString(camera.z), 5, 5 + TextRenderer.line_height() * 3 );
-		TextRenderer.draw( "Verts: " + Integer.toString(quads * 4), 5, 5 + TextRenderer.line_height() * 4 );
-		TextRenderer.draw( "Tris: " + Integer.toString(quads * 2), 5, 5 + TextRenderer.line_height() * 5 );
-		TextRenderer.draw( "Render chunks: " + Integer.toString(draw_calls) + "/" + world.chunks.size(), 5, 5 + TextRenderer.line_height() * 6 );
-		TextRenderer.draw( "Render batches: " + Integer.toString(batch_draw_calls), 5, 5 + TextRenderer.line_height() * 7 );
-
-		Display.update();
 	}
 
 	void update_fps()

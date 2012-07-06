@@ -27,8 +27,6 @@ public class Chunk
 
 	long write_timestamp = Time.get_time_ms();
  
-	ChunkNode node;
-
 	World world;
 
 	public Block[] blocks = new Block[Constants.Chunk.block_number];
@@ -40,9 +38,6 @@ public class Chunk
 		this.z = z * Constants.Chunk.side_length;
 
 		System.out.println( "Created chunk at " + x + " " + y + " " + z );
-
-		node = new ChunkNode( this );
-		node.set_pos( this.x, this.y, this.z );
 
 		generate_blocks();
 	}
@@ -112,7 +107,6 @@ public class Chunk
 
 		blocks[block_pos] = block;
 		update_timestamp();
-		node.mark();
 	}
 
 	public void generate_blocks()

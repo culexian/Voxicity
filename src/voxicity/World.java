@@ -35,12 +35,9 @@ public class World
 	// Chunk lookup map
 	Map< Collection< Integer >, Chunk > chunks = new HashMap< Collection< Integer >, Chunk >();
 
-	Node node;
-
 	public World( Config config )
 	{
 		this.config = config;
-		node = new Node();
 	}
 
 	public boolean is_chunk_loaded( int x, int y, int z )
@@ -62,7 +59,8 @@ public class World
 
 	public void set_chunk( int x, int y, int z, Chunk chunk )
 	{
-		node.add_child( chunk.node );
+		if ( chunk == null ) return;
+
 		chunks.put( get_chunk_id( x, y, z ), chunk );
 		mark_neighbors( x, y, z );
 	}
@@ -70,22 +68,22 @@ public class World
 	void mark_neighbors( int x, int y, int z )
 	{
 		if ( chunks.containsKey( get_chunk_id( x - Constants.Chunk.side_length, y, z ) ) )
-			chunks.get( get_chunk_id( x - Constants.Chunk.side_length, y, z ) ).node.mark();
+			chunks.get( get_chunk_id( x - Constants.Chunk.side_length, y, z ) ).update_timestamp();
 
 		if ( chunks.containsKey( get_chunk_id( x + Constants.Chunk.side_length, y, z ) ) )
-			chunks.get( get_chunk_id( x + Constants.Chunk.side_length, y, z ) ).node.mark();
+			chunks.get( get_chunk_id( x + Constants.Chunk.side_length, y, z ) ).update_timestamp();
 
 		if ( chunks.containsKey( get_chunk_id( x, y - Constants.Chunk.side_length, z ) ) )
-			chunks.get( get_chunk_id( x, y - Constants.Chunk.side_length, z ) ).node.mark();
+			chunks.get( get_chunk_id( x, y - Constants.Chunk.side_length, z ) ).update_timestamp();
 
 		if ( chunks.containsKey( get_chunk_id( x, y + Constants.Chunk.side_length, z ) ) )
-			chunks.get( get_chunk_id( x, y + Constants.Chunk.side_length, z ) ).node.mark();
+			chunks.get( get_chunk_id( x, y + Constants.Chunk.side_length, z ) ).update_timestamp();
 
 		if ( chunks.containsKey( get_chunk_id( x, y, z - Constants.Chunk.side_length ) ) )
-			chunks.get( get_chunk_id( x, y, z - Constants.Chunk.side_length ) ).node.mark();
+			chunks.get( get_chunk_id( x, y, z - Constants.Chunk.side_length ) ).update_timestamp();
 
 		if ( chunks.containsKey( get_chunk_id( x, y, z + Constants.Chunk.side_length ) ) )
-			chunks.get( get_chunk_id( x, y, z + Constants.Chunk.side_length ) ).node.mark();
+			chunks.get( get_chunk_id( x, y, z + Constants.Chunk.side_length ) ).update_timestamp();
 	}
 
 	public static ArrayList<Integer> get_chunk_id( int x, int y, int z )
