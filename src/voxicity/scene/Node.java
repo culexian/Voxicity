@@ -51,16 +51,8 @@ public class Node
 					return;
 				}
 
-			// Then clean this node
-			clean_self();
-
 			dirty = false;
 		}
-	}
-
-	void clean_self()
-	{
-
 	}
 
 	public void mark()
@@ -78,14 +70,7 @@ public class Node
 			for( Node child : children )
 				child.render();
 
-			render_self();
-
 		GL11.glPopMatrix();
-	}
-
-	void render_self()
-	{
-
 	}
 
 	public boolean has_child( Node child )

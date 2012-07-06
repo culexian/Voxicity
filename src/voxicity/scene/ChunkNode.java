@@ -209,7 +209,7 @@ public class ChunkNode extends Node
 		}
 	}
 
-	void render_self()
+	public void render()
 	{
 		if ( empty )
 			return;
@@ -221,6 +221,12 @@ public class ChunkNode extends Node
 		//if ( !voxicity.Voxicity.cam_vol.collides_plane_check( chunk_box ) )
 		if ( !voxicity.Voxicity.cam_vol.collides( chunk_box ) )
 			return;
+
+		// Push the world matrix
+		GL11.glPushMatrix();
+
+		// Translate to this chunk
+		GL11.glTranslatef( pos.x, pos.y, pos.z );
 
 		voxicity.Voxicity.draw_calls++;
 
@@ -270,6 +276,9 @@ public class ChunkNode extends Node
 		// Disable the shader once more
 		if ( shader_prog != 0 )
 		GL20.glUseProgram( 0 );
+
+		// Pop the world matrix
+		GL11.glPopMatrix();
 	}
 
 	void create_shader_prog()
