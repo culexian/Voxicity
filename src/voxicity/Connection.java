@@ -19,18 +19,25 @@
 
 package voxicity;
 
-import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class Connection
 {
-	Queue< Packet > incoming = new LinkedList< Packet >();
-	Queue< Packet > outgoing = new LinkedList< Packet >();
+	BlockingQueue< Packet > incoming = new LinkedBlockingQueue< Packet >();
+	BlockingQueue< Packet > outgoing = new LinkedBlockingQueue< Packet >();
 
 	public void send( Packet packet )
 	{
-		outgoing.add( packet );
+		try
+		{
+			outgoing.put( packet );
+		}
+		catch ( Exception e )
+		{
+			System.out.println( e );
+			e.printStackTrace();
+		}
 	}
 
 	public Packet recieve()

@@ -39,19 +39,20 @@ public class ConnectionGlue implements Runnable
 	{
 		while( !quitting )
 		{
-			while( a.outgoing.peek() != null )
-				b.incoming.add( a.outgoing.remove() );
-
-			while( b.outgoing.peek() != null )
-				a.incoming.add( b.outgoing.remove() );
-
 			try
 			{
+				while( a.outgoing.peek() != null )
+					b.incoming.put( a.outgoing.take() );
+
+				while( b.outgoing.peek() != null )
+					a.incoming.put( b.outgoing.take() );
+
 				Thread.currentThread().sleep( 20 );
 			}
 			catch ( Exception e )
 			{
 				System.out.println( e );
+				e.printStackTrace();
 			}
 		}
 	}
