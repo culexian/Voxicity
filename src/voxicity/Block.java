@@ -25,6 +25,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.util.vector.Vector3f;
 
 public class Block
 {
@@ -32,8 +33,6 @@ public class Block
 	int data = 0;
 
 	static ArrayList<Integer> block_texes = new ArrayList<Integer>();
-
-	int pos_x,pos_y,pos_z;
 
 	{
 		register_block_tex( id, TextureManager.get_texture( "textures/dirt.png" ) );
@@ -50,33 +49,6 @@ public class Block
 		block_texes.set( id, tex );
 	}
 
-	public Block()
-	{
-		this( 0, 0, 0 );
-	}
-
-	public Block( int pos_x, int pos_y, int pos_z )
-	{
-		this.pos_x = pos_x;
-		this.pos_y = pos_y;
-		this.pos_z = pos_z;
-	}
-
-	public int get_x()
-	{
-		return pos_x;
-	}
-
-	public int get_y()
-	{
-		return pos_y;
-	}
-
-	public int get_z()
-	{
-		return pos_z;
-	}
-
 	public int get_id()
 	{
 		return id;
@@ -87,7 +59,7 @@ public class Block
 		return block_texes.get( id );
 	}
 
-	float[] gen_vert_data()
+	static float[] gen_vert_data()
 	{
 		// Return coordinates for 6 faces of 4 vertices each
 		// that make a cube
@@ -130,7 +102,7 @@ public class Block
 		                  };
 	}
 
-	public FloatBuffer gen_vert_nio()
+	static FloatBuffer gen_vert_nio()
 	{
 		// Store the vertices in a buffer
 		FloatBuffer buf = BufferUtils.createFloatBuffer( 24 * 3 );
@@ -140,15 +112,15 @@ public class Block
 		return buf;
 	}
 
-	public FloatBuffer gen_clean_vert_nio()
+	static FloatBuffer gen_clean_vert_nio( Vector3f pos )
 	{
 		FloatBuffer verts = gen_vert_nio();
 
 		for ( int i = 0 ; i < verts.limit() ; i++ )
 		{
-			if ( i % 3 == 0 ) verts.put( i, verts.get(i) + pos_x );
-			if ( i % 3 == 1 ) verts.put( i, verts.get(i) + pos_y );
-			if ( i % 3 == 2 ) verts.put( i, verts.get(i) + pos_z );
+			if ( i % 3 == 0 ) verts.put( i, verts.get(i) + pos.x );
+			if ( i % 3 == 1 ) verts.put( i, verts.get(i) + pos.y );
+			if ( i % 3 == 2 ) verts.put( i, verts.get(i) + pos.z );
 		}
 
 		verts.rewind();
@@ -156,7 +128,7 @@ public class Block
 		return verts;
 	}
 
-	public int[] gen_index_data()
+	static int[] gen_index_data()
 	{
 		// Return array with indices for a cube, 6 sides, 1 quad each
 		return new int[]{
@@ -169,7 +141,7 @@ public class Block
 		                };
 	}
 
-	public IntBuffer gen_index_nio()
+	static IntBuffer gen_index_nio()
 	{
 		// Store the indices in a buffer
 		IntBuffer buf = BufferUtils.createIntBuffer( 6 * 4 );
@@ -179,7 +151,7 @@ public class Block
 		return buf;
 	}
 
-	float[] gen_tex_data()
+	static float[] gen_tex_data()
 	{
 		// Return texture coords for 6 sides of 4 vertices that make a cube
 		return new float[]{
@@ -221,7 +193,7 @@ public class Block
 		                  };
 	}
 
-	public FloatBuffer gen_tex_nio()
+	static FloatBuffer gen_tex_nio()
 	{
 		// Store the coords in a buffer
 		FloatBuffer buf = BufferUtils.createFloatBuffer( 6 * 4 * 2 ); // Size 8 for now
@@ -231,12 +203,8 @@ public class Block
 		return buf;
 	}
 
-	public AABB get_bounds()
+	static AABB get_bounds()
 	{
-		AABB box = new AABB( 1, 1, 1 );
-		box.pos.x = pos_x;
-		box.pos.y = pos_y;
-		box.pos.z = pos_z;
-		return box; 
+		return new AABB( 1, 1, 1 ); 
 	}
 }

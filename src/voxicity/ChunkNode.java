@@ -119,32 +119,36 @@ public class ChunkNode
 
 		BlockChunkLoc loc = new BlockChunkLoc( 0, 0, 0, chunk );
 
-		for ( Block block : chunk.blocks )
-		{
-			if ( block != null )
-			{
-				loc.x = block.get_x();
-				loc.y = block.get_y();
-				loc.z = block.get_z();
-
-				if ( !cull( loc ) && !chunk_edge_cull( loc ) )
+		for ( int i = 0 ; i < Constants.Chunk.side_length ; i++ )
+			for ( int j = 0 ; j < Constants.Chunk.side_length ; j++ )
+				for ( int k = 0 ; k < Constants.Chunk.side_length ; k++ )
 				{
-					verts.put( block.gen_clean_vert_nio() );
-					tex_coords.put( block.gen_tex_nio() );
+					Block block = chunk.get_block( i, j, k );
 
-					if ( !id_ind.containsKey( block.get_tex() ) )
-						id_ind.put( block.get_tex(), BufferUtils.createIntBuffer( 24 * Constants.Chunk.block_number ) );
+					if ( block != null )
+					{
+						loc.x = i;
+						loc.y = j;
+						loc.z = k;
 
-					IntBuffer ind_buf = id_ind.get( block.get_tex() );
+						if ( !cull( loc ) && !chunk_edge_cull( loc ) )
+						{
+							verts.put( block.gen_clean_vert_nio( new Vector3f( loc.x, loc.y, loc.z ) ) );
+							tex_coords.put( block.gen_tex_nio() );
 
-					IntBuffer block_indices = block.gen_index_nio();
-					while ( block_indices.hasRemaining() )
-						ind_buf.put( block_indices.get() + offset );
+							if ( !id_ind.containsKey( block.get_tex() ) )
+								id_ind.put( block.get_tex(), BufferUtils.createIntBuffer( 24 * Constants.Chunk.block_number ) );
 
-					offset += block_indices.position();
+							IntBuffer ind_buf = id_ind.get( block.get_tex() );
+
+							IntBuffer block_indices = block.gen_index_nio();
+							while ( block_indices.hasRemaining() )
+								ind_buf.put( block_indices.get() + offset );
+
+							offset += block_indices.position();
+						}
+					}
 				}
-			}
-		}
 
 		if ( verts.position() == 0 )
 		{

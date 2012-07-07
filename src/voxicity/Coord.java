@@ -65,7 +65,7 @@ public class Coord
 		y = y % Constants.Chunk.side_length;
 		z = z % Constants.Chunk.side_length;
 
-		// Short circuit return on 0 to avoid ( 32 - 0 ) on negative chunk borders
+		// Short circuit return on 0 to avoid ( 16 - 0 ) on negative chunk borders
 		// Return inverted modulus on negative coords to keep chunk offset
 		// orientation uniform in all coords
 		return new int[]{

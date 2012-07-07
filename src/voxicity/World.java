@@ -132,8 +132,7 @@ public class World
 			return null;
 
 		AABB box = block.get_bounds();
-		int[] chunk = Coord.GlobalToChunkBase( x, y, z );
-		Vector3f.add( box.pos, new Vector3f( chunk[0], chunk[1], chunk[2] ), box.pos );
+		Vector3f.add( box.pos, new Vector3f( x, y, z ), box.pos );
 		return box;
 	}
 }

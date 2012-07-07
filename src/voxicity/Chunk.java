@@ -27,7 +27,7 @@ public class Chunk
  
 	World world;
 
-	public Block[] blocks = new Block[Constants.Chunk.block_number];
+	Block[] blocks = new Block[Constants.Chunk.block_number];
 
 	public Chunk( int x, int y, int z )
 	{
@@ -96,13 +96,6 @@ public class Chunk
 			return;
 		}
 
-		if ( block != null )
-		{
-			block.pos_x = offset[0];
-			block.pos_y = offset[1];
-			block.pos_z = offset[2];
-		}
-
 		blocks[block_pos] = block;
 		update_timestamp();
 	}
@@ -134,15 +127,15 @@ public class Chunk
 					if ( ( this.y + y ) > ground_level )
 						set_block( x, y, z, null );
 					else if ( ( this.y + y ) == ground_level )
-						set_block( x, y, z, new Grass( x, y, z ) );
+						set_block( x, y, z, new Grass() );
 					else
 					{
 					//System.out.println( "Ground level: " + ground_level + " y-coord: " + ( this.y + y ) );
 						//System.out.println( "ground_level - ( y-coord ) = " + ( ground_level - ( this.y + y ) ) );
 						if ( ground_level - ( this.y + y ) <= 1 )
-							set_block( x, y, z, new Block( x, y, z ) );
+							set_block( x, y, z, new Block() );
 						else
-							set_block( x, y, z, new Stone( x, y, z ) );
+							set_block( x, y, z, new Stone() );
 					}
 				}
 			}

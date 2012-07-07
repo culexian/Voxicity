@@ -111,7 +111,7 @@ public class Voxicity
 		Mouse.setGrabbed( true );
 		world = client.world_cache;
 
-		floating_block = new Block( 0, 0, 0 );
+		floating_block = new Block();
 
 		System.out.println( "Setting up OpenGL states" );
 		GL11.glShadeModel( GL11.GL_SMOOTH );
@@ -295,9 +295,9 @@ public class Voxicity
 			// Set the look vector
 			look_vec.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
 
-			floating_block.pos_x = (int)(look_vec.x + camera.x);
+			/*floating_block.pos_x = (int)(look_vec.x + camera.x);
 			floating_block.pos_y = (int)(look_vec.y + camera.y + camera_offset);
-			floating_block.pos_z = (int)(look_vec.z + camera.z);
+			floating_block.pos_z = (int)(look_vec.z + camera.z);*/
 		}
 
 		System.out.println( "Check collisions at " + Time.get_time_ms() );

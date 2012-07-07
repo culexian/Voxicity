@@ -27,12 +27,7 @@ public class Grass extends Block
 		register_block_tex( id, TextureManager.get_texture( "textures/grass.png" ) );
 	}
 
-	public Grass( int x, int y, int z )
-	{
-		super( x, y, z );
-	}
-
-	float[] gen_tex_data()
+	static float[] gen_tex_data()
 	{
 		// Return texture coords for 6 sides of 4 vertices that make a cube
 		return new float[]{
