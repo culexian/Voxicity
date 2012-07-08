@@ -281,8 +281,6 @@ public class RLETree
 				// Remove b from tree
 			}
 		}
-		else
-			System.out.println( "Failure! FIX NOW!" );
 	}
 
 	public String toString()
