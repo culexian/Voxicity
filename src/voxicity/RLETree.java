@@ -258,7 +258,7 @@ public class RLETree
 			}
 
 			// node.pos is somewhere inside a run of at least length 3
-			Node new_next = new Node( node.pos, start.data );
+			Node new_next = new Node( node.pos + 1, start.data );
 			node.next = new_next;
 			new_next.prev = node;
 			start.next = node;
