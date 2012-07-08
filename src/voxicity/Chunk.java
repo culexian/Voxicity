@@ -28,6 +28,7 @@ public class Chunk
 	World world;
 
 	Block[] blocks = new Block[Constants.Chunk.block_number];
+	RLETree blocks_new = new RLETree();
 
 	public Chunk( int x, int y, int z )
 	{
@@ -96,6 +97,15 @@ public class Chunk
 			return;
 		}
 
+		if ( block instanceof Grass )
+			blocks_new.set( block_pos, 3 );
+		else if ( block instanceof Stone )
+			blocks_new.set( block_pos, 2 );
+		else if ( block instanceof Block )
+			blocks_new.set( block_pos, 1 );
+		else
+			blocks_new.set( block_pos, 0 );
+
 		blocks[block_pos] = block;
 		update_timestamp();
 	}
@@ -143,6 +153,8 @@ public class Chunk
 		long end = System.nanoTime();
 
 		System.out.println( "Chunk generation time: " + ( end - start ) / 1000 + "ms" );
+
+		System.out.println( blocks_new );
 	}
 
 	void update_timestamp()
