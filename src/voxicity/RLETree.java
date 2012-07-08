@@ -272,7 +272,6 @@ public class RLETree
 			// a and b have the same data, merge to one run by removing b
 			if ( a.data == b.data )
 			{
-				System.out.println( "Merge (" + a.pos + " " + a.data + ") (" + b.pos + " " + b.data + ")" );
 				a.next = b.next;
 
 				// Don't try to set null's prev
