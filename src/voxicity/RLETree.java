@@ -96,26 +96,18 @@ public class RLETree
 		Node prev = start.prev;
 		Node next = start.next;
 
-		System.out.println( "Checkpoint 1" );
-
 		// Nothing to do, the position in this run already has that data
 		if ( start.data == node.data )
 			return;
 
 		// node.data != start.data from here
 
-		System.out.println( "Checkpoint 2" );
-
 		// If at the start of the run
 		if ( node.pos == start.pos )
 		{
-			System.out.println( "Checkpoint 3" );
-
 			// If the list has just one run
 			if ( prev == null && next == null )
 			{
-				System.out.println( "Checkpoint 4" );
-
 				start.pos += 1;
 				start.prev = node;
 				node.next = start;
@@ -127,35 +119,33 @@ public class RLETree
 			// If at the end of the list
 			if ( next == null )
 			{
-				System.out.println( "Checkpoint 5" );
-
 				start.pos += 1;
 				prev.next = node;
-				start.prev = node;
-				node.next = start;
 				node.prev = prev;
+				node.next = start;
+				start.prev = node;
 				// Insert node to tree
-				// Try collapse to prev
+				// Try collapse prev to node
+				collapse( prev, node );
 				return;
 			}
 
 			// If this run is the first one
 			if ( start == head )
 			{
-				System.out.println( "Checkpoint 6" );
-
 				// If a single node at start, just change the data
 				if ( next.pos == start.pos + 1 )
 				{
 					start.data = node.data;
 					// Try collapse to next
+					collapse( node, next );
 					return;
 				}
 				else // Run is more than 1 in length
 				{
 					start.pos += 1;
-					start.prev = node;
 					node.next = start;
+					start.prev = node;
 					head = node;
 					// Insert node to tree
 					return;
@@ -164,14 +154,14 @@ public class RLETree
 
 			// The run is somewhere inside the list
 
-			System.out.println( "Checkpoint 7" );
-
 			// If the run is 1 in length
 			if ( next.pos == start.pos + 1 )
 			{
 				start.data = data;
 				// Try to collapse to next
-				// Try to collapse to prev
+				collapse( start, next );
+				// Try to collapse prev to node
+				collapse( prev, start );
 				return;
 			}
 
@@ -182,7 +172,8 @@ public class RLETree
 			node.prev = prev;
 			prev.next = node;
 			// Insert node to tree
-			// Try to collapse to prev
+			// Try to collapse prev to node
+			collapse( prev, node );
 			return;
 		}
 		else // Somewhere out in a run, by definition in a run longer than 1 length
@@ -213,6 +204,7 @@ public class RLETree
 					start.next = node;
 					// Insert node to tree
 					// Try to collapse node to next
+					collapse( node, next );
 					return;
 				}
 				else // Inside the first run of at least length 3
@@ -254,6 +246,7 @@ public class RLETree
 				start.next = node;
 				// Insert node to tree
 				// Try to collapse node to next
+				collapse( node, next );
 				return;
 			}
 
@@ -269,6 +262,28 @@ public class RLETree
 			// Insert new_next to tree
 			return;
 		}
+	}
+
+	private void collapse( Node a, Node b )
+	{
+		// Check that the links work( shouldn't ever fail if all else is done right )
+		if ( a.next == b && b.prev == a )
+		{
+			// a and b have the same data, merge to one run by removing b
+			if ( a.data == b.data )
+			{
+				System.out.println( "Merge (" + a.pos + " " + a.data + ") (" + b.pos + " " + b.data + ")" );
+				a.next = b.next;
+
+				// Don't try to set null's prev
+				if ( b.next != null )
+					b.next.prev = a;
+
+				// Remove b from tree
+			}
+		}
+		else
+			System.out.println( "Failure! FIX NOW!" );
 	}
 
 	public String toString()
