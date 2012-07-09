@@ -143,8 +143,6 @@ public class Chunk
 		long end = System.nanoTime();
 
 		System.out.println( "Chunk generation time: " + ( end - start ) / 1000 + "ms" );
-
-		System.out.println( blocks );
 	}
 
 	void update_timestamp()
