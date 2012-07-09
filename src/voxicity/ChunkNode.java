@@ -119,32 +119,46 @@ public class ChunkNode
 
 		BlockChunkLoc loc = new BlockChunkLoc( 0, 0, 0, chunk );
 
+		// Iterate through all blocks in the chunk
 		for ( int i = 0 ; i < Constants.Chunk.side_length ; i++ )
 			for ( int j = 0 ; j < Constants.Chunk.side_length ; j++ )
 				for ( int k = 0 ; k < Constants.Chunk.side_length ; k++ )
 				{
-					Block block = chunk.get_block( i, j, k );
+					// Get block id
+					int id = chunk.get_block( i, j, k );
 
-					if ( block != null )
+					// If air, do nothing, next block
+					if ( id != Constants.Blocks.air )
 					{
 						loc.x = i;
 						loc.y = j;
 						loc.z = k;
 
+						// If culled, do nothing, next block
 						if ( !cull( loc ) && !chunk_edge_cull( loc ) )
 						{
-							verts.put( block.gen_clean_vert_nio( new Vector3f( loc.x, loc.y, loc.z ) ) );
-							tex_coords.put( block.gen_tex_nio() );
+							// Get the vertices for this block and put them in the verts buffer
+							verts.put( Block.gen_clean_vert_nio( new Vector3f( loc.x, loc.y, loc.z ) ) );
 
-							if ( !id_ind.containsKey( block.get_tex() ) )
-								id_ind.put( block.get_tex(), BufferUtils.createIntBuffer( 24 * Constants.Chunk.block_number ) );
+							// Get the texture coords for this block and put them in the tex_coords buffer
+							tex_coords.put( Block.gen_tex_nio() );
 
-							IntBuffer ind_buf = id_ind.get( block.get_tex() );
+							// Look up the texture for these vertices
+							int tex_id = TextureManager.get_texture( Constants.Blocks.tex_map.get( id ) );
 
-							IntBuffer block_indices = block.gen_index_nio();
+							// Look up the index buffer for this texture and create it if needed
+							if ( !id_ind.containsKey( tex_id ) )
+								id_ind.put( tex_id, BufferUtils.createIntBuffer( 24 * Constants.Chunk.block_number ) );
+
+							// Get the index buffer for this texture
+							IntBuffer ind_buf = id_ind.get( tex_id );
+
+							// Get the indices for this block's vertices and put them in the ind_buf buffer after offsetting them
+							IntBuffer block_indices = Block.gen_index_nio();
 							while ( block_indices.hasRemaining() )
 								ind_buf.put( block_indices.get() + offset );
 
+							// Increase the offset by the number of indices
 							offset += block_indices.position();
 						}
 					}
@@ -410,7 +424,7 @@ public class ChunkNode
 	{
 		for ( Constants.Direction dir : Constants.Direction.values() )
 		{
-			if ( loc.get( dir ).get() == null )
+			if ( loc.get( dir ).get() == Constants.Blocks.air )
 				return false;
 		}
 
@@ -428,7 +442,7 @@ public class ChunkNode
 			if ( !dir_loc.available() )
 				return false;
 
-			if ( dir_loc.get_block() == null )
+			if ( dir_loc.get_block() == Constants.Blocks.air )
 				return false;
 		}
 

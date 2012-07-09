@@ -97,41 +97,41 @@ public class World
 		return id;
 	}
 
-	public Block get_block( int x, int y, int z )
+	public int get_block( int x, int y, int z )
 	{
 		BlockLoc loc = new BlockLoc( x, y, z, this );
 
 		return loc.get_block();
 	}
 
-	public Block get_block( float x, float y, float z )
+	public int get_block( float x, float y, float z )
 	{
 		return get_block( Math.round( x ), Math.round( y ), Math.round( z ) );
 	}
 
-	public void set_block( int x, int y, int z, Block block )
+	public void set_block( int x, int y, int z, int id )
 	{
 		BlockLoc loc = new BlockLoc( x, y, z, this );
 
 		if ( loc.get_chunk() == null )
 			return;
 
-		loc.get_chunk().set_block( x, y, z, block );
+		loc.get_chunk().set_block( x, y, z, id );
 	}
 
-	public void set_block( float x, float y, float z, Block block )
+	public void set_block( float x, float y, float z, int id )
 	{
-		set_block( Math.round( x ), Math.round( y ), Math.round( z ), block );
+		set_block( Math.round( x ), Math.round( y ), Math.round( z ), id );
 	}
 
 	public AABB get_hit_box( int x, int y, int z )
 	{
-		Block block = get_block( x, y, z );
+		int id = get_block( x, y, z );
 
-		if ( block == null )
+		if ( id == Constants.Blocks.air )
 			return null;
 
-		AABB box = block.get_bounds();
+		AABB box = Block.get_bounds();
 		Vector3f.add( box.pos, new Vector3f( x, y, z ), box.pos );
 		return box;
 	}

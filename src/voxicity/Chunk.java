@@ -27,8 +27,7 @@ public class Chunk
  
 	World world;
 
-	Block[] blocks = new Block[Constants.Chunk.block_number];
-	RLETree blocks_new = new RLETree();
+	RLETree blocks = new RLETree();
 
 	public Chunk( int x, int y, int z )
 	{
@@ -77,18 +76,18 @@ public class Chunk
 		return block_pos;
 	}
 
-	public Block get_block( int x, int y, int z )
+	public int get_block( int x, int y, int z )
 	{
 		int[] offset = Coord.GlobalToChunkOffset( x, y, z );
 		int block_pos = get_block_pos( offset[0], offset[1], offset[2] );
 
 		if ( ( block_pos < 0 ) || ( block_pos >= Constants.Chunk.block_number ) )
-			return null;
+			return Constants.Blocks.air;
 
-		return blocks[block_pos];
+		return blocks.get( block_pos );
 	}
 
-	public void set_block( int x, int y, int z, Block block )
+	public void set_block( int x, int y, int z, int id )
 	{
 		int[] offset = Coord.GlobalToChunkOffset( x, y, z );
 		int block_pos = get_block_pos( offset[0], offset[1], offset[2] );
@@ -97,16 +96,7 @@ public class Chunk
 			return;
 		}
 
-		if ( block instanceof Grass )
-			blocks_new.set( block_pos, 3 );
-		else if ( block instanceof Stone )
-			blocks_new.set( block_pos, 2 );
-		else if ( block instanceof Block )
-			blocks_new.set( block_pos, 1 );
-		else
-			blocks_new.set( block_pos, 0 );
-
-		blocks[block_pos] = block;
+		blocks.set( block_pos, id );
 		update_timestamp();
 	}
 
@@ -135,17 +125,17 @@ public class Chunk
 					//System.out.println( "Ground level: " + ground_level );
 
 					if ( ( this.y + y ) > ground_level )
-						set_block( x, y, z, null );
+						set_block( x, y, z, Constants.Blocks.air );
 					else if ( ( this.y + y ) == ground_level )
-						set_block( x, y, z, new Grass() );
+						set_block( x, y, z, Constants.Blocks.grass );
 					else
 					{
 					//System.out.println( "Ground level: " + ground_level + " y-coord: " + ( this.y + y ) );
 						//System.out.println( "ground_level - ( y-coord ) = " + ( ground_level - ( this.y + y ) ) );
 						if ( ground_level - ( this.y + y ) <= 1 )
-							set_block( x, y, z, new Block() );
+							set_block( x, y, z, Constants.Blocks.dirt );
 						else
-							set_block( x, y, z, new Stone() );
+							set_block( x, y, z, Constants.Blocks.stone );
 					}
 				}
 			}
@@ -154,7 +144,7 @@ public class Chunk
 
 		System.out.println( "Chunk generation time: " + ( end - start ) / 1000 + "ms" );
 
-		System.out.println( blocks_new );
+		System.out.println( blocks );
 	}
 
 	void update_timestamp()

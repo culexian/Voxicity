@@ -33,13 +33,13 @@ public class BlockChunkLoc
 		this.z = z;
 	}
 
-	public Block get()
+	public int get()
 	{
 		if ( x < 0 || y < 0 || z < 0 )
-			return null;
+			return Constants.Blocks.air;
 
 		if ( ( x >= Constants.Chunk.side_length ) || ( y >= Constants.Chunk.side_length ) || ( z >= Constants.Chunk.side_length ) )
-			return null;
+			return Constants.Blocks.air;
 
 		return chunk.get_block( x, y, z );
 	}

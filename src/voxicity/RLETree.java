@@ -51,8 +51,13 @@ public class RLETree
 		root = head;
 	}
 
+	int get( int pos )
+	{
+		return seek_node( pos ).data;
+	}
+
 	/* Currently seeks through the linked list of runs */
-	Node seek_node( int pos )
+	private Node seek_node( int pos )
 	{
 		// Stores the current node being looked at
 		Node node = head;
@@ -282,6 +287,8 @@ public class RLETree
 			}
 		}
 	}
+
+	
 
 	public String toString()
 	{

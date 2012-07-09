@@ -19,6 +19,9 @@
 
 package voxicity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Constants
 {
 	public static class Chunk
@@ -31,10 +34,20 @@ public class Constants
 	public static class Blocks
 	{
 		public static final Integer
-			dirt = 0,
-			stone = 1,
-			grass = 2
+			air = 0,
+			dirt = 1,
+			stone = 2,
+			grass = 3
 			;
+
+		public static final Map< Integer, String > tex_map = new HashMap< Integer, String >()
+		{
+			{
+				put( Blocks.dirt, "textures/dirt.png" );
+				put( Blocks.stone, "textures/stone.png" );
+				put( Blocks.grass, "textures/grass.png" );
+			}
+		};
 	}
 
 	public enum Direction

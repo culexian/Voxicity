@@ -40,6 +40,9 @@ public class TextureManager
 
 	public static int get_texture( String name )
 	{
+		if ( name == null )
+			return 0;
+
 		if ( textures.containsKey( name ) )
 			return textures.get( name ).getTextureID();
 

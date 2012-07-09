@@ -111,8 +111,6 @@ public class Voxicity
 		Mouse.setGrabbed( true );
 		world = client.world_cache;
 
-		floating_block = new Block();
-
 		System.out.println( "Setting up OpenGL states" );
 		GL11.glShadeModel( GL11.GL_SMOOTH );
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
@@ -597,33 +595,33 @@ public class Voxicity
 		else
 			return;
 
-		Block block = world.get_block( place_loc.x, place_loc.y, place_loc.z );
-		if ( block == null )
+		int id = world.get_block( place_loc.x, place_loc.y, place_loc.z );
+		if ( id == Constants.Blocks.air )
 		{
 			//System.out.println( "Tried to place a block!" );
-			world.set_block( place_loc.x, place_loc.y, place_loc.z, new Block() );
+			world.set_block( place_loc.x, place_loc.y, place_loc.z, Constants.Blocks.dirt );
 		}
 		else
 		{
 			switch( world.get_hit_box( Math.round(place_loc.x), Math.round(place_loc.y), Math.round(place_loc.z) ).collision_side( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), look_vec ) )
 			{
 				case Up:
-					world.set_block( place_loc.x, place_loc.y + 1, place_loc.z, new Block() );
+					world.set_block( place_loc.x, place_loc.y + 1, place_loc.z, Constants.Blocks.dirt );
 					break;
 				case Down:
-					world.set_block( place_loc.x, place_loc.y - 1, place_loc.z, new Block() );
+					world.set_block( place_loc.x, place_loc.y - 1, place_loc.z, Constants.Blocks.dirt );
 					break;
 				case West:
-					world.set_block( place_loc.x - 1, place_loc.y, place_loc.z, new Block() );
+					world.set_block( place_loc.x - 1, place_loc.y, place_loc.z, Constants.Blocks.dirt );
 					break;
 				case East:
-					world.set_block( place_loc.x + 1, place_loc.y, place_loc.z, new Block() );
+					world.set_block( place_loc.x + 1, place_loc.y, place_loc.z, Constants.Blocks.dirt );
 					break;
 				case North:
-					world.set_block( place_loc.x, place_loc.y, place_loc.z + 1, new Block() );
+					world.set_block( place_loc.x, place_loc.y, place_loc.z + 1, Constants.Blocks.dirt );
 					break;
 				case South:
-					world.set_block( place_loc.x, place_loc.y, place_loc.z - 1, new Block() );
+					world.set_block( place_loc.x, place_loc.y, place_loc.z - 1, Constants.Blocks.dirt );
 					break;
 			}
 
@@ -639,10 +637,10 @@ public class Voxicity
 		else
 			return;
 
-		if ( world.get_block( place_loc.x, place_loc.y, place_loc.z ) != null )
+		if ( world.get_block( place_loc.x, place_loc.y, place_loc.z ) != Constants.Blocks.air )
 		{
 			//System.out.println( "Tried to remove a block!" );
-			world.set_block( place_loc.x, place_loc.y, place_loc.z, null );
+			world.set_block( place_loc.x, place_loc.y, place_loc.z, Constants.Blocks.air );
 		}
 		//else
 			//System.out.println( "No block was there!" );
