@@ -85,6 +85,10 @@ public class Renderer
 		TextRenderer.draw( "Render chunks: " + Integer.toString(draw_calls) + "/" + chunks.size(), 5, 5 + TextRenderer.line_height() * 6 );
 		TextRenderer.draw( "Render batches: " + Integer.toString(batch_draw_calls), 5, 5 + TextRenderer.line_height() * 7 );
 
+		int[] chunk = Coord.GlobalToChunk( Math.round( camera.pos.x), Math.round( camera.pos.y ), Math.round( camera.pos.z ) );
+
+		TextRenderer.draw( "Chunk X Y Z: " + chunk[0] + " " + chunk[1] + " " + chunk[2], 5, 5 + TextRenderer.line_height() * 8 );
+
 		Display.update();
 	}
 }

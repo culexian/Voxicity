@@ -27,7 +27,7 @@ public class RLETree
 		public int data;
 
 		public Node next, prev;
-		public Node parent, left, right;
+		public Node left, right;
 		public int balance;
 
 		public Node( int pos, int data )
@@ -53,7 +53,10 @@ public class RLETree
 
 	int get( int pos )
 	{
-		return seek_node( pos ).data;
+		if ( pos < 0 )
+			return -1;
+
+		return tree_search( root, pos ).data;
 	}
 
 	/* Currently seeks through the linked list of runs */
@@ -94,10 +97,11 @@ public class RLETree
 			return;
 		}
 
+		//System.out.println( "Setting " + pos + " " + data );
 		Node node = new Node( pos, data );
 
 		// Get the node containing this position
-		Node start = seek_node( node.pos );
+		Node start = tree_search( root, node.pos );
 		Node prev = start.prev;
 		Node next = start.next;
 
@@ -118,6 +122,7 @@ public class RLETree
 				node.next = start;
 				head = node;
 				// Insert node to tree
+				tree_insert( root, node );
 				return;
 			}
 
@@ -130,6 +135,7 @@ public class RLETree
 				node.next = start;
 				start.prev = node;
 				// Insert node to tree
+				tree_insert( root, node );
 				// Try collapse prev to node
 				collapse( prev, node );
 				return;
@@ -153,6 +159,7 @@ public class RLETree
 					start.prev = node;
 					head = node;
 					// Insert node to tree
+					tree_insert( root, node );
 					return;
 				}
 			}
@@ -163,9 +170,9 @@ public class RLETree
 			if ( next.pos == start.pos + 1 )
 			{
 				start.data = data;
-				// Try to collapse to next
+				// Try to collapse start to next
 				collapse( start, next );
-				// Try to collapse prev to node
+				// Try to collapse prev to start
 				collapse( prev, start );
 				return;
 			}
@@ -177,6 +184,7 @@ public class RLETree
 			node.prev = prev;
 			prev.next = node;
 			// Insert node to tree
+			tree_insert( root, node );
 			// Try to collapse prev to node
 			collapse( prev, node );
 			return;
@@ -193,7 +201,9 @@ public class RLETree
 				node.next = last;
 				last.prev = node;
 				// Insert node to tree
+				tree_insert( root, node );
 				// Insert last to tree
+				tree_insert( root, last );
 				return;
 			}
 
@@ -208,6 +218,7 @@ public class RLETree
 					next.prev = node;
 					start.next = node;
 					// Insert node to tree
+					tree_insert( root, node );
 					// Try to collapse node to next
 					collapse( node, next );
 					return;
@@ -222,7 +233,9 @@ public class RLETree
 					new_next.next = next;
 					next.prev = new_next;
 					// Inset node to tree
+					tree_insert( root, node );
 					// Insert new_next to tree
+					tree_insert( root, new_next );
 					return;
 				}
 			}
@@ -236,7 +249,9 @@ public class RLETree
 				node.next = new_last;
 				new_last.prev = node;
 				// Insert node to tree
+				tree_insert( root, node );
 				// Insert new_last to tree
+				tree_insert( root, new_last );
 				return;
 			}
 
@@ -250,6 +265,7 @@ public class RLETree
 				node.prev = start;
 				start.next = node;
 				// Insert node to tree
+				tree_insert( root, node );
 				// Try to collapse node to next
 				collapse( node, next );
 				return;
@@ -264,7 +280,9 @@ public class RLETree
 			new_next.next = next;
 			next.prev = new_next;
 			// Insert node to tree
+			tree_insert( root, node );
 			// Insert new_next to tree
+			tree_insert( root, new_next );
 			return;
 		}
 	}
@@ -284,11 +302,152 @@ public class RLETree
 					b.next.prev = a;
 
 				// Remove b from tree
+				root = tree_delete( root, b );
 			}
 		}
 	}
 
-	
+	// Insert a new node into the tree at the first available position
+	// that fits its pos attribute starting from _root
+	private Node tree_insert( Node _root, Node node )
+	{
+		// If any of the two nodes are invalid, return
+		if ( node == null || _root == null )
+			return _root;
+
+		// If a node with this pos already exists, return without doing anything
+		if ( node.pos == _root.pos )
+			return _root;
+
+		// If node.pos is less than this root, add it to the left subtree
+		if ( node.pos < _root.pos )
+		{
+			// No left subtree, this node is it now
+			if ( _root.left == null )
+				_root.left = node;
+			else // Call insert on the left subtree
+				tree_insert( _root.left, node );
+		}
+		else // node.pos is greater than _root.pos
+		{
+			// No right subtree, this node is it now
+			if ( _root.right == null )
+				_root.right = node;
+			else // Call insert on the right subtree
+				tree_insert( _root.right, node );
+		}
+
+		// Balance the tree
+		return _root;
+	}
+
+	private Node tree_delete( Node _root, Node node )
+	{
+		// If either _root or node is invalid, return
+		if ( _root == null || node == null )
+			return _root;
+
+		// Once we're at the node to remove
+		if ( _root.pos == node.pos )
+		{
+			// No children nodes, return null to remove node
+			if ( _root.left == null && _root.right == null )
+				return null;
+
+			// Just a left child, return that as the new node
+			if ( _root.left != null && _root.right == null )
+				return _root.left;
+
+			// Just a right child, return that as the new node
+			if ( _root.left == null && _root.right != null )
+				return _root.right;
+
+			// _root has two children, find an heir
+			Node heir = find_heir( _root );
+
+			// Remove the heir from the tree
+			tree_delete( _root, heir );
+
+			// Fix links
+			heir.left = _root.left;
+			heir.right = _root.right;
+
+			// Balance tree
+			return heir;
+		}
+
+		// Keep searching down the tree
+
+		if ( node.pos < _root.pos )
+			_root.left = tree_delete( _root.left, node );
+		else if ( node.pos > _root.pos )
+			_root.right = tree_delete( _root.right, node );
+
+		// Balance tree
+		return _root;
+	}
+
+	// Find an heir for the root node, return that.
+	// _root node has 2 children at this point
+	// Returns the right-most node in the left subtree,
+	// return node will always have a left child or no children.
+	private Node find_heir( Node _root )
+	{
+		// Start in the left subtree of the root
+		Node cur = _root.left;
+
+		// Find the right-most( closest to root ) node
+		while ( cur.right != null )
+			cur = cur.right;
+
+		// Return the right-most node
+		return cur;
+	}
+
+	// Search the tree from root to a run using binary search
+	// and returning the Node containing the requested pos in its run
+	private Node tree_search( Node _root, int pos )
+	{
+		if ( pos < 0 )
+		{
+			System.out.println( "No positions less than 0 allowed." );
+			return null;
+		}
+
+		// If the _root is null, return null
+		if ( _root == null )
+			return null;
+
+		// If _root.pos is equal to to pos, return _root
+		if ( pos == _root.pos )
+			return _root;
+
+		// If pos is less than _root.pos, search the left subtree
+		// If there is no left subtree, return the previous list node
+		if ( pos < _root.pos )
+		{
+			if ( _root.left == null )
+				return _root.prev;
+			else
+				return tree_search( _root.left, pos );
+		}
+		else // pos > _root.pos, work through the right subtree
+		{
+			// Search the right node if it exists
+			if ( _root.right == null )
+				return _root;
+			else // Right node exists, check it
+				return tree_search( _root.right, pos );
+		}
+	}
+
+	String tree_traverse( Node _root )
+	{
+		if ( _root == null )
+			return "";
+		else
+			return "(" + tree_traverse( _root.left ) + " " + _root.pos + " " + _root.data + " " + tree_traverse( _root.right ) + ")";
+	}
 
 	public String toString()
 	{
@@ -304,7 +463,11 @@ public class RLETree
 			count++;
 		}
 
-		out += " " + count + " runs.";
+		String tree_out = tree_traverse( root );
+
+		out += " " + count + " runs.\n";
+
+		out += tree_out;
 
 		return out;
 	}
