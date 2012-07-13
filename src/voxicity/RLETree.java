@@ -106,12 +106,6 @@ public class RLETree
 		Node prev = start.prev;
 		Node next = start.next;
 
-		//System.out.println( "Search found " + prev + "|" + start + "|" + next + " for pos " + pos );	
-		//System.out.println( "Root " + root + "\n" + this );
-
-		if ( next != null && next.pos < start.pos )
-			System.out.println( "LOOK HERE!" );
-
 		// Nothing to do, the position in this run already has that data
 		if ( start.data == node.data )
 			return;
@@ -202,10 +196,7 @@ public class RLETree
 
 		// Do not add nodes in unsorted order
 		if ( a.pos >= b.pos )
-		{
-			System.out.println( "BUG!" );
 			return;
-		}
 
 		// Inserting before head
 		if ( b == head )
@@ -238,10 +229,7 @@ public class RLETree
 
 		// Do not add nodes in unsorted order
 		if ( a.pos <= b.pos )
-		{
-			System.out.println( "BUG 2!" );
 			return;
-		}
 
 		// No next item on the list
 		if ( b.next == null )
@@ -338,10 +326,7 @@ public class RLETree
 
 		// If a node with this pos already exists, return without doing anything
 		if ( node.pos == _root.pos )
-		{
-			System.out.println( "LOOK HERE 2!" );
 			return _root;
-		}
 
 		// If node.pos is less than this root, add it to the left subtree
 		if ( node.pos < _root.pos )
@@ -362,42 +347,45 @@ public class RLETree
 		if ( _root == null || node == null )
 			return _root;
 
-		// Once we're at the node to remove
-		if ( _root.pos == node.pos )
+		// If zero or one child, use simple remove
+		if ( ( node.left == null ) || ( node.right == null ) )
+			_root = tree_simple_remove( _root, node );
+		else // Two children, composite event
 		{
-			// No children nodes, return null to remove node
-			if ( ( _root.left == null ) && ( _root.right == null ) )
-				return null;
-
-			// Just a left child, return that as the new node
-			if ( _root.right == null )
-				return _root.left;
-
-			// Just a right child, return that as the new node
-			if ( _root.left == null )
-				return _root.right;
-
-			// _root has two children, find an heir
-			Node heir = find_heir( _root );
+			Node heir = find_heir( node );
 
 			// Remove the heir from the tree
-			_root = tree_delete( _root, heir );
+			_root = tree_simple_remove( _root, heir );
 
-			// Search and replace node with heir in _root's tree
-			_root = tree_replace( _root, node, heir );
-
-			// _root should be balanced. Balance, just in case
-			return tree_balance( _root );
+			// Replace node with heir in the tree
+			tree_replace( _root, node, heir );
 		}
 
-		// Keep searching down the tree
+		return _root;
+	}
 
-		if ( node.pos < _root.pos )
-			_root.left = tree_delete( _root.left, node );
-		else if ( node.pos > _root.pos )
-			_root.right = tree_delete( _root.right, node );
+	// Removes a node from the tree using the simple method
+	// No replacement takes place
+	private static Node tree_simple_remove( Node _root, Node node )
+	{
+		// Do not operate on null
+		if ( ( _root == null ) || ( node == null ) )
+			return _root;
 
-		// Balance tree
+		// Do not attempt to remove a node with two children
+		if ( ( node.left != null ) && ( node.right != null ) )
+			return tree_balance( _root );
+
+		// Found the node to be removed
+		// If left is null, return right and vice-versa
+		// If both are null, return null
+		if ( _root == node )
+			_root = ( _root.left == null ) ? _root.right : _root.left;
+		else if ( node.pos < _root.pos ) // node.pos is less than _root.pos
+			_root.left = tree_simple_remove( _root.left, node );
+		else // node.pos is greater than _root.pos
+			_root.right = tree_simple_remove( _root.right, node );
+
 		return tree_balance( _root );
 	}
 
@@ -408,10 +396,17 @@ public class RLETree
 	// return node will always have one or no children.
 	private static Node find_heir( Node _root )
 	{
+		Node cur = _root.left;
+
+		while ( cur != null )
+			cur = cur.right;
+
+		return cur;
+	/*
 		if ( _root.prev != null )
 			return _root.prev;
 		else
-			return _root.next;
+			return _root.next;*/
 	}
 
 	// Searches in tree _root for Node old and replaces it with Node heir
@@ -502,7 +497,7 @@ public class RLETree
 				_root.right = tree_right_rotate( _root.right );
 
 			// Then do Left-rotation on _root
-			//_root = tree_left_rotate( _root );
+			_root = tree_left_rotate( _root );
 		}
 		// Check for a left-heavy tree
 		else if ( compare_height( _root.left, _root.right ) > 1 )
@@ -525,13 +520,11 @@ public class RLETree
 	// Update heights and return new root
 	private static Node tree_left_rotate( Node _root )
 	{
-		//System.out.println( "Left rotate on " + _root + "\n" + tree_traverse( _root ) );
 		Node new_root = _root.right;
 		_root.right = new_root.left;
 		new_root.left = _root;
 		update_height( _root );
 		update_height( new_root );
-		//System.out.println( "Left rotate end on " + _root + "\n" + tree_traverse( new_root ) );
 		return new_root;
 	}
 
@@ -539,13 +532,11 @@ public class RLETree
 	// Update heights and return new root
 	private static Node tree_right_rotate( Node _root )
 	{
-		//System.out.println( "Right rotate on " + _root + "\n" + tree_traverse( _root ) );
 		Node new_root = _root.left;
 		_root.left = new_root.right;
 		new_root.right = _root;
 		update_height( _root );
 		update_height( new_root );
-		//System.out.println( "Right rotate end on " + _root + "\n" + tree_traverse( new_root ) );
 		return new_root;
 	}
 
