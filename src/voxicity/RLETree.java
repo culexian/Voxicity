@@ -118,179 +118,150 @@ public class RLETree
 
 		// node.data != start.data from here
 
-		// If at the start of the run
+		// If at the start of the run, insert there
 		if ( node.pos == start.pos )
 		{
-			// If the list has just one run
-			if ( prev == null && next == null )
+			// At the start of a single element run
+			// Just set the data and try collapse
+			if ( ( start.next != null ) && ( start.next.pos == ( start.pos + 1 ) ) )
 			{
+				// Set the data
+				start.data = node.data;
+
+				// Try collapsing nodes
+				collapse( start );
+
+				return;
+			}
+			else // At the start of a longer run
+			{
+				// Push start up by one
 				start.pos += 1;
-				start.prev = node;
-				node.next = start;
-				head = node;
+
 				// Insert node to tree
 				root = tree_insert( root, node );
+
+				// Insert node to list
+				list_insert_before( node, start );
+
+				// Try collapsing nodes
+				collapse( node );
+
 				return;
 			}
-
-			// If at the end of the list
-			if ( next == null )
-			{
-				start.pos += 1;
-				prev.next = node;
-				node.prev = prev;
-				node.next = start;
-				start.prev = node;
-				// Insert node to tree
-				root = tree_insert( root, node );
-				// Try collapse prev to node
-				collapse( prev, node );
-				return;
-			}
-
-			// If this run is the first one
-			if ( start == head )
-			{
-				// If a single node at start, just change the data
-				if ( next.pos == start.pos + 1 )
-				{
-					start.data = node.data;
-					// Try collapse to next
-					collapse( node, next );
-					return;
-				}
-				else // Run is more than 1 in length
-				{
-					start.pos += 1;
-					node.next = start;
-					start.prev = node;
-					head = node;
-					// Insert node to tree
-					root = tree_insert( root, node );
-					return;
-				}
-			}
-
-			// The run is somewhere inside the list
-
-			// If the run is 1 in length
-			if ( next.pos == start.pos + 1 )
-			{
-				start.data = data;
-				// Try to collapse start to next
-				collapse( start, next );
-				// Try to collapse prev to start
-				collapse( prev, start );
-				return;
-			}
-
-			// The run is longer than 1 in length
-			start.pos += 1;
-			start.prev = node;
-			node.next = start;
-			node.prev = prev;
-			prev.next = node;
-			// Insert node to tree
-			root = tree_insert( root, node );
-			// Try to collapse prev to node
-			collapse( prev, node );
-			return;
 		}
 		else // Somewhere out in a run, by definition in a run longer than 1 length
 		{
-			// If there is just one run in the list
-			if ( prev == null && next == null )
+			// If splitting the end of the run
+			if ( ( start.next != null ) && ( start.next.pos == ( node.pos + 1 ) ) )
 			{
-				// Split the run. The old start, the new node and a new tail with same data as start
-				Node last = new Node( node.pos + 1, start.data );
-				start.next = node;
-				node.prev = start;
-				node.next = last;
-				last.prev = node;
 				// Insert node to tree
 				root = tree_insert( root, node );
-				// Insert last to tree
-				root = tree_insert( root, last );
+
+				// Insert node after start to list
+				list_insert_after( node, start );
+
+				// Try collapsing the nodes
+				collapse( node );
+
 				return;
 			}
-
-			// If this is the first run
-			if ( start == head )
+			else // Inside the run, need to split it
 			{
-				// If at the end of the run
-				if ( next.pos == node.pos + 1 )
-				{
-					node.next = next;
-					node.prev = start;
-					next.prev = node;
-					start.next = node;
-					// Insert node to tree
-					root = tree_insert( root, node );
-					// Try to collapse node to next
-					collapse( node, next );
-					return;
-				}
-				else // Inside the first run of at least length 3
-				{
-					Node new_next = new Node( node.pos + 1, start.data );
-					start.next = node;
-					node.prev = start;
-					node.next = new_next;
-					new_next.prev = node;
-					new_next.next = next;
-					next.prev = new_next;
-					// Inset node to tree
-					root = tree_insert( root, node );
-					// Insert new_next to tree
-					root = tree_insert( root, new_next );
-					return;
-				}
-			}
+				// New run with the old data at pos + 1
+				Node split = new Node( node.pos + 1, start.data );
 
-			// If this is the last run
-			if ( next == null )
-			{
-				Node new_last = new Node( node.pos + 1, start.data );
-				node.prev = start;
-				start.next = node;
-				node.next = new_last;
-				new_last.prev = node;
+				// Insert split to tree
+				root = tree_insert( root, split );
+
 				// Insert node to tree
 				root = tree_insert( root, node );
-				// Insert new_last to tree
-				root = tree_insert( root, new_last );
+
+				// Insert node after start to list
+				list_insert_after( node, start );
+
+				// Insert split after node to list
+				list_insert_after( split, node );
+
+				// Try collapsing the nodes, start from the back
+				collapse( split );
+				collapse( node );
+
 				return;
 			}
+		}
+	}
 
-			// The run is somewhere inside the list
-
-			// If at the end of the run
-			if ( next.pos == node.pos + 1 )
-			{
-				node.next = next;
-				next.prev = node;
-				node.prev = start;
-				start.next = node;
-				// Insert node to tree
-				root = tree_insert( root, node );
-				// Try to collapse node to next
-				collapse( node, next );
-				return;
-			}
-
-			// node.pos is somewhere inside a run of at least length 3
-			Node new_next = new Node( node.pos + 1, start.data );
-			node.next = new_next;
-			new_next.prev = node;
-			start.next = node;
-			node.prev = start;
-			new_next.next = next;
-			next.prev = new_next;
-			// Insert node to tree
-			root = tree_insert( root, node );
-			// Insert new_next to tree
-			root = tree_insert( root, new_next );
+	// Inserts Node a before node before Node b in the linked list
+	// Sets head if needed
+	private void list_insert_before( Node a, Node b )
+	{
+		// Don't operate on null
+		if ( ( a == null ) || ( b == null ) )
 			return;
+
+		// Do not add nodes in unsorted order
+		if ( a.pos >= b.pos )
+		{
+			System.out.println( "BUG!" );
+			return;
+		}
+
+		// Inserting before head
+		if ( b == head )
+		{
+			// Link a and b
+			a.prev = null;
+			a.next = b;
+			b.prev = a;
+			// Set the new head
+			head = a;
+		}
+		else // Inserting into the list
+		{
+			// Link a and b's prev
+			b.prev.next = a;
+			a.prev = b.prev;
+
+			// Link a and b
+			a.next = b;
+			b.prev = a;
+		}
+	}
+
+	// Insert Node a after Node b in the linked list
+	private void list_insert_after( Node a, Node b )
+	{
+		// Don't operate on null
+		if ( ( a == null ) || ( b == null ) )
+			return;
+
+		// Do not add nodes in unsorted order
+		if ( a.pos <= b.pos )
+		{
+			System.out.println( "BUG 2!" );
+			return;
+		}
+
+		// No next item on the list
+		if ( b.next == null )
+		{
+			//Reset a's next
+			a.next = null;
+
+			// Link a and b
+			b.next = a;
+			a.prev = b;
+		}
+		else // Inside the list
+		{
+			// Link a and b's next
+			b.next.prev = a;
+			a.next = b.next;
+
+			// Link a and b
+			a.prev = b;
+			b.next = a;
 		}
 	}
 
@@ -323,21 +294,32 @@ public class RLETree
 		}
 	}
 
+	// Try to collapse Node n in both directions
+	private void collapse( Node n )
+	{
+		// Don't operate on null
+		if ( n == null )
+			return;
+
+		// Try next first as prev first might remove n from the list
+		collapse( n, n.next );
+		collapse( n.prev, n );
+	}
+
 	private void collapse( Node a, Node b )
 	{
+		// Don't operate on null
+		if ( ( a == null ) || ( b == null ) )
+			return;
+
 		// Check that the links work( shouldn't ever fail if all else is done right )
 		// Also check that a and b share the same data value
 		if ( ( a.next == b ) && ( b.prev == a ) && ( a.data == b.data ) )
 		{
-			// Link a to b's next
-			a.next = b.next;
-
-			// Don't try to set null's prev
-			if ( b.next != null )
-				b.next.prev = a;
-
 			// Remove b from tree
 			root = tree_delete( root, b );
+			// Remove b from the list
+			list_remove( b );
 		}
 	}
 
