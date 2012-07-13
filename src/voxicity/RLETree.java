@@ -28,12 +28,13 @@ public class RLETree
 
 		public Node next, prev;
 		public Node left, right;
-		public int balance;
+		public int height;
 
 		public Node( int pos, int data )
 		{
 			this.pos = pos;
 			this.data = data;
+			this.height = 0;
 		}
 
 		public String toString()
@@ -105,6 +106,12 @@ public class RLETree
 		Node prev = start.prev;
 		Node next = start.next;
 
+		//System.out.println( "Search found " + prev + "|" + start + "|" + next + " for pos " + pos );	
+		//System.out.println( "Root " + root + "\n" + this );
+
+		if ( next != null && next.pos < start.pos )
+			System.out.println( "LOOK HERE!" );
+
 		// Nothing to do, the position in this run already has that data
 		if ( start.data == node.data )
 			return;
@@ -122,7 +129,7 @@ public class RLETree
 				node.next = start;
 				head = node;
 				// Insert node to tree
-				tree_insert( root, node );
+				root = tree_insert( root, node );
 				return;
 			}
 
@@ -135,7 +142,7 @@ public class RLETree
 				node.next = start;
 				start.prev = node;
 				// Insert node to tree
-				tree_insert( root, node );
+				root = tree_insert( root, node );
 				// Try collapse prev to node
 				collapse( prev, node );
 				return;
@@ -159,7 +166,7 @@ public class RLETree
 					start.prev = node;
 					head = node;
 					// Insert node to tree
-					tree_insert( root, node );
+					root = tree_insert( root, node );
 					return;
 				}
 			}
@@ -184,7 +191,7 @@ public class RLETree
 			node.prev = prev;
 			prev.next = node;
 			// Insert node to tree
-			tree_insert( root, node );
+			root = tree_insert( root, node );
 			// Try to collapse prev to node
 			collapse( prev, node );
 			return;
@@ -201,9 +208,9 @@ public class RLETree
 				node.next = last;
 				last.prev = node;
 				// Insert node to tree
-				tree_insert( root, node );
+				root = tree_insert( root, node );
 				// Insert last to tree
-				tree_insert( root, last );
+				root = tree_insert( root, last );
 				return;
 			}
 
@@ -218,7 +225,7 @@ public class RLETree
 					next.prev = node;
 					start.next = node;
 					// Insert node to tree
-					tree_insert( root, node );
+					root = tree_insert( root, node );
 					// Try to collapse node to next
 					collapse( node, next );
 					return;
@@ -233,9 +240,9 @@ public class RLETree
 					new_next.next = next;
 					next.prev = new_next;
 					// Inset node to tree
-					tree_insert( root, node );
+					root = tree_insert( root, node );
 					// Insert new_next to tree
-					tree_insert( root, new_next );
+					root = tree_insert( root, new_next );
 					return;
 				}
 			}
@@ -249,9 +256,9 @@ public class RLETree
 				node.next = new_last;
 				new_last.prev = node;
 				// Insert node to tree
-				tree_insert( root, node );
+				root = tree_insert( root, node );
 				// Insert new_last to tree
-				tree_insert( root, new_last );
+				root = tree_insert( root, new_last );
 				return;
 			}
 
@@ -265,7 +272,7 @@ public class RLETree
 				node.prev = start;
 				start.next = node;
 				// Insert node to tree
-				tree_insert( root, node );
+				root = tree_insert( root, node );
 				// Try to collapse node to next
 				collapse( node, next );
 				return;
@@ -280,68 +287,94 @@ public class RLETree
 			new_next.next = next;
 			next.prev = new_next;
 			// Insert node to tree
-			tree_insert( root, node );
+			root = tree_insert( root, node );
 			// Insert new_next to tree
-			tree_insert( root, new_next );
+			root = tree_insert( root, new_next );
 			return;
+		}
+	}
+
+	// Removes a Node from the linked list
+	// Sets the head if needed
+	private void list_remove( Node n )
+	{
+		// Don't operate on null
+		if ( n == null )
+			return;
+
+		// If we're removing the head
+		if ( n == head )
+		{
+			// New head has no previous node
+			n.next.prev = null;
+			// Set the new head
+			head = n.next;
+		}
+		else if ( n.next == null ) // Removing the tail
+		{
+			// Link the previous to the next( null )
+			n.prev.next = null;
+		}
+		else // Inside the list
+		{
+			// Link the previous and next nodes to eachother
+			n.prev.next = n.next;
+			n.next.prev = n.prev;
 		}
 	}
 
 	private void collapse( Node a, Node b )
 	{
 		// Check that the links work( shouldn't ever fail if all else is done right )
-		if ( a.next == b && b.prev == a )
+		// Also check that a and b share the same data value
+		if ( ( a.next == b ) && ( b.prev == a ) && ( a.data == b.data ) )
 		{
-			// a and b have the same data, merge to one run by removing b
-			if ( a.data == b.data )
-			{
-				a.next = b.next;
+			// Link a to b's next
+			a.next = b.next;
 
-				// Don't try to set null's prev
-				if ( b.next != null )
-					b.next.prev = a;
+			// Don't try to set null's prev
+			if ( b.next != null )
+				b.next.prev = a;
 
-				// Remove b from tree
-				root = tree_delete( root, b );
-			}
+			// Remove b from tree
+			root = tree_delete( root, b );
 		}
 	}
 
 	// Insert a new node into the tree at the first available position
 	// that fits its pos attribute starting from _root
-	private Node tree_insert( Node _root, Node node )
+	// Return the new _root
+	private static Node tree_insert( Node _root, Node node )
 	{
-		// If any of the two nodes are invalid, return
-		if ( node == null || _root == null )
+		// If node is null, keep the root
+		if ( node == null )
 			return _root;
+
+		// If _root is null, return the new _root
+		if ( _root == null )
+			return node;
 
 		// If a node with this pos already exists, return without doing anything
 		if ( node.pos == _root.pos )
+		{
+			System.out.println( "LOOK HERE 2!" );
 			return _root;
+		}
 
 		// If node.pos is less than this root, add it to the left subtree
 		if ( node.pos < _root.pos )
-		{
-			// No left subtree, this node is it now
-			if ( _root.left == null )
-				_root.left = node;
-			else // Call insert on the left subtree
-				tree_insert( _root.left, node );
-		}
+			_root.left = tree_insert( _root.left, node );
 		else // node.pos is greater than _root.pos
-		{
-			// No right subtree, this node is it now
-			if ( _root.right == null )
-				_root.right = node;
-			else // Call insert on the right subtree
-				tree_insert( _root.right, node );
-		}
+			_root.right = tree_insert( _root.right, node );
 
 		// Balance the tree
-		return _root;
+		return tree_balance( _root );
 	}
 
-	private Node tree_delete( Node _root, Node node )
+	// Remove a node from the tree
+	// and chooses a successor if needed
+	// Return the new root
+	private static Node tree_delete( Node _root, Node node )
 	{
 		// If either _root or node is invalid, return
 		if ( _root == null || node == null )
@@ -351,29 +384,28 @@ public class RLETree
 		if ( _root.pos == node.pos )
 		{
 			// No children nodes, return null to remove node
-			if ( _root.left == null && _root.right == null )
+			if ( ( _root.left == null ) && ( _root.right == null ) )
 				return null;
 
 			// Just a left child, return that as the new node
-			if ( _root.left != null && _root.right == null )
+			if ( _root.right == null )
 				return _root.left;
 
 			// Just a right child, return that as the new node
-			if ( _root.left == null && _root.right != null )
+			if ( _root.left == null )
 				return _root.right;
 
 			// _root has two children, find an heir
 			Node heir = find_heir( _root );
 
 			// Remove the heir from the tree
-			tree_delete( _root, heir );
+			_root = tree_delete( _root, heir );
 
-			// Fix links
-			heir.left = _root.left;
-			heir.right = _root.right;
+			// Search and replace node with heir in _root's tree
+			_root = tree_replace( _root, node, heir );
 
-			// Balance tree
-			return heir;
+			// _root should be balanced. Balance, just in case
+			return tree_balance( _root );
 		}
 
 		// Keep searching down the tree
@@ -384,29 +416,51 @@ public class RLETree
 			_root.right = tree_delete( _root.right, node );
 
 		// Balance tree
-		return _root;
+		return tree_balance( _root );
 	}
 
 	// Find an heir for the root node, return that.
 	// _root node has 2 children at this point
-	// Returns the right-most node in the left subtree,
-	// return node will always have a left child or no children.
-	private Node find_heir( Node _root )
+	// Returns the right-most node in the left subtree i.e. _root.prev
+	// or the left-most node in the right subtree i.e. _root.next
+	// return node will always have one or no children.
+	private static Node find_heir( Node _root )
 	{
-		// Start in the left subtree of the root
-		Node cur = _root.left;
+		if ( _root.prev != null )
+			return _root.prev;
+		else
+			return _root.next;
+	}
 
-		// Find the right-most( closest to root ) node
-		while ( cur.right != null )
-			cur = cur.right;
+	// Searches in tree _root for Node old and replaces it with Node heir
+	private static Node tree_replace( Node _root, Node old, Node heir )
+	{
+		// If something is invalid, do nothing
+		if ( _root == null || old == null || heir == null )
+			return _root;
 
-		// Return the right-most node
-		return cur;
+		// If the old node has been found, copy links from old to heir
+		// Then return heir as the new _root
+		if ( _root.pos == old.pos )
+		{
+			heir.left = old.left;
+			heir.right = old.right;
+			update_height( heir );
+			return heir;
+		}
+
+		// Not found, search subtrees
+
+		// If old is in the left subtree, search there
+		if ( old.pos < _root.pos )
+			return tree_replace( _root.left, old, heir );
+		else // It's in the right subtree
+			return tree_replace( _root.right, old, heir );
 	}
 
 	// Search the tree from root to a run using binary search
 	// and returning the Node containing the requested pos in its run
-	private Node tree_search( Node _root, int pos )
+	private static Node tree_search( Node _root, int pos )
 	{
 		if ( pos < 0 )
 		{
@@ -441,7 +495,97 @@ public class RLETree
 		}
 	}
 
-	String tree_traverse( Node _root )
+	// Rebalances the tree at _root
+	// Returns the new _root
+	private static Node tree_balance( Node _root )
+	{
+
+		// Nothing to do, return null
+		if ( _root == null )
+			return _root;
+
+		// _root has no children, is at height 0
+		if ( _root.left == null && _root.right == null )
+		{
+			update_height( _root );
+			return _root;
+		}
+
+		// Check for a right-heavy tree
+		if ( compare_height( _root.right, _root.left ) > 1 )
+		{
+			// Check for a left-leaning, right subtree.
+			// If so, do Right-rotation on right subtree
+			if ( compare_height( _root.right.left, _root.right.right ) > 0 )
+				_root.right = tree_right_rotate( _root.right );
+
+			// Then do Left-rotation on _root
+			//_root = tree_left_rotate( _root );
+		}
+		// Check for a left-heavy tree
+		else if ( compare_height( _root.left, _root.right ) > 1 )
+		{
+			// Check for a right-leaning, left subtree.
+			// If so, do Left-rotation left subtree
+			if ( compare_height( _root.left.right, _root.left.left ) > 0 )
+				_root.left = tree_left_rotate( _root.left );
+
+			// Then do Right-rotation on _root
+			_root = tree_right_rotate( _root );
+		}
+
+		update_height( _root );
+
+		return _root;
+	}
+
+	// Perform a tree rotation to the left
+	// Update heights and return new root
+	private static Node tree_left_rotate( Node _root )
+	{
+		//System.out.println( "Left rotate on " + _root + "\n" + tree_traverse( _root ) );
+		Node new_root = _root.right;
+		_root.right = new_root.left;
+		new_root.left = _root;
+		update_height( _root );
+		update_height( new_root );
+		//System.out.println( "Left rotate end on " + _root + "\n" + tree_traverse( new_root ) );
+		return new_root;
+	}
+
+	// Perform a tree rotation to the right
+	// Update heights and return new root
+	private static Node tree_right_rotate( Node _root )
+	{
+		//System.out.println( "Right rotate on " + _root + "\n" + tree_traverse( _root ) );
+		Node new_root = _root.left;
+		_root.left = new_root.right;
+		new_root.right = _root;
+		update_height( _root );
+		update_height( new_root );
+		//System.out.println( "Right rotate end on " + _root + "\n" + tree_traverse( new_root ) );
+		return new_root;
+	}
+
+	// Return difference in Node a and Node b's heights
+	private static int compare_height( Node a, Node b )
+	{
+		return get_height( a ) - get_height( b );
+	}
+
+	// Return the height of a node or 0
+	private static int get_height( Node a )
+	{
+		return a == null ? 0 : a.height;
+	}
+
+	// Set the height of the this node to the height of its highest child + 1
+	private static void update_height( Node _root )
+	{
+		_root.height = 1 + Math.max( get_height( _root.left ), get_height( _root.right ) );
+	}
+
+	static String tree_traverse( Node _root )
 	{
 		if ( _root == null )
 			return "";

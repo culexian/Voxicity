@@ -140,6 +140,8 @@ public class Chunk
 				}
 			}
 		}
+
+		System.out.println( blocks );
 		long end = System.nanoTime();
 	}
 
