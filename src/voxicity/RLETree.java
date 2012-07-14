@@ -306,8 +306,17 @@ public class RLETree
 		{
 			// Remove b from tree
 			root = tree_delete( root, b );
+
 			// Remove b from the list
 			list_remove( b );
+
+			if ( tree_search( root, b.pos ) == b )
+			{
+				System.out.println( "Error: BUG! Tried removing node " + b + " from the list and tree, but it is still found!" );
+				System.out.println( this );
+			}
+			else
+				System.out.println( "Remove node " + b + " successfully" );
 		}
 	}
 
@@ -358,7 +367,7 @@ public class RLETree
 			_root = tree_simple_remove( _root, heir );
 
 			// Replace node with heir in the tree
-			tree_replace( _root, node, heir );
+			_root = tree_replace( _root, node, heir );
 		}
 
 		return _root;
@@ -398,15 +407,10 @@ public class RLETree
 	{
 		Node cur = _root.left;
 
-		while ( cur != null )
+		while ( cur.right != null )
 			cur = cur.right;
 
 		return cur;
-	/*
-		if ( _root.prev != null )
-			return _root.prev;
-		else
-			return _root.next;*/
 	}
 
 	// Searches in tree _root for Node old and replaces it with Node heir
@@ -429,10 +433,13 @@ public class RLETree
 		// Not found, search subtrees
 
 		// If old is in the left subtree, search there
+		// and replace if needed
 		if ( old.pos < _root.pos )
-			return tree_replace( _root.left, old, heir );
-		else // It's in the right subtree
-			return tree_replace( _root.right, old, heir );
+			_root.left =  tree_replace( _root.left, old, heir );
+		else // It's in the right subtree, try replacing there
+			_root.right = tree_replace( _root.right, old, heir );
+
+		return _root;
 	}
 
 	// Search the tree from root to a run using binary search
@@ -458,7 +465,10 @@ public class RLETree
 		if ( pos < _root.pos )
 		{
 			if ( _root.left == null )
+			{
+				//System.out.println( "Searching left of node " + _root.pos + " which is + " + _root.prev + "\n" + _root );
 				return _root.prev;
+			}
 			else
 				return tree_search( _root.left, pos );
 		}

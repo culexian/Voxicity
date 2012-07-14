@@ -69,7 +69,7 @@ public class Renderer
 		
 		System.out.println( "Before clean " + Time.get_time_ms() );
 		for ( ChunkNode chunk : chunks.values() )
-			if ( !cleaned_one )
+//			if ( !cleaned_one )
 				cleaned_one = chunk.clean();
 
 		System.out.println( "Before render " + Time.get_time_ms() );
