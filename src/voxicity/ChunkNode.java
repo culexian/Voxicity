@@ -84,11 +84,11 @@ public class ChunkNode
 		pos.z = z;
 	}
 
-	public void clean()
+	public boolean clean()
 	{
 		if ( !dirty && ( last_update >= chunk.get_timestamp() ) )
-			return;
-
+			return false;
+ 
 		last_update = Time.get_time_ms();
 
 		if ( vert_buf == 0 )
@@ -168,7 +168,7 @@ public class ChunkNode
 		{
 			empty = true;
 			dirty = false;
-			return;
+			return true;
 		}
 
 		verts.limit( verts.position() ).rewind();
@@ -218,9 +218,11 @@ public class ChunkNode
 			GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
 			GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
 
-			empty = false;
-			dirty = false;
 		}
+
+		empty = false;
+		dirty = false;
+		return true;
 	}
 
 	public void render()

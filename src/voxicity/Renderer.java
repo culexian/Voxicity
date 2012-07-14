@@ -54,6 +54,7 @@ public class Renderer
 
 	public void render( Frustum camera )
 	{
+		boolean cleaned_one = false;
 		quads = 0;
 		draw_calls = 0;
 		batch_draw_calls = 0;
@@ -68,7 +69,8 @@ public class Renderer
 		
 		System.out.println( "Before clean " + Time.get_time_ms() );
 		for ( ChunkNode chunk : chunks.values() )
-			chunk.clean();
+			if ( !cleaned_one )
+				cleaned_one = chunk.clean();
 
 		System.out.println( "Before render " + Time.get_time_ms() );
 		for ( ChunkNode chunk : chunks.values() )
@@ -90,5 +92,6 @@ public class Renderer
 		TextRenderer.draw( "Chunk X Y Z: " + chunk[0] + " " + chunk[1] + " " + chunk[2], 5, 5 + TextRenderer.line_height() * 8 );
 
 		Display.update();
+		cleaned_one = false;
 	}
 }
