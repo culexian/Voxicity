@@ -20,17 +20,27 @@
 
 package voxicity;
 
-public class Grass extends Block
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
+import org.lwjgl.BufferUtils;
+
+public class Grass implements Block
 {
+	public int id()
 	{
-		id = Constants.Blocks.grass;
-		register_block_tex( id, TextureManager.get_texture( "textures/grass.png" ) );
+		return Constants.Blocks.grass;
 	}
 
-	static float[] gen_tex_data()
+	public String texture_string()
+	{
+		return "textures/grass.png";
+	}
+
+	public FloatBuffer texture_coords()
 	{
 		// Return texture coords for 6 sides of 4 vertices that make a cube
-		return new float[]{
+		float[] coords = new float[]{
 		                   // Left
 		                   1f, 0.75f,
 		                   0f, 0.75f,
@@ -67,5 +77,30 @@ public class Grass extends Block
 		                   0f, 0.75f,
 		                   0f, 0.5f,
 		                  };
+
+		// Put the coords in a properly sized buffer
+		FloatBuffer buf = BufferUtils.createFloatBuffer( coords.length );
+		buf.put( coords );
+
+		// Rewind to start of buffer
+		buf.rewind();
+
+		// Return the buffer
+		return buf;
+	}
+
+	public FloatBuffer vertices()
+	{
+		return Cube.vertices();
+	}
+
+	public IntBuffer indices()
+	{
+		return Cube.indices();
+	}
+
+	public AABB bounds()
+	{
+		return Cube.bounds();
 	}
 }

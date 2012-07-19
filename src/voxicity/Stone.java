@@ -20,10 +20,38 @@
 
 package voxicity;
 
-class Stone extends Block
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
+class Stone implements Block
 {
+	public int id()
 	{
-		id = Constants.Blocks.stone;
-		register_block_tex( id, TextureManager.get_texture( "textures/stone.png" ) );
+		return Constants.Blocks.stone;
+	}
+
+	public String texture_string()
+	{
+		return "textures/stone.png";
+	}
+
+	public FloatBuffer vertices()
+	{
+		return Cube.vertices();
+	}
+
+	public FloatBuffer texture_coords()
+	{
+		return Cube.texture_coords();
+	}
+
+	public IntBuffer indices()
+	{
+		return Cube.indices();
+	}
+
+	public AABB bounds()
+	{
+		return Cube.bounds();
 	}
 }

@@ -134,17 +134,19 @@ public class ChunkNode
 						loc.y = j;
 						loc.z = k;
 
+						Block b = Blocks.get( id );
+
 						// If culled, do nothing, next block
 						if ( !cull( loc ) && !chunk_edge_cull( loc ) )
 						{
 							// Get the vertices for this block and put them in the verts buffer
-							verts.put( Block.gen_clean_vert_nio( new Vector3f( loc.x, loc.y, loc.z ) ) );
+							verts.put( Coord.offset_coords( b.vertices(), new Vector3f( loc.x, loc.y, loc.z ) ) );
 
 							// Get the texture coords for this block and put them in the tex_coords buffer
-							tex_coords.put( Block.gen_tex_nio() );
+							tex_coords.put( b.texture_coords() );
 
 							// Look up the texture for these vertices
-							int tex_id = TextureManager.get_texture( Constants.Blocks.tex_map.get( id ) );
+							int tex_id = TextureManager.get_texture( b.texture_string() );
 
 							// Look up the index buffer for this texture and create it if needed
 							if ( !id_ind.containsKey( tex_id ) )
@@ -154,7 +156,7 @@ public class ChunkNode
 							IntBuffer ind_buf = id_ind.get( tex_id );
 
 							// Get the indices for this block's vertices and put them in the ind_buf buffer after offsetting them
-							IntBuffer block_indices = Block.gen_index_nio();
+							IntBuffer block_indices = b.indices();
 							while ( block_indices.hasRemaining() )
 								ind_buf.put( block_indices.get() + offset );
 
@@ -441,10 +443,7 @@ public class ChunkNode
 		{
 			BlockLoc dir_loc = world_loc.get( dir );
 
-			if ( !dir_loc.available() )
-				return false;
-
-			if ( dir_loc.get_block() == Constants.Blocks.air )
+			if ( dir_loc.available() && dir_loc.get() == Constants.Blocks.air )
 				return false;
 		}
 

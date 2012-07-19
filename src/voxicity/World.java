@@ -38,6 +38,7 @@ public class World
 		this.config = config;
 	}
 
+	// Checks if a chunk is loaded and returns true if so
 	public boolean is_chunk_loaded( int x, int y, int z )
 	{
 		return chunks.containsKey( get_chunk_id( x, y, z ) );
@@ -55,6 +56,9 @@ public class World
 		return null;
 	}
 
+	// Sets a chunk in the world to the given chunk.
+	// Doesn't care about overwriting exisiting chunks
+	// Marks neighbors for update after.
 	public void set_chunk( int x, int y, int z, Chunk chunk )
 	{
 		if ( chunk == null ) return;
@@ -99,9 +103,13 @@ public class World
 
 	public int get_block( int x, int y, int z )
 	{
-		BlockLoc loc = new BlockLoc( x, y, z, this );
+		Chunk c = chunks.get( get_chunk_id( x, y, z ) );
 
-		return loc.get_block();
+		// If chunk is not loaded, block is air
+		if ( c == null )
+			return Constants.Blocks.air;
+		else // Otherwise, return the loaded block
+			return c.get_block( x, y, z );
 	}
 
 	public int get_block( float x, float y, float z )
@@ -109,14 +117,15 @@ public class World
 		return get_block( Math.round( x ), Math.round( y ), Math.round( z ) );
 	}
 
+	// Sets the block id of a block in the world if that chunk is
+	// loaded
 	public void set_block( int x, int y, int z, int id )
 	{
-		BlockLoc loc = new BlockLoc( x, y, z, this );
+		Chunk c = chunks.get( get_chunk_id( x, y, z ) );
 
-		if ( loc.get_chunk() == null )
-			return;
-
-		loc.get_chunk().set_block( x, y, z, id );
+		// Don't operate on null, otherwise, set the block
+		if ( c != null )
+			c.set_block( x, y, z, id );
 	}
 
 	public void set_block( float x, float y, float z, int id )
@@ -131,7 +140,7 @@ public class World
 		if ( id == Constants.Blocks.air )
 			return null;
 
-		AABB box = Block.get_bounds();
+		AABB box = new Air().bounds();
 		Vector3f.add( box.pos, new Vector3f( x, y, z ), box.pos );
 		return box;
 	}

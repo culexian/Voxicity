@@ -19,6 +19,10 @@
 
 package voxicity;
 
+import java.nio.FloatBuffer;
+
+import org.lwjgl.util.vector.Vector3f;
+
 /*
  * Class with static methods used to convert coordinates
  * between different forms. All coordinate transformation
@@ -65,9 +69,9 @@ public class Coord
 		y = y % Constants.Chunk.side_length;
 		z = z % Constants.Chunk.side_length;
 
-		// Short circuit return on 0 to avoid ( 16 - 0 ) on negative chunk borders
-		// Return inverted modulus on negative coords to keep chunk offset
-		// orientation uniform in all coords
+		// Short circuit return on 0 or greater modulus result, otherwise invert negative coordinates
+		// so that each chunk's 0,0,0 starts from the same corner instead of spreading out from the
+		// global origin coordinates.
 		return new int[]{
 		                 x >= 0 ? x : ( Constants.Chunk.side_length + x ),
 		                 y >= 0 ? y : ( Constants.Chunk.side_length + y ),
@@ -90,5 +94,30 @@ public class Coord
 	{
 		int[] id = GlobalToChunk( x, y, z );
 		return ChunkToGlobal( id[0], id[1], id[2] );
+	}
+
+	/*
+ 	 * Offsets the given coords in the buffer by adding the given vector to them
+ 	 */
+	static FloatBuffer offset_coords( FloatBuffer coords, Vector3f vec )
+	{
+		// Don't operate on null
+		if ( ( coords == null ) || ( vec == null ) )
+			return coords;
+
+		// Offset the vertices by the amount in pos
+		for ( int i = 0 ; i < coords.limit() ; i++ )
+		{
+			if ( i % 3 == 0 ) coords.put( i, coords.get(i) + vec.x );
+			if ( i % 3 == 1 ) coords.put( i, coords.get(i) + vec.y );
+			if ( i % 3 == 2 ) coords.put( i, coords.get(i) + vec.z );
+		}
+
+		// Rewind verts to start of buffer
+		coords.rewind();
+
+		// Return the offset buffer
+		return coords;
+
 	}
 }

@@ -51,16 +51,14 @@ public class BlockLoc
 		return world.is_chunk_loaded( x, y, z );
 	}
 
-	public int get_block()
+	public int get()
 	{
-		if ( get_chunk() == null )
+		Chunk c = get_chunk();
+
+		if ( c == null )
 			return Constants.Blocks.air;
 
-		int chunk_x = x % Constants.Chunk.side_length;
-		int chunk_y = y % Constants.Chunk.side_length;
-		int chunk_z = z % Constants.Chunk.side_length;
-
-		return get_chunk().get_block( chunk_x, chunk_y, chunk_z );
+		return c.get_block( x, y, z );
 	}
 
 	public void set( int id )
