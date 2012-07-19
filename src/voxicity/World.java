@@ -57,7 +57,7 @@ public class World
 	}
 
 	// Sets a chunk in the world to the given chunk.
-	// Doesn't care about overwriting exisiting chunks
+	// Doesn't care about overwriting existing chunks
 	// Marks neighbors for update after.
 	public void set_chunk( int x, int y, int z, Chunk chunk )
 	{

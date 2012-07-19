@@ -23,6 +23,7 @@ package voxicity;
 public class BlockLoc
 {
 	public World world;
+	Chunk c;
 	public int x, y, z;
 
 	public BlockLoc( int x, int y, int z, World world )
@@ -31,6 +32,8 @@ public class BlockLoc
 		this.x = x;
 		this.y = y;
 		this.z = z;
+
+		c = world.get_chunk( x, y, z );
 	}
 
 	public BlockLoc( BlockChunkLoc loc )
@@ -53,7 +56,8 @@ public class BlockLoc
 
 	public int get()
 	{
-		Chunk c = get_chunk();
+		if ( c == null )
+			c = get_chunk();
 
 		if ( c == null )
 			return Constants.Blocks.air;

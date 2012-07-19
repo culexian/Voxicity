@@ -55,6 +55,11 @@ public class Chunk
 		return z;
 	}
 
+	public int[] get_coords()
+	{
+		return new int[]{ x, y, z };
+	}
+
 	public World get_world()
 	{
 		return world;
