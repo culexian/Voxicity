@@ -309,14 +309,6 @@ public class RLETree
 
 			// Remove b from the list
 			list_remove( b );
-
-			if ( tree_search( root, b.pos ) == b )
-			{
-				System.out.println( "Error: BUG! Tried removing node " + b + " from the list and tree, but it is still found!" );
-				System.out.println( this );
-			}
-			else
-				System.out.println( "Remove node " + b + " successfully" );
 		}
 	}
 
