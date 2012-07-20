@@ -326,7 +326,7 @@ public class Voxicity
 	{
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GLU.gluPerspective( 45.0f, 1200 / 720.0f, 0.1f, 10000f );
+		GLU.gluPerspective( 45.0f, 1200 / 720.0f, 0.1f, 100f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		camera.x = 0;
@@ -335,7 +335,7 @@ public class Voxicity
 		rot_x = 0;
 		rot_y = 0;
 
-		cam_vol.set_attribs( 45.0f, 1200 / 720.0f, 0.1f, 10000f );
+		cam_vol.set_attribs( 45.0f, 1200 / 720.0f, 0.1f, 100.0f );
 	}
 
 	void toggle_mouse_grab()
@@ -598,7 +598,6 @@ public class Voxicity
 		int id = world.get_block( place_loc.x, place_loc.y, place_loc.z );
 		if ( id == Constants.Blocks.air )
 		{
-			//System.out.println( "Tried to place a block!" );
 			world.set_block( place_loc.x, place_loc.y, place_loc.z, Constants.Blocks.dirt );
 		}
 		else
@@ -626,8 +625,6 @@ public class Voxicity
 			}
 
 		}
-		//else
-			//System.out.println( "Block was already present! x:" + place_loc.x + " y:" + place_loc.y + " z:" + place_loc.z );
 	}
 
 	void remove_block()
@@ -639,11 +636,8 @@ public class Voxicity
 
 		if ( world.get_block( place_loc.x, place_loc.y, place_loc.z ) != Constants.Blocks.air )
 		{
-			//System.out.println( "Tried to remove a block!" );
 			world.set_block( place_loc.x, place_loc.y, place_loc.z, Constants.Blocks.air );
 		}
-		//else
-			//System.out.println( "No block was there!" );
 	}
 
 	void get_system_info()

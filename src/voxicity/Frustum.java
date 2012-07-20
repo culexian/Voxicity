@@ -121,12 +121,13 @@ public class Frustum
 
 		this.up = Vector3f.cross( this.right, this.look, null );
 
-		Vector3f near_center = new Vector3f( look );
+		Vector3f near_center = new Vector3f( this.look );
 		near_center.scale( near_dist );
 
-		Vector3f far_center = new Vector3f( look );
+		Vector3f far_center = new Vector3f( this.look );
 		far_center.scale( far_dist );
 
+/*
 		Vector3f temp1 = new Vector3f( this.up );
 		Vector3f temp2 = new Vector3f( this.right );
 		temp1.scale( near_height );
@@ -185,15 +186,18 @@ public class Frustum
 
 		planes[Side.near.ordinal()] = new Plane( look, near_center );
 		planes[Side.far.ordinal()] = new Plane( look.negate( null), far_center );
+*/
 	}
 
 	public boolean contains_point( Vector3f point )
 	{
 		Vector3f v = Vector3f.sub( point, pos, null );
 
+
 		float x_dot = Vector3f.dot( v, right );
 		float y_dot = Vector3f.dot( v, up );
 		float z_dot = Vector3f.dot( v, look );
+
 
 		if ( z_dot > far_dist || z_dot < near_dist )
 			return false;
@@ -204,6 +208,62 @@ public class Frustum
 
 		float x_extreme = y_extreme * ratio;
 		if ( x_dot > x_extreme || x_dot < -x_extreme )
+			return false;
+
+		return true;
+	}
+
+	// For use in just this function as scratch space
+		// Create an array of all the points, their x_dot, y_dot and z_dot values
+	private Vector3f[] points = { new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f() };
+	private float[][] dots = new float[8][3];
+
+	public boolean collides( AABB box )
+	{
+		Vector3f.sub( new Vector3f( box.left(), box.top(), box.front() ), pos, points[0] );
+		Vector3f.sub( new Vector3f( box.right(), box.top(), box.front() ), pos, points[1] );
+		Vector3f.sub( new Vector3f( box.left(), box.bottom(), box.front() ), pos, points[2] );
+		Vector3f.sub( new Vector3f( box.right(), box.bottom(), box.front() ), pos, points[3] );
+		Vector3f.sub( new Vector3f( box.left(), box.top(), box.back() ), pos, points[4] );
+		Vector3f.sub( new Vector3f( box.right(), box.top(), box.back() ), pos, points[5] );
+		Vector3f.sub( new Vector3f( box.left(), box.bottom(), box.back() ), pos, points[6] );
+		Vector3f.sub( new Vector3f( box.right(), box.bottom(), box.back() ), pos, points[7] );
+
+		for ( int i = 0 ; i < 8 ; i++ )
+		{
+			dots[i][0] = Vector3f.dot( points[i], right );
+			dots[i][1] = Vector3f.dot( points[i], up );
+			dots[i][2] = Vector3f.dot( points[i], look );
+		}
+
+		boolean z_check = false;
+
+		for ( int i = 0 ; i < 8 ; i++ )
+			z_check |= ( dots[i][2] < far_dist && dots[i][2] > near_dist );
+
+		if ( !z_check )
+			return false;
+
+		boolean y_check = false;
+
+		for ( int i = 0 ; i < 8 ; i++ )
+		{
+			float y_extreme = dots[i][2] * tan_vert_angle;
+			y_check |= ( dots[i][1] < y_extreme && dots[i][1] > -y_extreme );
+		}
+
+		if ( !y_check )
+			return false;
+
+		boolean x_check = false;
+
+		for ( int i = 0 ; i < 8 ; i++ )
+		{
+			float x_extreme = ( dots[i][2] * tan_vert_angle ) * ratio;
+			x_check |= ( dots[i][0] < x_extreme && dots[i][0] > -x_extreme );
+		}
+
+		if ( !x_check )
 			return false;
 
 		return true;
@@ -235,18 +295,4 @@ public class Frustum
 		return collides;
 	}
 
-	public boolean collides( AABB box )
-	{
-		if ( contains_point( new Vector3f( box.left(), box.top(), box.front() ) ) ||
-		     contains_point( new Vector3f( box.right(), box.top(), box.front() ) ) ||
-		     contains_point( new Vector3f( box.left(), box.bottom(), box.front() ) ) ||
-		     contains_point( new Vector3f( box.right(), box.bottom(), box.front() ) ) ||
-		     contains_point( new Vector3f( box.left(), box.top(), box.back() ) ) ||
-		     contains_point( new Vector3f( box.right(), box.top(), box.back() ) ) ||
-		     contains_point( new Vector3f( box.left(), box.bottom(), box.back() ) ) ||
-		     contains_point( new Vector3f( box.right(), box.bottom(), box.back() ) ) )
-			return true;
-
-		return false;
-	}
 }

@@ -98,7 +98,6 @@ public class RLETree
 			return;
 		}
 
-		//System.out.println( "Setting " + pos + " " + data );
 		Node node = new Node( pos, data );
 
 		// Get the node containing this position
@@ -458,7 +457,6 @@ public class RLETree
 		{
 			if ( _root.left == null )
 			{
-				//System.out.println( "Searching left of node " + _root.pos + " which is + " + _root.prev + "\n" + _root );
 				return _root.prev;
 			}
 			else
