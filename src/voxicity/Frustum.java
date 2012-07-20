@@ -213,21 +213,23 @@ public class Frustum
 		return true;
 	}
 
-	// For use in just this function as scratch space
-		// Create an array of all the points, their x_dot, y_dot and z_dot values
-	private Vector3f[] points = { new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f() };
-	private float[][] dots = new float[8][3];
 
+	// Check if an AABB collides with this frustum by checking all the points
+	// in turn against each set of planes
 	public boolean collides( AABB box )
 	{
-		Vector3f.sub( new Vector3f( box.left(), box.top(), box.front() ), pos, points[0] );
-		Vector3f.sub( new Vector3f( box.right(), box.top(), box.front() ), pos, points[1] );
-		Vector3f.sub( new Vector3f( box.left(), box.bottom(), box.front() ), pos, points[2] );
-		Vector3f.sub( new Vector3f( box.right(), box.bottom(), box.front() ), pos, points[3] );
-		Vector3f.sub( new Vector3f( box.left(), box.top(), box.back() ), pos, points[4] );
-		Vector3f.sub( new Vector3f( box.right(), box.top(), box.back() ), pos, points[5] );
-		Vector3f.sub( new Vector3f( box.left(), box.bottom(), box.back() ), pos, points[6] );
-		Vector3f.sub( new Vector3f( box.right(), box.bottom(), box.back() ), pos, points[7] );
+		// Create an array of all the points, their x_dot, y_dot and z_dot values
+		Vector3f[] points = { new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f() };
+		float[][] dots = new float[8][3];
+
+		points[0] = Vector3f.sub( new Vector3f( box.left(), box.top(), box.front() ), pos, null );
+		points[1] = Vector3f.sub( new Vector3f( box.right(), box.top(), box.front() ), pos, null );
+		points[2] = Vector3f.sub( new Vector3f( box.left(), box.bottom(), box.front() ), pos, null );
+		points[3] = Vector3f.sub( new Vector3f( box.right(), box.bottom(), box.front() ), pos, null );
+		points[4] = Vector3f.sub( new Vector3f( box.left(), box.top(), box.back() ), pos, null );
+		points[5] = Vector3f.sub( new Vector3f( box.right(), box.top(), box.back() ), pos, null );
+		points[6] = Vector3f.sub( new Vector3f( box.left(), box.bottom(), box.back() ), pos, null );
+		points[7] = Vector3f.sub( new Vector3f( box.right(), box.bottom(), box.back() ), pos, null );
 
 		for ( int i = 0 ; i < 8 ; i++ )
 		{
