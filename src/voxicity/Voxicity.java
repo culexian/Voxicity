@@ -292,10 +292,6 @@ public class Voxicity
 
 			// Set the look vector
 			look_vec.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
-
-			/*floating_block.pos_x = (int)(look_vec.x + camera.x);
-			floating_block.pos_y = (int)(look_vec.y + camera.y + camera_offset);
-			floating_block.pos_z = (int)(look_vec.z + camera.z);*/
 		}
 
 		System.out.println( "Check collisions at " + Time.get_time_µs() );
