@@ -137,12 +137,12 @@ public class Voxicity
 
 		while ( !is_close_requested )
 		{
-			System.out.println( "Update at " + Time.get_time_ms() );
+			System.out.println( "Update at " + Time.get_time_µs() );
 			client.update();
 			update( get_time_delta() / 1000.0f );
-			System.out.println( "Load new chunks at " + Time.get_time_ms() );
+			System.out.println( "Load new chunks at " + Time.get_time_µs() );
 			server.update();
-			System.out.println( "Render at " + Time.get_time_ms() );
+			System.out.println( "Render at " + Time.get_time_µs() );
 			client.renderer.render( cam_vol );
 			System.out.println( "Loop done" );
 
@@ -298,9 +298,9 @@ public class Voxicity
 			floating_block.pos_z = (int)(look_vec.z + camera.z);*/
 		}
 
-		System.out.println( "Check collisions at " + Time.get_time_ms() );
+		System.out.println( "Check collisions at " + Time.get_time_µs() );
 		check_collisions();
-		System.out.println( "Done checking collisions at " + Time.get_time_ms() );
+		System.out.println( "Done checking collisions at " + Time.get_time_µs() );
 
 		calc_place_loc();
 

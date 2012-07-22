@@ -67,16 +67,16 @@ public class Renderer
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		
-		System.out.println( "Before clean " + Time.get_time_ms() );
+		System.out.println( "Before clean " + Time.get_time_µs() );
 		for ( ChunkNode chunk : chunks.values() )
 //			if ( !cleaned_one )
 				cleaned_one = chunk.clean();
 
-		System.out.println( "Before render " + Time.get_time_ms() );
+		System.out.println( "Before render " + Time.get_time_µs() );
 		for ( ChunkNode chunk : chunks.values() )
 			chunk.render();
 
-		System.out.println( "After render " + Time.get_time_ms() );
+		System.out.println( "After render " + Time.get_time_µs() );
 
 		TextRenderer.draw( "FPS: " + Integer.toString( Voxicity.fps), 5, 5 + TextRenderer.line_height() * 0 );
 		TextRenderer.draw( "X: " + Float.toString(camera.pos.x), 5, 5 + TextRenderer.line_height() * 1 );

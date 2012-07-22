@@ -25,6 +25,16 @@ public class Time
 {
 	public static long get_time_ms()
 	{
-		return (Sys.getTime() * 1000)  / Sys.getTimerResolution();
+		return System.currentTimeMillis();
+	}
+
+	public static long get_time_µs()
+	{
+		return (Sys.getTime() * 10000)  / Sys.getTimerResolution();
+	}
+
+	public static long get_time_ns()
+	{
+		return System.nanoTime();
 	}
 }
