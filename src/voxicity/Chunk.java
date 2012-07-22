@@ -40,6 +40,11 @@ public class Chunk
 		generate_blocks();
 	}
 
+	public int hashCode()
+	{
+		return x ^ y ^ z;
+	}
+
 	public int get_x()
 	{
 		return x;
