@@ -64,7 +64,8 @@ public class Constants
 			UseAction = 2,
 			HitAction = 3,
 			MoveAction = 4,
-			BlockUpdate = 5
+			BlockUpdate = 5,
+			PlayerMove = 6
 			;
 	}
 }

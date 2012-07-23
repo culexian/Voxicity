@@ -17,16 +17,41 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 package voxicity;
 
-import org.lwjgl.util.vector.Vector3f;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
-public class Player
+public class Dirt implements Block
 {
-	Vector3f pos = new Vector3f();
-	Vector3f accel = new Vector3f();
-	Vector3f velocity = new Vector3f();
+	public int id()
+	{
+		return Constants.Blocks.dirt;
+	}
 
-	boolean flying = false;
-	boolean jumping = false;
+	public String texture_string()
+	{
+		return "textures/dirt.png";
+	}
+
+	public FloatBuffer vertices()
+	{
+		return Cube.vertices();
+	}
+
+	public FloatBuffer texture_coords()
+	{
+		return Cube.texture_coords();
+	}
+
+	public IntBuffer indices()
+	{
+		return Cube.indices();
+	}
+
+	public AABB bounds()
+	{
+		return Cube.bounds();
+	}
 }

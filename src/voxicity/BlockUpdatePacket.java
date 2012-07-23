@@ -19,14 +19,20 @@
 
 package voxicity;
 
-import org.lwjgl.util.vector.Vector3f;
-
-public class Player
+public class BlockUpdatePacket
 {
-	Vector3f pos = new Vector3f();
-	Vector3f accel = new Vector3f();
-	Vector3f velocity = new Vector3f();
+	public BlockUpdatePacket()
+	{
 
-	boolean flying = false;
-	boolean jumping = false;
+	}
+
+	public int get_id()
+	{
+		return Constants.Packet.BlockUpdate;
+	}
+
+	public byte[] serialize()
+	{
+		return null;
+	};
 }

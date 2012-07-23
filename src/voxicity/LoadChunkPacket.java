@@ -19,14 +19,36 @@
 
 package voxicity;
 
-import org.lwjgl.util.vector.Vector3f;
+import java.nio.ByteBuffer;
 
-public class Player
+public class LoadChunkPacket extends Packet
 {
-	Vector3f pos = new Vector3f();
-	Vector3f accel = new Vector3f();
-	Vector3f velocity = new Vector3f();
+	Chunk chunk;
 
-	boolean flying = false;
-	boolean jumping = false;
+	public LoadChunkPacket( Chunk chunk )
+	{
+		this.chunk = chunk;
+	}
+
+	public LoadChunkPacket( ByteBuffer buf )
+	{
+		chunk = new Chunk( buf );
+	}
+
+	public int get_id()
+	{
+		return Constants.Packet.LoadChunk;
+	}
+
+	public ByteBuffer serialize()
+	{
+		ByteBuffer chunk_ser = chunk.serialize();
+		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + chunk_ser.limit() );
+
+		buf.putInt( get_id() ).putInt( chunk_ser.limit() ).put( chunk_ser );
+
+		buf.rewind();
+
+		return buf;
+	}
 }

@@ -36,6 +36,8 @@ public class Renderer
 	Config config;
 	Map< Collection< Integer >, ChunkNode > chunks = new HashMap< Collection< Integer >, ChunkNode >();
 
+	Frustum camera = new Frustum();
+
 	public Renderer( Config config )
 	{
 		this.config = config;

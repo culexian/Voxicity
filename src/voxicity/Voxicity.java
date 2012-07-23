@@ -62,8 +62,6 @@ public class Voxicity
 
 	static Vector3f camera = new Vector3f();
 
-	Vector3f last_pos = new Vector3f();
-
 	Vector3f accel = new Vector3f( 0, 0, 0 );
 	Vector3f move_speed = new Vector3f();
 
@@ -77,8 +75,6 @@ public class Voxicity
 	Server server;
 	Client client;
 	static ConnectionGlue conn_glue;
-
-	World world;
 
 	Block floating_block;
 
@@ -109,7 +105,6 @@ public class Voxicity
 
 		setup_camera();
 		Mouse.setGrabbed( true );
-		world = client.world;
 
 		System.out.println( "Setting up OpenGL states" );
 		GL11.glShadeModel( GL11.GL_SMOOTH );
@@ -139,7 +134,7 @@ public class Voxicity
 		{
 			System.out.println( "Update at " + Time.get_time_µs() );
 			client.update();
-			update( get_time_delta() / 1000.0f );
+			update( get_time_delta() / 1000.0f, client.world );
 			System.out.println( "Load new chunks at " + Time.get_time_µs() );
 			server.update();
 			System.out.println( "Render at " + Time.get_time_µs() );
@@ -196,10 +191,10 @@ public class Voxicity
 		return delta;
 	}
 
-	void update( float delta )
+	void update( float delta, World world )
 	{
 		//Store the new last position
-		last_pos.set( camera );
+		Vector3f last_pos = new Vector3f( camera );
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) )
 			is_close_requested = true;
@@ -254,10 +249,10 @@ public class Voxicity
 			}
 
 			if ( Mouse.isButtonDown( 0 ) )
-				place_block();
+				place_block( world );
 
 			if ( Mouse.isButtonDown( 1 ) )
-				remove_block();
+				remove_block( world );
 
 			int x_delta = Mouse.getDX();
 			int y_delta = Mouse.getDY();
@@ -297,10 +292,10 @@ public class Voxicity
 		}
 
 		System.out.println( "Check collisions at " + Time.get_time_µs() );
-		check_collisions();
+		check_collisions( last_pos, new Vector3f( camera.x, camera.y, camera.z ), world );
 		System.out.println( "Done checking collisions at " + Time.get_time_µs() );
 
-		calc_place_loc();
+		calc_place_loc( world );
 
 		cam_vol.set_pos( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), new Vector3f( camera.x + look_vec.x, camera.y + camera_offset + look_vec.y, camera.z + look_vec.z ), new Vector3f( 0, 1, 0 ) );
 
@@ -358,7 +353,7 @@ public class Voxicity
 		}
 	}
 
-	void check_collisions()
+	void check_collisions( Vector3f last_pos, Vector3f new_pos, World world )
 	{
 		int slice_num = 10;
 
@@ -368,7 +363,7 @@ public class Voxicity
 
 		AABB player = new AABB( 0.5f, 1.7f, 0.5f );
 
-		Vector3f new_pos = new Vector3f( camera.x, camera.y, camera.z );
+		//Vector3f new_pos = new Vector3f( camera.x, camera.y, camera.z );
 
 		Vector3f slice_distance = new Vector3f();
 		Vector3f.sub( new_pos, last_pos, slice_distance );
@@ -549,7 +544,7 @@ public class Voxicity
 		}
 	}
 
-	void calc_place_loc()
+	void calc_place_loc( World world )
 	{
 		float nearest_distance = Float.POSITIVE_INFINITY;
 		BlockLoc nearest_block = new BlockLoc( Math.round( camera.x + look_vec.x ), Math.round( camera.y + camera_offset + look_vec.y ), Math.round( camera.z + look_vec.z ), world );
@@ -586,7 +581,7 @@ public class Voxicity
 		return Time.get_time_ms() - last_block_change > ( 1000 / 5 );
 	}
 
-	void place_block()
+	void place_block( World world )
 	{
 		if ( can_change_block() )
 			last_block_change = Time.get_time_ms();
@@ -625,7 +620,7 @@ public class Voxicity
 		}
 	}
 
-	void remove_block()
+	void remove_block( World world )
 	{
 		if ( can_change_block() )
 			last_block_change = Time.get_time_ms();

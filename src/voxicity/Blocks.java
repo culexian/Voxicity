@@ -19,14 +19,28 @@
 
 package voxicity;
 
-import org.lwjgl.util.vector.Vector3f;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
-public class Player
+import java.util.ArrayList;
+
+public class Blocks
 {
-	Vector3f pos = new Vector3f();
-	Vector3f accel = new Vector3f();
-	Vector3f velocity = new Vector3f();
+	static ArrayList< Block > id_index = new ArrayList< Block >()
+	{
+		{
+			add( Constants.Blocks.air, new Air() );
+			add( Constants.Blocks.dirt, new Dirt() );
+			add( Constants.Blocks.stone, new Stone() );
+			add( Constants.Blocks.grass, new Grass() );
+		}
+	};
 
-	boolean flying = false;
-	boolean jumping = false;
+	static Block get( int id )
+	{
+		if ( ( id < 0 ) || ( id >= id_index.size() ) )
+			return id_index.get( 0 );
+		else
+			return id_index.get( id );
+	}
 }

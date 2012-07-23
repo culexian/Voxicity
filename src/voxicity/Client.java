@@ -26,12 +26,14 @@ public class Client
 	Config config;
 	Connection connection;
 	Renderer renderer;
-	World world = new World( config );
+	World world;
+	Player player = new Player();
 
 	public Client( Config config, Connection connection )
 	{
 		this.config = config;
 		this.connection = connection;
+		this.world = new World( config );
 		this.renderer = new Renderer( config );
 	}
 

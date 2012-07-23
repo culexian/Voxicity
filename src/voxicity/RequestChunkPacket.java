@@ -19,14 +19,42 @@
 
 package voxicity;
 
-import org.lwjgl.util.vector.Vector3f;
+import java.nio.ByteBuffer;
 
-public class Player
+public class RequestChunkPacket extends Packet
 {
-	Vector3f pos = new Vector3f();
-	Vector3f accel = new Vector3f();
-	Vector3f velocity = new Vector3f();
+	int x, y, z;
 
-	boolean flying = false;
-	boolean jumping = false;
+	// Create a chunk request packet.
+	// Use global values for coordinates.
+	public RequestChunkPacket( int x, int y, int z )
+	{
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+
+	public RequestChunkPacket( ByteBuffer buf )
+	{
+		x = buf.getInt();
+		y = buf.getInt();
+		z = buf.getInt();
+	}
+
+	public int get_id()
+	{
+		return Constants.Packet.RequestChunk;
+	}
+
+	// Serialize this with id, length and coords
+	public ByteBuffer serialize()
+	{
+		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + 3 * 4 );
+
+		buf.putInt( get_id() ).putInt( 3 * 4 ).putInt( x ).putInt( y ).putInt( z );
+
+		buf.rewind();
+
+		return buf;
+	}
 }
