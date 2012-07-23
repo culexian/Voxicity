@@ -109,7 +109,7 @@ public class Voxicity
 
 		setup_camera();
 		Mouse.setGrabbed( true );
-		world = client.world_cache;
+		world = client.world;
 
 		System.out.println( "Setting up OpenGL states" );
 		GL11.glShadeModel( GL11.GL_SMOOTH );

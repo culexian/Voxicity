@@ -80,9 +80,7 @@ public class Server
 		world.set_chunk( new_chunk.x, new_chunk.y, new_chunk.z, new_chunk );
 
 		for ( Connection conn : connections )
-		{
-			conn.send( new ChunkPacket( new_chunk.x, new_chunk.y, new_chunk.z, new_chunk ) );
-		}
+			conn.send( new LoadChunkPacket( new_chunk ) );
 	}
 
 	public void load_chunk( int x, int y, int z )

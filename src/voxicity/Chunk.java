@@ -19,6 +19,9 @@
 
 package voxicity;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 public class Chunk
 {
 	int x, y, z;
@@ -38,6 +41,17 @@ public class Chunk
 		System.out.println( "Created chunk at " + x + " " + y + " " + z );
 
 		generate_blocks();
+	}
+
+	public Chunk( ByteBuffer buf )
+	{
+		x = buf.getInt();
+		y = buf.getInt();
+		z = buf.getInt();
+
+		write_timestamp = buf.getLong();
+
+		blocks.load( buf );
 	}
 
 	public int hashCode()
@@ -63,11 +77,6 @@ public class Chunk
 	public int[] get_coords()
 	{
 		return new int[]{ x, y, z };
-	}
-
-	public World get_world()
-	{
-		return world;
 	}
 
 	public int get_block_pos( int x, int y, int z )
@@ -152,6 +161,8 @@ public class Chunk
 		}
 
 		System.out.println( blocks );
+		System.out.println( Arrays.toString( blocks.serialize().array() ) );
+		System.out.println( Arrays.toString( this.serialize().array() ) );
 		long end = System.nanoTime();
 	}
 
@@ -164,4 +175,29 @@ public class Chunk
 	{
 		return write_timestamp;
 	}
+
+	public ByteBuffer serialize()
+	{
+		// Get the serialized blocks
+		ByteBuffer blocks_buf = blocks.serialize();
+
+		// Figure out the needed size for the chunk's buffer
+		ByteBuffer buf = ByteBuffer.allocate( blocks_buf.limit() + 3 * 4 + 8 );
+
+		// Put the chunk coords in the buffer
+		buf.putInt( x ).putInt( y ).putInt( z );
+
+		// Put the timestamp in ms in the buffer
+		buf.putLong( write_timestamp );
+
+		// Put the serialized blocks in the buffer
+		buf.put( blocks_buf );
+
+		// Rewind the buffer to start
+		buf.rewind();
+
+		// Return the serialized chunk
+		return buf;
+	}
 }
+

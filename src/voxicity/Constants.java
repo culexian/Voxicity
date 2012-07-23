@@ -58,8 +58,11 @@ public class Constants
 	public static class Packet
 	{
 		public static final int
-		Chunk = 0,
-		BlockUpdate = 1
+		LoadChunk = 0,
+		BlockUpdate = 1,
+		UseAction = 2,
+		HitAction = 3,
+		MoveAction = 4
 		;
 	}
 }

@@ -19,6 +19,8 @@
 
 package voxicity;
 
+import java.nio.ByteBuffer;
+
 public class ConnectionGlue implements Runnable
 {
 	Connection a, b;
@@ -39,21 +41,54 @@ public class ConnectionGlue implements Runnable
 	{
 		while( !quitting )
 		{
-			try
-			{
-				while( a.outgoing.peek() != null )
-					b.incoming.put( a.outgoing.take() );
+			handle_traffic( a, b );
+			handle_traffic( b, a );
+		}
+	}
 
-				while( b.outgoing.peek() != null )
-					a.incoming.put( b.outgoing.take() );
-
-				Thread.currentThread().sleep( 20 );
-			}
-			catch ( Exception e )
+	void handle_traffic( Connection out, Connection in )
+	{
+		try
+		{
+			// If packets coming from out, send one to in
+			if ( out.outgoing.peek() != null )
 			{
-				System.out.println( e );
-				e.printStackTrace();
+				// Get the packet from the outgoing queue
+				Packet p = out.outgoing.take();
+
+				// Serialize the packet
+				ByteBuffer buf = p.serialize();
+
+				// Get packet id
+				int id = buf.getInt();
+
+				// Skip length check, is a local connection
+				buf.getInt();
+
+
+				// Deserialize the same packet with the id and the buffer from this point
+				Packet i = deserialize( id, buf.slice() );
+
+				// Place the new packet on the incoming queue
+				in.incoming.put( i );
 			}
+		}
+		catch ( Exception e )
+		{
+			System.out.println( e );
+			e.printStackTrace();
+		}
+	}
+
+
+	Packet deserialize( int id, ByteBuffer buf )
+	{
+		switch ( id )
+		{
+			case Constants.Packet.LoadChunk:
+				return new LoadChunkPacket( buf );
+			default:
+				return null;
 		}
 	}
 }

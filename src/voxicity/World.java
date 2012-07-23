@@ -63,6 +63,7 @@ public class World
 	{
 		if ( chunk == null ) return;
 
+		chunk.set_world( this );
 		chunks.put( get_chunk_id( x, y, z ), chunk );
 		mark_neighbors( x, y, z );
 	}

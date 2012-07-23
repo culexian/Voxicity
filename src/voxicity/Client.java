@@ -26,7 +26,7 @@ public class Client
 	Config config;
 	Connection connection;
 	Renderer renderer;
-	World world_cache = new World( config );
+	World world = new World( config );
 
 	public Client( Config config, Connection connection )
 	{
@@ -62,11 +62,12 @@ public class Client
 
 		switch ( packet.get_id() )
 		{
-			case Constants.Packet.Chunk:
+			case Constants.Packet.LoadChunk:
 			{
-				ChunkPacket p = (ChunkPacket)packet;
-				world_cache.set_chunk( p.x, p.y, p.z, p.chunk );
-				renderer.set_chunk( p.x, p.y, p.z, p.chunk );
+				LoadChunkPacket p = (LoadChunkPacket)packet;
+				Chunk c = p.chunk;
+				world.set_chunk( c.x, c.y, c.z, c );
+				renderer.set_chunk( c.x, c.y, c.z, c );
 				break;
 			}
 		}

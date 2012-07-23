@@ -19,19 +19,11 @@
 
 package voxicity;
 
+import java.nio.ByteBuffer;
+
 public abstract class Packet
 {
-	public Packet()
-	{
-
-	}
-
-	public Packet( byte[] raw_packet )
-	{
-
-	}
-
 	public abstract int get_id();
 
-	abstract public byte[] serialize();
+	abstract public ByteBuffer serialize();
 }

@@ -19,6 +19,8 @@
 
 package voxicity;
 
+import java.nio.ByteBuffer;
+
 public class RLETree
 {
 	private class Node
@@ -50,6 +52,21 @@ public class RLETree
 	{
 		head = new Node( 0, 0 );
 		root = head;
+	}
+
+	public void load( ByteBuffer buf )
+	{
+		Node tail = new Node( buf.getInt(), buf.getInt() );
+		head = tail;
+		root = tail;
+		
+		while( buf.remaining() != 0 )
+		{
+			Node a = new Node( buf.getInt(), buf.getInt() );
+			list_insert_after( a, tail );
+			root = tree_insert( root, a );
+			tail = a;
+		}
 	}
 
 	int get( int pos )
@@ -587,5 +604,34 @@ public class RLETree
 		out += tree_out;
 
 		return out;
+	}
+
+	ByteBuffer serialize()
+	{
+		// Find out how long the list of runs is
+		Node cur = head;
+		int length = 0;
+		while ( cur != null )
+		{
+			cur = cur.next;
+			length++;
+		}
+
+		// Each run is 2 ints = 2 * int_size * length
+		int int_size = 4;
+		ByteBuffer buf = ByteBuffer.allocate( 2 * int_size * length );
+
+		// Iterate over the runs and write them to the bufer
+		cur = head;
+		while ( cur != null )
+		{
+			buf.putInt( cur.pos );
+			buf.putInt( cur.data );
+			cur = cur.next;
+		}
+
+		buf.rewind();
+
+		return buf;
 	}
 }
