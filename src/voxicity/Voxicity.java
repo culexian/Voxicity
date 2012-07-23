@@ -60,7 +60,7 @@ public class Voxicity
 
 	public static Frustum cam_vol = new Frustum();
 
-	static Vector3f camera = new Vector3f();
+	static Vector3f camera;
 
 	Vector3f accel = new Vector3f( 0, 0, 0 );
 	Vector3f move_speed = new Vector3f();
@@ -103,7 +103,6 @@ public class Voxicity
 
 		TextRenderer.init();
 
-		setup_camera();
 		Mouse.setGrabbed( true );
 
 		System.out.println( "Setting up OpenGL states" );
@@ -129,6 +128,11 @@ public class Voxicity
 
 		last_fps_update = Time.get_time_ms();
 		get_time_delta();
+
+		client.init();
+		camera = client.player.pos;
+
+		setup_camera();
 
 		while ( !is_close_requested )
 		{
@@ -649,6 +653,7 @@ public class Voxicity
 			e.printStackTrace();
 		}
 
+		client.shutdown();
 		server.shutdown();
 		System.out.println( "Destroying display" );
 		Display.destroy();

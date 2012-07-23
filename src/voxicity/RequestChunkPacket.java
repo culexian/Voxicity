@@ -34,6 +34,11 @@ public class RequestChunkPacket extends Packet
 		this.z = z;
 	}
 
+	public RequestChunkPacket( float x, float y, float z )
+	{
+		this( Math.round( x ), Math.round( y ), Math.round( z ) );
+	}
+
 	public RequestChunkPacket( ByteBuffer buf )
 	{
 		x = buf.getInt();

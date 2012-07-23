@@ -29,30 +29,38 @@ public class Client
 	World world;
 	Player player = new Player();
 
+	BackgroundTask chunk_requester;
+
 	public Client( Config config, Connection connection )
 	{
 		this.config = config;
 		this.connection = connection;
 		this.world = new World( config );
 		this.renderer = new Renderer( config );
+		this.chunk_requester = new ChunkRequester( player, world, connection );
 	}
 
 	public void init()
 	{
-
+		chunk_requester.start();
 	}
 
 	public void run()
 	{
 		while( !quitting )
 		{
-			
+			update();
 		}
 	}
 
 	void update()
 	{
 		handle_packets();
+	}
+
+	void shutdown()
+	{
+		chunk_requester.quit();
 	}
 
 	void handle_packets()
