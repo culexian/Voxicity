@@ -38,7 +38,7 @@ public class BlockLoc
 
 	public BlockLoc( BlockChunkLoc loc )
 	{
-		this( loc.chunk.x + loc.x, loc.chunk.y + loc.y, loc.chunk.z + loc.z, loc.chunk.get_world() );
+		this( loc.chunk.x + loc.x, loc.chunk.y + loc.y, loc.chunk.z + loc.z, loc.chunk.world );
 	}
 
 	public Chunk get_chunk()
