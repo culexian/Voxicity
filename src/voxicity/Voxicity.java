@@ -268,8 +268,9 @@ public class Voxicity
 			rot_x = rot_x > 360.0f ? rot_x - 360.0f : rot_x;
 			rot_x = rot_x < -360.0 ? rot_x + 360.0f : rot_x;
 
-			rot_y = Math.min( rot_y, 90.0f );
-			rot_y = Math.max( rot_y, -90.0f );
+			// Avoid NaN in the frustum calculations
+			rot_y = Math.min( rot_y, 89.9999f );
+			rot_y = Math.max( rot_y, -89.9999f );
 
 			float cos_rot_x = ( float ) Math.cos( Math.toRadians( rot_x ) );
 			float sin_rot_x = ( float ) Math.sin( Math.toRadians( rot_x ) );
