@@ -155,17 +155,18 @@ public class Voxicity
 			{
 				while( true )
 				{
-					int view = 4;
-					for ( int x = -view ; x <= view ; x++ )
-						for ( int y = -view ; y <= view ; y++ )
-							for ( int z = -view ; z <= view ; z++ )
+					int view = 4 * Constants.Chunk.side_length;
+					for ( int x = -view ; x <= view ; x += Constants.Chunk.side_length )
+						for ( int y = -view ; y <= view ; y += Constants.Chunk.side_length )
+							for ( int z = -view ; z <= view ; z += Constants.Chunk.side_length )
 							{
 								if ( is_close_requested )
 									return;
 
-								server.load_chunk(camera.x + Constants.Chunk.side_length * x, camera.y + Constants.Chunk.side_length * y, camera.z + Constants.Chunk.side_length * z ); 
-
+								if ( ( x*x + y*y + z*z ) <= view*view )
+									server.load_chunk(camera.x + x, camera.y + y, camera.z + z ); 
 							}
+
 					try
 					{
 						Thread.currentThread().sleep( 1000 );
@@ -362,8 +363,6 @@ public class Voxicity
 		boolean collided_z = false;
 
 		AABB player = new AABB( 0.5f, 1.7f, 0.5f );
-
-		//Vector3f new_pos = new Vector3f( camera.x, camera.y, camera.z );
 
 		Vector3f slice_distance = new Vector3f();
 		Vector3f.sub( new_pos, last_pos, slice_distance );
