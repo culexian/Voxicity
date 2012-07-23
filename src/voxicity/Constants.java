@@ -57,12 +57,14 @@ public class Constants
 
 	public static class Packet
 	{
+
 		public static final int
-		LoadChunk = 0,
-		BlockUpdate = 1,
-		UseAction = 2,
-		HitAction = 3,
-		MoveAction = 4
-		;
+			LoadChunk = 0,
+			RequestChunk = 1,
+			UseAction = 2,
+			HitAction = 3,
+			MoveAction = 4,
+			BlockUpdate = 5
+			;
 	}
 }
