@@ -265,8 +265,9 @@ public class Voxicity
 			rot_x += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
 			rot_y += ( y_delta / 800.0f ) * 45.0f * mouse_speed;
 
-			rot_x = rot_x > 360.0f ? rot_x - 360.0f : rot_x;
-			rot_x = rot_x < -360.0 ? rot_x + 360.0f : rot_x;
+			// Make sure spinning idiots don't get ludicrously high rotations
+			rot_x = rot_x > 361.0f ? rot_x - 360.0f : rot_x;
+			rot_x = rot_x < -361.0 ? rot_x + 360.0f : rot_x;
 
 			// Avoid NaN in the frustum calculations
 			rot_y = Math.min( rot_y, 89.9999f );
