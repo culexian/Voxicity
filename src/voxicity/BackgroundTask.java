@@ -37,6 +37,8 @@ public class BackgroundTask extends Thread
 	{
 		while ( !quitting() )
 			task();
+
+		System.out.println( "Quitting" );
 	}
 
 	void task()

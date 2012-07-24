@@ -22,7 +22,7 @@ package voxicity;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Server
+public class Server extends Thread
 {
 	boolean quitting = false;
 
@@ -43,17 +43,27 @@ public class Server
 		return true;
 	}
 
-	void run()
+	public void run()
 	{
+		init();
+
 		while ( !quitting )
 		{
-			
+			update();
 		}
+
+		shutdown();
 	}
 
 	void update()
 	{
+		handle_packets();
 		load_new_chunks();
+	}
+
+	public void quit()
+	{
+		quitting = true;
 	}
 
 	void shutdown()
@@ -93,5 +103,28 @@ public class Server
 	public void load_chunk( float x, float y, float z )
 	{
 		load_chunk( Math.round( x ), Math.round( y ), Math.round( z ) );
+	}
+
+	public void handle_packets()
+	{
+		for ( Connection c : connections )
+		{
+			Packet p = c.recieve();
+
+			while ( p != null )
+			{
+				switch( p.get_id() )
+				{
+					case Constants.Packet.RequestChunk:
+					{
+						RequestChunkPacket r = (RequestChunkPacket)p;
+						load_chunk( r.x, r.y, r.z );
+						break;
+					}
+				}
+
+				p = c.recieve();
+			}
+		}
 	}
 }

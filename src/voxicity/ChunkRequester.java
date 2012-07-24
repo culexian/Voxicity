@@ -43,13 +43,16 @@ public class ChunkRequester extends BackgroundTask
 					if ( quitting() )
 						return;
 
+					if ( world.is_chunk_loaded( Math.round( player.pos.x + x ), Math.round( player.pos.y + y ), Math.round( player.pos.z + z ) ) )
+						continue;
+
 					if ( ( x*x + y*y + z*z ) <= view*view )
 						connection.send( new RequestChunkPacket( player.pos.x + x, player.pos.y + y, player.pos.z + z ) ); 
 				}
 
 		try
 		{
-			Thread.currentThread().sleep( 500 );
+			Thread.currentThread().sleep( 1000 );
 		}
 		catch ( Exception e )
 		{

@@ -122,9 +122,9 @@ public class Voxicity
 		System.out.println( "Number of vertex texture units: " + GL11.glGetInteger( GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS ) );
 		System.out.println( "Number of combined vertex/image texture units: " + GL11.glGetInteger( GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS ) );
 
-		load_texture_pack();
+		server.start();
 
-		start_chunk_loader();
+		load_texture_pack();
 
 		last_fps_update = Time.get_time_ms();
 		get_time_delta();
@@ -140,7 +140,7 @@ public class Voxicity
 			client.update();
 			update( get_time_delta() / 1000.0f, client.world );
 			System.out.println( "Load new chunks at " + Time.get_time_µs() );
-			server.update();
+//			server.update();
 			System.out.println( "Render at " + Time.get_time_µs() );
 			client.renderer.render( cam_vol );
 			System.out.println( "Loop done" );
@@ -149,42 +149,6 @@ public class Voxicity
 		}
 
 		shutdown();
-	}
-
-	void start_chunk_loader()
-	{
-		Thread chunk_loader = new Thread()
-		{
-			public void run()
-			{
-				while( true )
-				{
-					int view = 4 * Constants.Chunk.side_length;
-					for ( int x = -view ; x <= view ; x += Constants.Chunk.side_length )
-						for ( int y = -view ; y <= view ; y += Constants.Chunk.side_length )
-							for ( int z = -view ; z <= view ; z += Constants.Chunk.side_length )
-							{
-								if ( is_close_requested )
-									return;
-
-								if ( ( x*x + y*y + z*z ) <= view*view )
-									server.load_chunk(camera.x + x, camera.y + y, camera.z + z ); 
-							}
-
-					try
-					{
-						Thread.currentThread().sleep( 1000 );
-					}
-					catch ( Exception e )
-					{
-						e.printStackTrace();
-					}
-				}
-			}
-		};
-
-		chunk_loader.start();
-		this.chunk_loader = chunk_loader;
 	}
 
 	int get_time_delta()
@@ -646,7 +610,7 @@ public class Voxicity
 		conn_glue.quit();
 		try
 		{
-			chunk_loader.join();
+			//chunk_loader.join();
 		}
 		catch ( Exception e )
 		{
@@ -654,7 +618,7 @@ public class Voxicity
 		}
 
 		client.shutdown();
-		server.shutdown();
+		server.quit();
 		System.out.println( "Destroying display" );
 		Display.destroy();
 	}
