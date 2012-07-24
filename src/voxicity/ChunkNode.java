@@ -227,7 +227,7 @@ public class ChunkNode
 		return true;
 	}
 
-	public void render()
+	public void render( Frustum camera )
 	{
 		if ( empty )
 			return;
@@ -237,7 +237,7 @@ public class ChunkNode
 		chunk_box.pos.set( chunk.get_x() + chunk_box.dim.x, chunk.get_y() + chunk_box.dim.y, chunk.get_z() + chunk_box.dim.z );
 
 		//if ( !voxicity.Voxicity.cam_vol.collides_plane_check( chunk_box ) )
-		if ( !Voxicity.cam_vol.collides( chunk_box ) )
+		if ( !camera.collides( chunk_box ) )
 			return;
 
 		// Push the world matrix

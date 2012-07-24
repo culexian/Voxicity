@@ -58,27 +58,16 @@ public class Voxicity
 	float mouse_speed = 2.0f;
 	float camera_offset = 0.75f;
 
-	public static Frustum cam_vol = new Frustum();
-
 	static Vector3f camera;
-
-	Vector3f accel = new Vector3f( 0, 0, 0 );
-	Vector3f move_speed = new Vector3f();
 
 	Vector3f place_loc = new Vector3f( 0, 0, 0 );
 	Vector3f look_vec = new Vector3f();
 
 	boolean is_close_requested = false;
-	boolean jumping = true;
-	boolean flying = true;
 
 	Server server;
 	Client client;
 	static ConnectionGlue conn_glue;
-
-	Block floating_block;
-
-	Thread chunk_loader;
 
 	public Voxicity( Server server, Client client )
 	{
@@ -142,7 +131,7 @@ public class Voxicity
 			System.out.println( "Load new chunks at " + Time.get_time_µs() );
 //			server.update();
 			System.out.println( "Render at " + Time.get_time_µs() );
-			client.renderer.render( cam_vol );
+			client.renderer.render();
 			System.out.println( "Loop done" );
 
 			is_close_requested |= Display.isCloseRequested();
@@ -163,7 +152,7 @@ public class Voxicity
 	void update( float delta, World world )
 	{
 		//Store the new last position
-		Vector3f last_pos = new Vector3f( camera );
+		Vector3f last_pos = new Vector3f( client.player.pos );
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) )
 			is_close_requested = true;
@@ -199,21 +188,21 @@ public class Voxicity
 			if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
 				z_move += 5;
 
-			if ( flying )
+			if ( client.player.flying )
 			{
 				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera.y += 5 * delta;
 				if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera.y -= 5 * delta;
 			}
 			else
 			{
-				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) && !jumping )
+				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) && !client.player.jumping )
 				{
-					move_speed.y = 8.0f;
-					jumping = true;
+					client.player.velocity.y = 8.0f;
+					client.player.jumping = true;
 				}
 
-				if ( jumping )
-					accel.y = -23f;
+				if ( client.player.jumping )
+					client.player.accel.y = -23f;
 
 			}
 
@@ -245,28 +234,28 @@ public class Voxicity
 			float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
 			float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
 
-			accel.x = corr_x;
-			accel.z = corr_z;
+			client.player.accel.x = corr_x;
+			client.player.accel.z = corr_z;
 
-			move_speed.x = accel.x; 
-			move_speed.y += accel.y * delta;
-			move_speed.z = accel.z;
+			client.player.velocity.x = client.player.accel.x; 
+			client.player.velocity.y += client.player.accel.y * delta;
+			client.player.velocity.z = client.player.accel.z;
 
-			camera.x += move_speed.x * delta;
-			camera.y+= move_speed.y * delta;
-			camera.z += move_speed.z * delta;
+			camera.x += client.player.velocity.x * delta;
+			camera.y+= client.player.velocity.y * delta;
+			camera.z += client.player.velocity.z * delta;
 
 			// Set the look vector
 			look_vec.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
 		}
 
 		System.out.println( "Check collisions at " + Time.get_time_µs() );
-		check_collisions( last_pos, new Vector3f( camera.x, camera.y, camera.z ), world );
+		check_collisions( last_pos, new Vector3f( camera.x, camera.y, camera.z ), world, client.player );
 		System.out.println( "Done checking collisions at " + Time.get_time_µs() );
 
 		calc_place_loc( world );
 
-		cam_vol.set_pos( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), new Vector3f( camera.x + look_vec.x, camera.y + camera_offset + look_vec.y, camera.z + look_vec.z ), new Vector3f( 0, 1, 0 ) );
+		client.renderer.camera.set_pos( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), new Vector3f( camera.x + look_vec.x, camera.y + camera_offset + look_vec.y, camera.z + look_vec.z ), new Vector3f( 0, 1, 0 ) );
 
 		update_fps();
 	}
@@ -297,7 +286,7 @@ public class Voxicity
 		rot_x = 0;
 		rot_y = 0;
 
-		cam_vol.set_attribs( 45.0f, 1200 / 720.0f, 0.1f, 100.0f );
+		client.renderer.camera.set_attribs( 45.0f, 1200 / 720.0f, 0.1f, 100.0f );
 	}
 
 	void toggle_mouse_grab()
@@ -307,28 +296,30 @@ public class Voxicity
 
 	void toggle_flying()
 	{
-		if ( flying == false )
+		if ( client.player.flying == false )
 		{
-			flying = true;
-			accel.y = 0;
-			move_speed.y = 0;
-			System.out.println( "Flying is " + flying );
+			client.player.flying = true;
+			client.player.accel.y = 0;
+			client.player.velocity.y = 0;
+			System.out.println( "Flying is " + client.player.flying );
 		}
 		else
 		{
-			flying = false;
-			jumping = true;
-			System.out.println( "Flying is " + flying );
+			client.player.flying = false;
+			client.player.jumping = true;
+			System.out.println( "Flying is " + client.player.flying );
 		}
 	}
 
-	void check_collisions( Vector3f last_pos, Vector3f new_pos, World world )
+	Vector3f[] check_collisions( Vector3f last_pos, Vector3f new_pos, World world, Player p )
 	{
 		int slice_num = 10;
 
 		boolean collided_x = false;
 		boolean collided_y = false;
 		boolean collided_z = false;
+
+		Vector3f[] result = { new Vector3f(), new Vector3f(), new Vector3f() };
 
 		AABB player = new AABB( 0.5f, 1.7f, 0.5f );
 
@@ -354,26 +345,26 @@ public class Voxicity
 				{
 					collided_y = true;
 					player.pos.y += above.bottom_intersect( player );
-					move_speed.y = -move_speed.y;
-					accel.y = 0;
+					p.velocity.y = -p.velocity.y;
+					p.accel.y = 0;
 				}
 			}
 
 			AABB beneath = world.get_hit_box( Math.round( player.pos.x), Math.round( player.bottom() - 0.01f ), Math.round(player.pos.z) );
 			if ( beneath != null )
 			{
-				if ( player.collides( beneath ) && move_speed.y < 0 )
+				if ( player.collides( beneath ) && p.velocity.y < 0 )
 				{
 					collided_y = true;
 					player.pos.y += beneath.top_intersect( player ) + 0.0001f;
-					move_speed.y = 0;
-					accel.y = 0;
-					jumping = false;
+					p.velocity.y = 0;
+					p.accel.y = 0;
+					p.jumping = false;
 				}
 			}
 			else
 			{
-				jumping = true;
+				p.jumping = true;
 			}
 
 			if ( collided_y )
@@ -396,7 +387,7 @@ public class Voxicity
 				if ( player.collides( upper_neg_x ) )
 				{
 					collided_x = true;
-					move_speed.x = 0;
+					p.velocity.x = 0;
 					player.pos.x += upper_neg_x.right_intersect( player ) + 0.0001f;
 				}
 			}
@@ -407,7 +398,7 @@ public class Voxicity
 				if ( player.collides( upper_pos_x ) )
 				{
 					collided_x = true;
-					move_speed.x = 0;
+					p.velocity.x = 0;
 					player.pos.x += upper_pos_x.left_intersect( player ) - 0.0001f;
 				}
 			}
@@ -418,7 +409,7 @@ public class Voxicity
 				if ( player.collides( lower_neg_x ) )
 				{
 					collided_x = true;
-					move_speed.x = 0;
+					p.velocity.x = 0;
 
 					if ( Math.abs( lower_neg_x.right_intersect( player ) ) < Math.abs( lower_neg_x.top_intersect( player ) ) )
 						player.pos.x += lower_neg_x.right_intersect( player ) + 0.0001f;
@@ -431,7 +422,7 @@ public class Voxicity
 				if ( player.collides( lower_pos_x ) )
 				{
 					collided_x = true;
-					move_speed.x = 0;
+					p.velocity.x = 0;
 					if ( Math.abs( lower_pos_x.left_intersect( player ) ) < Math.abs( lower_pos_x.top_intersect( player ) ) )
 						player.pos.x += lower_pos_x.left_intersect( player ) - 0.0001f;
 				}
@@ -455,7 +446,7 @@ public class Voxicity
 				if ( player.collides( upper_neg_z ) )
 				{
 					collided_z = true;
-					move_speed.z = 0;
+					p.velocity.z = 0;
 					player.pos.z += upper_neg_z.front_intersect( player ) + 0.0001f;
 				}
 			}
@@ -466,7 +457,7 @@ public class Voxicity
 				if ( player.collides( upper_pos_z ) )
 				{
 					collided_z = true;
-					move_speed.z = 0;
+					p.velocity.z = 0;
 					player.pos.z += upper_pos_z.back_intersect( player ) - 0.0001f;
 				}
 			}
@@ -477,7 +468,7 @@ public class Voxicity
 				if ( player.collides( lower_neg_z ) )
 				{
 					collided_z = true;
-					move_speed.z = 0;
+					p.velocity.z = 0;
 					if ( Math.abs( lower_neg_z.front_intersect( player ) ) < Math.abs( lower_neg_z.top_intersect( player ) ) )
 						player.pos.z += lower_neg_z.front_intersect( player ) + 0.0001f;
 				}
@@ -489,7 +480,7 @@ public class Voxicity
 				if ( player.collides( lower_pos_z ) )
 				{
 					collided_z = true;
-					move_speed.z = 0;
+					p.velocity.z = 0;
 					if ( Math.abs( lower_pos_z.back_intersect( player ) ) < Math.abs( lower_pos_z.top_intersect( player ) ) )
 						player.pos.z += lower_pos_z.back_intersect( player ) - 0.0001f;
 				}
@@ -505,10 +496,12 @@ public class Voxicity
 		if ( collided_x || collided_y || collided_z )
 		{
 			// Set the player's new position after collision checking/handling
-			camera.x = corrected_pos.x;
-			camera.y = corrected_pos.y;
-			camera.z = corrected_pos.z;
+			p.pos.x = corrected_pos.x;
+			p.pos.y = corrected_pos.y;
+			p.pos.z = corrected_pos.z;
 		}
+
+		return result;
 	}
 
 	void calc_place_loc( World world )
@@ -648,7 +641,7 @@ public class Voxicity
 			Server server = new Server( config );
 			Client client = new Client( config, client_conn );
 
-			server.new_connection( server_conn );
+			server.new_connection( new Player(), server_conn );
 
 			Voxicity voxy = new Voxicity( server, client );
 			voxy.init();

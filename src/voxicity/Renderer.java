@@ -54,7 +54,7 @@ public class Renderer
 		chunks.put( World.get_chunk_id( x, y, z ), node );
 	}
 
-	public void render( Frustum camera )
+	public void render()
 	{
 		boolean cleaned_one = false;
 		quads = 0;
@@ -76,7 +76,7 @@ public class Renderer
 
 		System.out.println( "Before render " + Time.get_time_µs() );
 		for ( ChunkNode chunk : chunks.values() )
-			chunk.render();
+			chunk.render( camera );
 
 		System.out.println( "After render " + Time.get_time_µs() );
 
