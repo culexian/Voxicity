@@ -67,20 +67,21 @@ public class Client
 	{
 		Packet packet = connection.recieve();
 
-		if ( packet == null )
-			return;
-
-		switch ( packet.get_id() )
+		while ( packet != null )
 		{
-			case Constants.Packet.LoadChunk:
+			switch ( packet.get_id() )
 			{
-				LoadChunkPacket p = (LoadChunkPacket)packet;
-				Chunk c = p.chunk;
-				world.set_chunk( c.x, c.y, c.z, c );
-				renderer.set_chunk( c.x, c.y, c.z, c );
-				break;
+				case Constants.Packet.LoadChunk:
+				{
+					LoadChunkPacket p = (LoadChunkPacket)packet;
+					Chunk c = p.chunk;
+					world.set_chunk( c.x, c.y, c.z, c );
+					renderer.set_chunk( c.x, c.y, c.z, c );
+					break;
+				}
 			}
+
+			packet = connection.recieve();
 		}
-		
 	}
 }
