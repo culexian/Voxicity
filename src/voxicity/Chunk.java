@@ -43,6 +43,17 @@ public class Chunk
 		generate_blocks();
 	}
 
+	public Chunk( ChunkID id )
+	{
+		this.x = id.x;
+		this.y = id.y;
+		this.z = id.z;
+
+		System.out.println( "Created chunk at " + x + " " + y + " " + z );
+
+		generate_blocks();
+	}
+
 	public Chunk( ByteBuffer buf )
 	{
 		x = buf.getInt();

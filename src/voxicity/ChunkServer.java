@@ -53,14 +53,14 @@ public class ChunkServer
 
 	private class Loader implements Runnable
 	{
-		public final ArrayList<Integer> id;
+		public final ChunkID id;
 		List< Player > players = new LinkedList< Player >();
 		Chunk result;
 
-		public Loader( ArrayList<Integer> id, Player player )
+		public Loader( ChunkID id, Player p )
 		{
-			this.id = id;
-			add_player( player );
+			this.id = new ChunkID( id );
+			add_player( p );
 		}
 
 		public void add_player( Player player )
@@ -71,7 +71,7 @@ public class ChunkServer
 
 		public void run()
 		{
-			Chunk new_chunk = new Chunk( id.get(0), id.get(1), id.get(2) );
+			Chunk new_chunk = new Chunk( id );
 			result = new_chunk;
 			Thread.currentThread().yield();
 		}
@@ -81,7 +81,7 @@ public class ChunkServer
 			float dist = Float.POSITIVE_INFINITY;
 
 			for ( Player p : players )
-				dist = Math.min( dist, Vector3f.sub( new Vector3f( id.get(0), id.get(1), id.get(2) ), p.pos, null ).lengthSquared() );
+				dist = Math.min( dist, Vector3f.sub( id.coords(), p.pos, null ).lengthSquared() );
 
 			return dist;
 		}
@@ -94,9 +94,16 @@ public class ChunkServer
 
 	public void load_chunk( ArrayList<Integer> id, Player player )
 	{
+		int[] c = Coord.ChunkToGlobal( id.get(0), id.get(1), id.get(2) );
+		ChunkID c_id = new ChunkID( c[0], c[1], c[2] );
+		load_chunk( c_id, player );
+	}
+
+	public void load_chunk( ChunkID id, Player player )
+	{
 		Loader loader = chunk_queued( id );
 
-		if ( chunk_queued( id ) != null )
+		if ( loader != null )
 			loader.add_player( player );
 		else
 		{
@@ -121,7 +128,7 @@ public class ChunkServer
 			return loading.poll().result();
 	}
 
-	private Loader chunk_queued( ArrayList<Integer> id )
+	private Loader chunk_queued( ChunkID id )
 	{
 		for ( Loader loader : queue )
 			if ( loader.id.equals( id ) )
