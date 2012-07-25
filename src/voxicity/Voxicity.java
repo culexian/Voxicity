@@ -276,7 +276,7 @@ public class Voxicity
 	{
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GLU.gluPerspective( 45.0f, 1200 / 720.0f, 0.1f, 100f );
+		GLU.gluPerspective( 45.0f, 1200 / 720.0f, 0.1f, 10000f );
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		camera.x = 0;
@@ -285,7 +285,7 @@ public class Voxicity
 		rot_x = 0;
 		rot_y = 0;
 
-		client.renderer.camera.set_attribs( 45.0f, 1200 / 720.0f, 0.1f, 100.0f );
+		client.renderer.camera.set_attribs( 45.0f, 1200 / 720.0f, 0.1f, 1000.0f );
 	}
 
 	void toggle_mouse_grab()
