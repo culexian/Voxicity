@@ -44,6 +44,13 @@ public class World
 		return chunks.containsKey( get_chunk_id( x, y, z ) );
 	}
 
+	public boolean is_chunk_loaded( ChunkID id )
+	{
+		Vector3f coords = id.coords();
+
+		return is_chunk_loaded( Math.round( coords.x ), Math.round( coords.y ), Math.round( coords.z ) );
+	}
+
 	public Chunk get_chunk( int x, int y, int z )
 	{
 		ArrayList<Integer> id = get_chunk_id( x, y, z );
