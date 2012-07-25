@@ -19,8 +19,9 @@
 
 package voxicity;
 
-import java.util.concurrent.LinkedBlockingQueue;
+import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Connection
 {
@@ -45,7 +46,7 @@ public class Connection
 		return incoming.poll();
 	}
 
-	public void close()
+	public void close() throws IOException
 	{
 
 	}
