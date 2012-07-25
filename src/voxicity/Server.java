@@ -147,7 +147,7 @@ public class Server extends Thread
 		ids.add( World.get_chunk_id( x, y, z ) );
 
 		if ( !world.is_chunk_loaded( x, y, z ) )
-			chunk_server.load_chunk( World.get_chunk_id( x, y, z ), p );
+			chunk_server.load_chunk( new ChunkID( x, y, z ), p );
 	}
 
 	void handle_chunk_requests()
