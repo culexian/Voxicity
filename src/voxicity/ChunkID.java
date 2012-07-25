@@ -66,4 +66,25 @@ public class ChunkID
 	{
 		return x ^ y ^ z;
 	}
+
+	public ChunkID get( Constants.Direction d )
+	{
+		switch ( d )
+		{
+			case West:
+				return new ChunkID( x - Constants.Chunk.side_length, y, z );
+			case East:
+				return new ChunkID( x + Constants.Chunk.side_length, y, z );
+			case North:
+				return new ChunkID( x, y, z + Constants.Chunk.side_length );
+			case South:
+				return new ChunkID( x, y, z - Constants.Chunk.side_length );
+			case Up:
+				return new ChunkID( x, y + Constants.Chunk.side_length, z );
+			case Down:
+				return new ChunkID( x, y - Constants.Chunk.side_length, z );
+			default:
+				return new ChunkID( this );
+		}
+	}
 }
