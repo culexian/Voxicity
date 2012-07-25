@@ -129,7 +129,6 @@ public class Voxicity
 			client.update();
 			update( get_time_delta() / 1000.0f, client.world );
 			System.out.println( "Load new chunks at " + Time.get_time_µs() );
-//			server.update();
 			System.out.println( "Render at " + Time.get_time_µs() );
 			client.renderer.render();
 			System.out.println( "Loop done" );
