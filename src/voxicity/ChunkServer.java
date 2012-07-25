@@ -20,6 +20,9 @@
 package voxicity;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.LinkedList;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -36,16 +39,10 @@ public class ChunkServer
 	{
 		public int compare( Loader o1, Loader o2 )
 		{
-			float o1_dist = Vector3f.sub( new Vector3f( o1.id.get(0), o1.id.get(1), o1.id.get(2) ), Voxicity.camera, null ).lengthSquared();
-			float o2_dist = Vector3f.sub( new Vector3f( o2.id.get(0), o2.id.get(1), o2.id.get(2) ), Voxicity.camera, null ).lengthSquared();
-			if ( o1_dist < o2_dist )
-			{
+			if ( o1.shortest_dist() < o2.shortest_dist() )
 				return -1;
-			}
 			else
-			{
 				return 1;
-			}
 		}
 	});
 
@@ -54,20 +51,36 @@ public class ChunkServer
 	private class Loader implements Runnable
 	{
 		public final ArrayList<Integer> id;
+		List< Player > players = new LinkedList< Player >();
 		Chunk result;
 
-		public Loader( ArrayList<Integer> id )
+		public Loader( ArrayList<Integer> id, Player player )
 		{
 			this.id = id;
+			add_player( player );
+		}
+
+		public void add_player( Player player )
+		{
+			if ( !players.contains( player ) )
+				players.add( player );
 		}
 
 		public void run()
 		{
 			Chunk new_chunk = new Chunk( id.get(0), id.get(1), id.get(2) );
-			float dist = Vector3f.sub( new Vector3f( id.get(0), id.get(1), id.get(2) ), Voxicity.camera, null ).lengthSquared();
-			System.out.println( "New chunk is ready: x - " + id.get(0) + " y - " + id.get(1) + " z - " + id.get(2) + " at distance " + dist );
 			result = new_chunk;
 			Thread.currentThread().yield();
+		}
+
+		public float shortest_dist()
+		{
+			float dist = Float.POSITIVE_INFINITY;
+
+			for ( Player p : players )
+				dist = Math.min( dist, Vector3f.sub( new Vector3f( id.get(0), id.get(1), id.get(2) ), p.pos, null ).lengthSquared() );
+
+			return dist;
 		}
 
 		public Chunk result()
@@ -76,16 +89,17 @@ public class ChunkServer
 		}
 	}
 
-	public void load_chunk( ArrayList<Integer> id )
+	synchronized public void load_chunk( ArrayList<Integer> id, Player player )
 	{
-		if ( chunk_queued( id ) )
-			return;
+		Loader loader = chunk_queued( id );
 
-		Loader loader = new Loader( id );
-		queue.offer( loader );
+		if ( chunk_queued( id ) != null )
+			loader.add_player( player );
+		else
+			queue.offer( new Loader( id, player ) );
 	}
 
-	public Chunk get_next_chunk()
+	synchronized public Chunk get_next_chunk()
 	{
 		if( !queue.isEmpty() )
 		{
@@ -102,21 +116,17 @@ public class ChunkServer
 			return loading.poll().result();
 	}
 
-	boolean chunk_queued( ArrayList<Integer> id )
+	private Loader chunk_queued( ArrayList<Integer> id )
 	{
 		for ( Loader loader : queue )
-		{
 			if ( loader.id.equals( id ) )
-				return true;
-		}
+				return loader;
 
 		for ( Loader loader : loading )
-		{
 			if ( loader.id.equals( id ) )
-				return true;
-		}
+				return loader;
 
-		return false;
+		return null;
 	}
 
 	public void shutdown()
