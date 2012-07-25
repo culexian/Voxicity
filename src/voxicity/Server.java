@@ -21,6 +21,8 @@ package voxicity;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Server extends Thread
 {
@@ -28,9 +30,10 @@ public class Server extends Thread
 
 	Config config;
 	ChunkServer chunk_server = new ChunkServer();
-	List< Connection > connections = new LinkedList< Connection >();
-	List< Player > players = new LinkedList< Player >();
 	World world;
+
+	Map< Connection, Player > connection_to_player = new HashMap< Connection, Player >();
+	Map< Player, Connection > player_to_connection = new HashMap< Player, Connection >();
 
 	public Server( Config config )
 	{
@@ -71,12 +74,13 @@ public class Server extends Thread
 		chunk_server.shutdown();
 	}
 
-	void new_connection( Connection connection )
+	void new_connection( Player player, Connection connection )
 	{
-		if ( connections.contains( connection ) )
+		if ( connection_to_player.containsKey( connection ) )
 			return;
 
-		connections.add( connection );
+		connection_to_player.put( connection, player );
+		player_to_connection.put( player, connection );
 	}
 
 	public void load_new_chunks()
@@ -89,25 +93,25 @@ public class Server extends Thread
 		new_chunk.world = world;
 		world.set_chunk( new_chunk.x, new_chunk.y, new_chunk.z, new_chunk );
 
-		for ( Connection conn : connections )
-			conn.send( new LoadChunkPacket( new_chunk ) );
+		for ( Connection c : connection_to_player.keySet() )
+			c.send( new LoadChunkPacket( new_chunk ) );
 	}
 
-	public void load_chunk( int x, int y, int z )
+	public void load_chunk( int x, int y, int z, Player p )
 	{
 		if ( world.is_chunk_loaded( x, y, z ) ) return;
 
-		chunk_server.load_chunk( World.get_chunk_id( x, y, z ) );
+		chunk_server.load_chunk( World.get_chunk_id( x, y, z ), p );
 	}
 
-	public void load_chunk( float x, float y, float z )
+	public void load_chunk( float x, float y, float z, Player p )
 	{
-		load_chunk( Math.round( x ), Math.round( y ), Math.round( z ) );
+		load_chunk( Math.round( x ), Math.round( y ), Math.round( z ), p );
 	}
 
 	public void handle_packets()
 	{
-		for ( Connection c : connections )
+		for ( Connection c : connection_to_player.keySet() )
 		{
 			Packet p = c.recieve();
 
@@ -118,7 +122,7 @@ public class Server extends Thread
 					case Constants.Packet.RequestChunk:
 					{
 						RequestChunkPacket r = (RequestChunkPacket)p;
-						load_chunk( r.x, r.y, r.z );
+						load_chunk( r.x, r.y, r.z, connection_to_player.get( c ) );
 						break;
 					}
 				}

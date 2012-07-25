@@ -33,9 +33,14 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class ChunkServer
 {
-	BlockingQueue<Loader> loading = new LinkedBlockingQueue<Loader>();
+	// List of loaders being processed or done
+	LinkedList<Loader> loading = new LinkedList<Loader>();
 
-	BlockingQueue<Loader> queue = new PriorityBlockingQueue<Loader>( 1, new java.util.Comparator<Loader>()
+	// List of Loaders to be processed
+	LinkedList<Loader> queue = new LinkedList<Loader>();
+
+	// Comparator for sorting queue
+	java.util.Comparator< Loader > comp = new java.util.Comparator<Loader>()
 	{
 		public int compare( Loader o1, Loader o2 )
 		{
@@ -44,8 +49,9 @@ public class ChunkServer
 			else
 				return 1;
 		}
-	});
+	};
 
+	// Service for async chunk loading
 	ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	private class Loader implements Runnable
@@ -89,29 +95,31 @@ public class ChunkServer
 		}
 	}
 
-	synchronized public void load_chunk( ArrayList<Integer> id, Player player )
+	public void load_chunk( ArrayList<Integer> id, Player player )
 	{
 		Loader loader = chunk_queued( id );
 
 		if ( chunk_queued( id ) != null )
 			loader.add_player( player );
 		else
-			queue.offer( new Loader( id, player ) );
+		{
+			queue.add( new Loader( id, player ) );
+			java.util.Collections.sort( queue, comp );
+		}
 	}
 
-	synchronized public Chunk get_next_chunk()
+	public Chunk get_next_chunk()
 	{
 		if( !queue.isEmpty() )
 		{
+			java.util.Collections.sort( queue, comp );
 			Loader loader = queue.poll();
 			loading.add( loader );
 			executor.execute( loader );
 		}
 
 		if ( loading.isEmpty() || loading.peek().result() == null )
-		{
 			return null;
-		}
 		else
 			return loading.poll().result();
 	}
