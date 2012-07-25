@@ -19,7 +19,6 @@
 
 package voxicity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -90,13 +89,6 @@ public class ChunkServer
 		{
 			return result;
 		}
-	}
-
-	public void load_chunk( ArrayList<Integer> id, Player player )
-	{
-		int[] c = Coord.ChunkToGlobal( id.get(0), id.get(1), id.get(2) );
-		ChunkID c_id = new ChunkID( c[0], c[1], c[2] );
-		load_chunk( c_id, player );
 	}
 
 	public void load_chunk( ChunkID id, Player player )

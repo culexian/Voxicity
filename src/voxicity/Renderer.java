@@ -19,7 +19,6 @@
 
 package voxicity;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public class Renderer
 	public static int batch_draw_calls = 0;
 
 	Config config;
-	Map< Collection< Integer >, ChunkNode > chunks = new HashMap< Collection< Integer >, ChunkNode >();
+	Map< ChunkID, ChunkNode > chunks = new HashMap< ChunkID, ChunkNode >();
 
 	Frustum camera = new Frustum();
 
@@ -51,7 +50,7 @@ public class Renderer
 		ChunkNode node = new ChunkNode( chunk );
 		node.set_pos( x, y, z );
 
-		chunks.put( World.get_chunk_id( x, y, z ), node );
+		chunks.put( new ChunkID( x, y, z ), node );
 	}
 
 	public void render()

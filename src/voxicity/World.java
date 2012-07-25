@@ -20,8 +20,6 @@
 package voxicity;
 
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 import org.lwjgl.util.vector.Vector3f;
@@ -31,7 +29,7 @@ public class World
 	Config config;
 
 	// Chunk lookup map
-	Map< Collection< Integer >, Chunk > chunks = new HashMap< Collection< Integer >, Chunk >();
+	Map< ChunkID, Chunk > chunks = new HashMap< ChunkID, Chunk >();
 
 	public World( Config config )
 	{
@@ -39,28 +37,24 @@ public class World
 	}
 
 	// Checks if a chunk is loaded and returns true if so
-	public boolean is_chunk_loaded( int x, int y, int z )
-	{
-		return chunks.containsKey( get_chunk_id( x, y, z ) );
-	}
-
 	public boolean is_chunk_loaded( ChunkID id )
 	{
-		Vector3f coords = id.coords();
+		return ( chunks.get( id ) != null );
+	}
 
-		return is_chunk_loaded( Math.round( coords.x ), Math.round( coords.y ), Math.round( coords.z ) );
+	public boolean is_chunk_loaded( int x, int y, int z )
+	{
+		return is_chunk_loaded( new ChunkID( x, y, z ) );
+	}
+
+	public Chunk get_chunk( ChunkID id )
+	{
+		return chunks.get( id );
 	}
 
 	public Chunk get_chunk( int x, int y, int z )
 	{
-		ArrayList<Integer> id = get_chunk_id( x, y, z );
-
-		if ( chunks.containsKey( get_chunk_id( x, y, z ) ) )
-		{
-			return chunks.get( id );
-		}
-
-		return null;
+		return get_chunk( new ChunkID( x, y, z ) );
 	}
 
 	// Sets a chunk in the world to the given chunk.
@@ -70,48 +64,36 @@ public class World
 	{
 		if ( chunk == null ) return;
 
+		ChunkID id = new ChunkID( x, y, z );
 		chunk.world = this;
-		chunks.put( get_chunk_id( x, y, z ), chunk );
-		mark_neighbors( x, y, z );
+		chunks.put( id, chunk );
+		mark_neighbors( id );
 	}
 
-	void mark_neighbors( int x, int y, int z )
+	void mark_neighbors( ChunkID id )
 	{
-		if ( chunks.containsKey( get_chunk_id( x - Constants.Chunk.side_length, y, z ) ) )
-			chunks.get( get_chunk_id( x - Constants.Chunk.side_length, y, z ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Constants.Direction.West ) ) )
+			get_chunk( id.get( Constants.Direction.West ) ).update_timestamp();
 
-		if ( chunks.containsKey( get_chunk_id( x + Constants.Chunk.side_length, y, z ) ) )
-			chunks.get( get_chunk_id( x + Constants.Chunk.side_length, y, z ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Constants.Direction.East ) ) )
+			get_chunk( id.get( Constants.Direction.East ) ).update_timestamp();
 
-		if ( chunks.containsKey( get_chunk_id( x, y - Constants.Chunk.side_length, z ) ) )
-			chunks.get( get_chunk_id( x, y - Constants.Chunk.side_length, z ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Constants.Direction.North ) ) )
+			get_chunk( id.get( Constants.Direction.North ) ).update_timestamp();
 
-		if ( chunks.containsKey( get_chunk_id( x, y + Constants.Chunk.side_length, z ) ) )
-			chunks.get( get_chunk_id( x, y + Constants.Chunk.side_length, z ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Constants.Direction.South ) ) )
+			get_chunk( id.get( Constants.Direction.South ) ).update_timestamp();
 
-		if ( chunks.containsKey( get_chunk_id( x, y, z - Constants.Chunk.side_length ) ) )
-			chunks.get( get_chunk_id( x, y, z - Constants.Chunk.side_length ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Constants.Direction.Up ) ) )
+			get_chunk( id.get( Constants.Direction.Up ) ).update_timestamp();
 
-		if ( chunks.containsKey( get_chunk_id( x, y, z + Constants.Chunk.side_length ) ) )
-			chunks.get( get_chunk_id( x, y, z + Constants.Chunk.side_length ) ).update_timestamp();
-	}
-
-	public static ArrayList<Integer> get_chunk_id( int x, int y, int z )
-	{
-		ArrayList<Integer> id = new ArrayList<Integer>();
-
-		int[] coords = Coord.GlobalToChunk( x, y, z );
-
-		id.add( coords[0] );
-		id.add( coords[1] );
-		id.add( coords[2] );
-
-		return id;
+		if ( is_chunk_loaded( id.get( Constants.Direction.Down ) ) )
+			get_chunk( id.get( Constants.Direction.Down ) ).update_timestamp();
 	}
 
 	public int get_block( int x, int y, int z )
 	{
-		Chunk c = chunks.get( get_chunk_id( x, y, z ) );
+		Chunk c = chunks.get( new ChunkID( x, y, z ) );
 
 		// If chunk is not loaded, block is air
 		if ( c == null )
@@ -129,7 +111,7 @@ public class World
 	// loaded
 	public void set_block( int x, int y, int z, int id )
 	{
-		Chunk c = chunks.get( get_chunk_id( x, y, z ) );
+		Chunk c = chunks.get( new ChunkID( x, y, z ) );
 
 		// Don't operate on null, otherwise, set the block
 		if ( c != null )

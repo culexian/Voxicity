@@ -19,12 +19,9 @@
 
 package voxicity;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Server extends Thread
@@ -37,7 +34,7 @@ public class Server extends Thread
 
 	Map< Connection, Player > connection_to_player = new HashMap< Connection, Player >();
 	Map< Player, Connection > player_to_connection = new HashMap< Player, Connection >();
-	Map< Player, Set< ArrayList< Integer > > > chunk_requests = new HashMap< Player, Set< ArrayList< Integer > > >();
+	Map< Player, Set< ChunkID > > chunk_requests = new HashMap< Player, Set< ChunkID > >();
 
 	public Server( Config config )
 	{
@@ -86,7 +83,7 @@ public class Server extends Thread
 
 		connection_to_player.put( connection, player );
 		player_to_connection.put( player, connection );
-		chunk_requests.put( player, new HashSet< ArrayList< Integer > >() );
+		chunk_requests.put( player, new HashSet< ChunkID >() );
 	}
 
 	public void load_new_chunks()
@@ -107,7 +104,7 @@ public class Server extends Thread
 	{
 		if ( world.is_chunk_loaded( x, y, z ) ) return;
 
-		chunk_server.load_chunk( World.get_chunk_id( x, y, z ), p );
+		chunk_server.load_chunk( new ChunkID( x, y, z ), p );
 	}
 
 	public void load_chunk( float x, float y, float z, Player p )
@@ -129,7 +126,6 @@ public class Server extends Thread
 					{
 						RequestChunkPacket r = (RequestChunkPacket)p;
 						request_chunk( r.x, r.y, r.z, c );
-						//load_chunk( r.x, r.y, r.z, connection_to_player.get( c ) );
 						break;
 					}
 				}
@@ -143,31 +139,30 @@ public class Server extends Thread
 	void request_chunk( int x, int y, int z, Connection c )
 	{
 		Player p = connection_to_player.get( c );
-		Set< ArrayList< Integer > > ids = chunk_requests.get( p );
-		ids.add( World.get_chunk_id( x, y, z ) );
+		Set< ChunkID > id_set = chunk_requests.get( p );
 
-		if ( !world.is_chunk_loaded( x, y, z ) )
-			chunk_server.load_chunk( new ChunkID( x, y, z ), p );
+		id_set.add( new ChunkID( x, y, z ) );
+		load_chunk( x, y, z, p );
 	}
 
 	void handle_chunk_requests()
 	{
-		java.util.Iterator< Map.Entry< Player, Set< ArrayList< Integer > > > > map_iter = chunk_requests.entrySet().iterator();
+		java.util.Iterator< Map.Entry< Player, Set< ChunkID > > > map_iter = chunk_requests.entrySet().iterator();
 
 		while ( map_iter.hasNext() )
 		{
-			Map.Entry< Player, Set< ArrayList< Integer > > > e = map_iter.next();
+			Map.Entry< Player, Set< ChunkID > > e = map_iter.next();
 
-			java.util.Iterator< ArrayList< Integer > > id_iter = e.getValue().iterator();
+			java.util.Iterator< ChunkID > id_iter = e.getValue().iterator();
 
 			while ( id_iter.hasNext() )
 			{
-				ArrayList< Integer > id = id_iter.next();
+				ChunkID id = id_iter.next();
 
-				if ( world.is_chunk_loaded( id.get(0), id.get(1), id.get(2) ) )
+				if ( world.is_chunk_loaded( id ) )
 				{
 					id_iter.remove();
-					player_to_connection.get( e.getKey() ).send( new LoadChunkPacket( world.get_chunk( id.get(0), id.get(1), id.get(2) ) ) );
+					player_to_connection.get( e.getKey() ).send( new LoadChunkPacket( world.get_chunk( id ) ) );
 				}
 			}
 		}
