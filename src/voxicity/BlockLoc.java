@@ -74,14 +74,14 @@ public class BlockLoc
 	{
 		switch ( dir )
 		{
-			case North:
-				return new BlockLoc( x, y, z - 1, world );
 			case East:
 				return new BlockLoc( x + 1, y, z, world );
-			case South:
-				return new BlockLoc( x, y, z + 1, world );
 			case West:
 				return new BlockLoc( x - 1, y, z, world );
+			case North:
+				return new BlockLoc( x, y, z + 1, world );
+			case South:
+				return new BlockLoc( x, y, z - 1, world );
 			case Up:
 				return new BlockLoc( x, y + 1, z, world );
 			case Down:

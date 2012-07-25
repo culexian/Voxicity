@@ -71,10 +71,10 @@ public class ChunkID
 	{
 		switch ( d )
 		{
-			case West:
-				return new ChunkID( x - Constants.Chunk.side_length, y, z );
 			case East:
 				return new ChunkID( x + Constants.Chunk.side_length, y, z );
+			case West:
+				return new ChunkID( x - Constants.Chunk.side_length, y, z );
 			case North:
 				return new ChunkID( x, y, z + Constants.Chunk.side_length );
 			case South:
