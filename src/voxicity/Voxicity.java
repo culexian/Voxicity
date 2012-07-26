@@ -601,10 +601,20 @@ public class Voxicity
 		TextureManager.get_texture( "textures/grass.png" );
 	}
 
+	static void print_usage()
+	{
+		System.out.println( "Usage: voxicity [OPTION]..." );
+		System.out.println( "The following options are valid\n" );
+		System.out.println( "  --mode <value>        Sets the mode of the program( server, client, server-client )" );
+		System.out.println( "  --config <filename>   Sets the name of the properties file to be loaded( voxicity.properties )" );
+		
+	}
+
 	public static void main( String[] args )
 	{
 		try
 		{
+			Arguments cmd_args = new Arguments( args );
 			File new_out = new File( "voxicity.log" );
 			System.setOut( new PrintStream( new_out ) );
 
@@ -613,7 +623,9 @@ public class Voxicity
 		}
 		catch ( Exception e )
 		{
+			System.out.println( e );
 			e.printStackTrace();
+			print_usage();
 		}
 	}
 }
