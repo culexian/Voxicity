@@ -579,12 +579,6 @@ public class Voxicity
 			return;
 
 		client.tell_hit_action( Math.round( place_loc.x ), Math.round( place_loc.y ), Math.round( place_loc.z ) );
-/*
-		if ( world.get_block( place_loc.x, place_loc.y, place_loc.z ) != Constants.Blocks.air )
-		{
-			world.set_block( place_loc.x, place_loc.y, place_loc.z, Constants.Blocks.air );
-		}
-*/
 	}
 
 	void get_system_info()
