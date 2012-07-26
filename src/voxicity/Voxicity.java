@@ -70,12 +70,7 @@ public class Voxicity
 
 	Server server;
 	Client client;
-
-	public Voxicity( Server server, Client client )
-	{
-		this.server = server;
-		this.client = client;
-	}
+	Config config;
 
 	public void init()
 	{
@@ -113,7 +108,21 @@ public class Voxicity
 		System.out.println( "Number of vertex texture units: " + GL11.glGetInteger( GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS ) );
 		System.out.println( "Number of combined vertex/image texture units: " + GL11.glGetInteger( GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS ) );
 
+		config = new Config( "voxicity.properties" );
+		server = new Server( config );
 		server.start();
+
+		try
+		{
+			Socket client_s = new Socket( "culex.no-ip.org", 11000 );
+			client = new Client( config, new NetworkConnection( client_s ) );
+		}
+		catch ( Exception e )
+		{
+			System.out.println( e );
+			e.printStackTrace();
+		}
+
 
 		load_texture_pack();
 
@@ -614,11 +623,6 @@ public class Voxicity
 		TextureManager.get_texture( "textures/grass.png" );
 	}
 
-	static ServerSocket create_server_socket( Config c ) throws IOException
-	{
-		return new ServerSocket( 11000 );
-	}
-
 	public static void main( String[] args )
 	{
 		try
@@ -626,23 +630,7 @@ public class Voxicity
 			File new_out = new File( "voxicity.log" );
 			System.setOut( new PrintStream( new_out ) );
 
-			Config config = new Config( "voxicity.properties" );
-
-			ServerSocket server_s = create_server_socket( config );
-
-			Socket client_s = new Socket( "culex.no-ip.org", 11000 );
-
-			Socket serv_to_client = server_s.accept();
-
-			Connection server_conn = new NetworkConnection( serv_to_client );
-			Connection client_conn = new NetworkConnection( client_s );
-
-			Server server = new Server( config );
-			Client client = new Client( config, client_conn );
-
-			server.new_connection( new Player(), server_conn );
-
-			Voxicity voxy = new Voxicity( server, client );
+			Voxicity voxy = new Voxicity();
 			voxy.init();
 		}
 		catch ( Exception e )

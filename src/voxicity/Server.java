@@ -30,6 +30,7 @@ public class Server extends Thread
 
 	Config config;
 	ChunkServer chunk_server = new ChunkServer();
+	Listener listener;
 	World world;
 
 	Map< Connection, Player > connection_to_player = new HashMap< Connection, Player >();
@@ -42,9 +43,18 @@ public class Server extends Thread
 		this.world = new World( config );
 	}
 
-	boolean init()
+	void init()
 	{
-		return true;
+		try
+		{
+			listener = new Listener( config );
+		}
+		catch ( Exception e )
+		{
+			System.out.println( e );
+			e.printStackTrace();
+			quit();
+		}
 	}
 
 	public void run()
@@ -52,15 +62,14 @@ public class Server extends Thread
 		init();
 
 		while ( !quitting )
-		{
 			update();
-		}
 
 		shutdown();
 	}
 
 	void update()
 	{
+		handle_new_connections();
 		handle_packets();
 		load_new_chunks();
 		handle_chunk_requests();
@@ -68,15 +77,29 @@ public class Server extends Thread
 
 	public void quit()
 	{
+		System.out.println( "Server is quitting" );
 		quitting = true;
 	}
 
 	void shutdown()
 	{
+		listener.quit();
 		chunk_server.shutdown();
 
 		for ( Connection c : player_to_connection.values() )
 			c.close();
+	}
+
+	void handle_new_connections()
+	{
+		Connection c = listener.get_new_connection();
+
+		System.out.println( "Handling new connection " + c );
+		while ( c != null )
+		{
+			new_connection( new Player(), c );
+			c = listener.get_new_connection();
+		}
 	}
 
 	void new_connection( Player player, Connection connection )
