@@ -84,6 +84,7 @@ public class Client
 				case Constants.Packet.BlockUpdate:
 				{
 					BlockUpdatePacket p = (BlockUpdatePacket)packet;
+					System.out.println( "Server told client to update block " + p.x + " " + p.y + " " + p.z + " " + p.id );
 					world.set_block( p.x, p.y, p.z, p.id );
 				}
 			}
@@ -100,5 +101,10 @@ public class Client
 	void tell_use_action( BlockLoc loc, Constants.Direction dir )
 	{
 		connection.send( new UseActionPacket( loc, dir ) );
+	}
+
+	void tell_hit_action( int x, int y, int z )
+	{
+		connection.send( new HitActionPacket( x, y, z ) );
 	}
 }

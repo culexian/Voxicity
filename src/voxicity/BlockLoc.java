@@ -36,6 +36,11 @@ public class BlockLoc
 		c = world.get_chunk( x, y, z );
 	}
 
+	public BlockLoc( float x, float y, float z, World world )
+	{
+		this( Math.round( x ), Math.round( y ), Math.round( z ), world );
+	}
+
 	public BlockLoc( BlockChunkLoc loc )
 	{
 		this( loc.chunk.x + loc.x, loc.chunk.y + loc.y, loc.chunk.z + loc.z, loc.chunk.world );

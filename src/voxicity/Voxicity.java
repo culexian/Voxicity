@@ -561,32 +561,13 @@ public class Voxicity
 		int id = world.get_block( place_loc.x, place_loc.y, place_loc.z );
 		if ( id == Constants.Blocks.air )
 		{
-			world.set_block( place_loc.x, place_loc.y, place_loc.z, Constants.Blocks.dirt );
+			client.tell_use_action( new BlockLoc( place_loc.x, place_loc.y, place_loc.z, client.world ), Constants.Direction.None );
 		}
 		else
 		{
-			switch( world.get_hit_box( Math.round(place_loc.x), Math.round(place_loc.y), Math.round(place_loc.z) ).collision_side( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), look_vec ) )
-			{
-				case Up:
-					world.set_block( place_loc.x, place_loc.y + 1, place_loc.z, Constants.Blocks.dirt );
-					break;
-				case Down:
-					world.set_block( place_loc.x, place_loc.y - 1, place_loc.z, Constants.Blocks.dirt );
-					break;
-				case West:
-					world.set_block( place_loc.x - 1, place_loc.y, place_loc.z, Constants.Blocks.dirt );
-					break;
-				case East:
-					world.set_block( place_loc.x + 1, place_loc.y, place_loc.z, Constants.Blocks.dirt );
-					break;
-				case North:
-					world.set_block( place_loc.x, place_loc.y, place_loc.z + 1, Constants.Blocks.dirt );
-					break;
-				case South:
-					world.set_block( place_loc.x, place_loc.y, place_loc.z - 1, Constants.Blocks.dirt );
-					break;
-			}
+			Constants.Direction collision_side = world.get_hit_box( Math.round(place_loc.x), Math.round(place_loc.y), Math.round(place_loc.z) ).collision_side( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), look_vec );
 
+			client.tell_use_action( new BlockLoc( place_loc.x, place_loc.y, place_loc.z, client.world ), collision_side );
 		}
 	}
 
@@ -597,10 +578,13 @@ public class Voxicity
 		else
 			return;
 
+		client.tell_hit_action( Math.round( place_loc.x ), Math.round( place_loc.y ), Math.round( place_loc.z ) );
+/*
 		if ( world.get_block( place_loc.x, place_loc.y, place_loc.z ) != Constants.Blocks.air )
 		{
 			world.set_block( place_loc.x, place_loc.y, place_loc.z, Constants.Blocks.air );
 		}
+*/
 	}
 
 	void get_system_info()

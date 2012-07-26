@@ -168,6 +168,12 @@ public class Server extends Thread
 						player_use_action( r.x, r.y, r.z, r.dir, connection_to_player.get( c ) );
 						break;
 					}
+					case Constants.Packet.HitAction:
+					{
+						HitActionPacket r = (HitActionPacket)p;
+						player_hit_action( r.x, r.y, r.z, connection_to_player.get( c ) );
+						break;
+					}
 				}
 
 				p = c.recieve();
@@ -177,8 +183,19 @@ public class Server extends Thread
 
 	void player_use_action( int x, int y, int z, Constants.Direction dir, Player player )
 	{
+		System.out.println( "Processing player use action for " + x + " " + y + " " + z + " " + dir + " " + player );
 		BlockLoc loc = new BlockLoc( x, y, z, world ).get( dir );
 		loc.set( Constants.Blocks.dirt );
+
+		for ( Player p : connection_to_player.values() )
+			tell_block_update( p, loc );
+	}
+
+	void player_hit_action( int x, int y, int z, Player player )
+	{
+		System.out.println( "Processing player hit action for " + x + " " + y + " " + z + " " + player );
+		BlockLoc loc = new BlockLoc( x, y, z, world );
+		loc.set( Constants.Blocks.air );
 
 		for ( Player p : connection_to_player.values() )
 			tell_block_update( p, loc );
