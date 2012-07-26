@@ -36,6 +36,7 @@ public class Server extends Thread
 	Map< Connection, Player > connection_to_player = new HashMap< Connection, Player >();
 	Map< Player, Connection > player_to_connection = new HashMap< Player, Connection >();
 	Map< Player, Set< ChunkID > > chunk_requests = new HashMap< Player, Set< ChunkID > >();
+	Map< Player, Set< ChunkID > > served_chunks = new HashMap< Player, Set< ChunkID > >();
 
 	public Server( Config config )
 	{
@@ -77,7 +78,7 @@ public class Server extends Thread
 
 	public void quit()
 	{
-		System.out.println( "Server is quitting" );
+		System.out.println( "Server is shutting down" );
 		quitting = true;
 	}
 
@@ -94,9 +95,9 @@ public class Server extends Thread
 	{
 		Connection c = listener.get_new_connection();
 
-		System.out.println( "Handling new connection " + c );
 		while ( c != null )
 		{
+			System.out.println( "Handling new connection " + c );
 			new_connection( new Player(), c );
 			c = listener.get_new_connection();
 		}
@@ -110,6 +111,7 @@ public class Server extends Thread
 		connection_to_player.put( connection, player );
 		player_to_connection.put( player, connection );
 		chunk_requests.put( player, new HashSet< ChunkID >() );
+		served_chunks.put( player, new HashSet< ChunkID >() );
 	}
 
 	public void load_new_chunks()
@@ -154,12 +156,39 @@ public class Server extends Thread
 						request_chunk( r.x, r.y, r.z, c );
 						break;
 					}
+					case Constants.Packet.PlayerMove:
+					{
+						PlayerMovePacket r = (PlayerMovePacket)p;
+						connection_to_player.get( c ).pos.set( r.v.x, r.v.y, r.v.z );
+						break;
+					}
+					case Constants.Packet.UseAction:
+					{
+						UseActionPacket r = (UseActionPacket)p;
+						player_use_action( r.x, r.y, r.z, r.dir, connection_to_player.get( c ) );
+						break;
+					}
 				}
 
 				p = c.recieve();
 			}
 		}
 	}
+
+	void player_use_action( int x, int y, int z, Constants.Direction dir, Player player )
+	{
+		BlockLoc loc = new BlockLoc( x, y, z, world ).get( dir );
+		loc.set( Constants.Blocks.dirt );
+
+		for ( Player p : connection_to_player.values() )
+			tell_block_update( p, loc );
+	}
+
+	void tell_block_update( Player p, BlockLoc loc )
+	{
+		if ( is_chunk_served( p, new ChunkID( loc.x, loc.y, loc.z ) ) )
+			player_to_connection.get( p ).send( new BlockUpdatePacket( loc.x, loc.y, loc.z, loc.get() ) );
+	} 
 
 	// Adds the chunk request to the list of requests for this player
 	void request_chunk( int x, int y, int z, Connection c )
@@ -185,12 +214,25 @@ public class Server extends Thread
 			{
 				ChunkID id = id_iter.next();
 
-				if ( world.is_chunk_loaded( id ) )
+				if ( world.is_chunk_loaded( id ) && !is_chunk_served( e.getKey(), id ) )
 				{
+					serve_chunk( e.getKey(), id );
 					id_iter.remove();
-					player_to_connection.get( e.getKey() ).send( new LoadChunkPacket( world.get_chunk( id ) ) );
 				}
 			}
 		}
+	}
+
+	// Serve a chunk to a player and mark it as served
+	void serve_chunk( Player player, ChunkID id )
+	{
+		served_chunks.get( player ).add( id );
+		player_to_connection.get( player ).send( new LoadChunkPacket( world.get_chunk( id ) ) );
+	}
+
+	// Check if a chunk is served for this player
+	boolean is_chunk_served( Player player, ChunkID id )
+	{
+		return served_chunks.get( player ).contains( id );
 	}
 }

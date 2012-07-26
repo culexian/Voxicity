@@ -21,24 +21,24 @@ package voxicity;
 
 import java.nio.ByteBuffer;
 
-public class PlayerMovePacket extends Packet
+import org.lwjgl.util.vector.Vector3f;
+
+public class PlayerMovePacket implements Packet
 {
-	float x, y, z;
+	Vector3f v = new Vector3f();
 
 	// Create a chunk request packet.
 	// Use global values for coordinates.
-	public PlayerMovePacket( float x, float y, float z )
+	public PlayerMovePacket( Vector3f v )
 	{
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.v.set( v.x, v.y, v.z );
 	}
 
 	public PlayerMovePacket( ByteBuffer buf )
 	{
-		x = buf.getFloat();
-		y = buf.getFloat();
-		z = buf.getFloat();
+		v.x = buf.getFloat();
+		v.y = buf.getFloat();
+		v.z = buf.getFloat();
 	}
 
 	public int get_id()
@@ -51,7 +51,7 @@ public class PlayerMovePacket extends Packet
 	{
 		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + 3 * 4 );
 
-		buf.putInt( get_id() ).putInt( 3 * 4 ).putFloat( x ).putFloat( y ).putFloat( z );
+		buf.putInt( get_id() ).putInt( 3 * 4 ).putFloat( v.x ).putFloat( v.y ).putFloat( v.z );
 
 		buf.rewind();
 

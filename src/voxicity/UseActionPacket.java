@@ -21,9 +21,42 @@ package voxicity;
 
 import java.nio.ByteBuffer;
 
-public interface Packet
+public class UseActionPacket implements Packet
 {
-	public int get_id();
+	int x;
+	int y;
+	int z;
 
-	public ByteBuffer serialize();
+	Constants.Direction dir;
+
+	public UseActionPacket( BlockLoc loc, Constants.Direction dir )
+	{
+		this.x = loc.x;
+		this.y = loc.y;
+		this.z = loc.z;
+		this.dir = dir;
+	}
+
+	public UseActionPacket( ByteBuffer buf )
+	{
+		x = buf.getInt();
+		y = buf.getInt();
+		z = buf.getInt();
+		dir = Constants.Direction.values()[buf.getInt()];
+	}
+
+	public int get_id()
+	{
+		return Constants.Packet.UseAction;
+	}
+
+	public ByteBuffer serialize()
+	{
+		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + 4 * 4 );
+		buf.putInt( get_id() ).putInt( 4 * 4 ).putInt( x ).putInt( y ).putInt( z ).putInt( dir.ordinal() );
+
+		buf.rewind();
+
+		return buf;
+	}
 }

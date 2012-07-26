@@ -19,11 +19,29 @@
 
 package voxicity;
 
-public class BlockUpdatePacket
-{
-	public BlockUpdatePacket()
-	{
+import java.nio.ByteBuffer;
 
+public class BlockUpdatePacket implements Packet
+{
+	int x;
+	int y;
+	int z;
+	int id;
+
+	public BlockUpdatePacket( int x, int y, int z, int id )
+	{
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.id = id;
+	}
+
+	public BlockUpdatePacket( ByteBuffer buf )
+	{
+		this.x = buf.getInt();
+		this.y = buf.getInt();
+		this.z = buf.getInt();
+		this.id = buf.getInt();
 	}
 
 	public int get_id()
@@ -31,8 +49,14 @@ public class BlockUpdatePacket
 		return Constants.Packet.BlockUpdate;
 	}
 
-	public byte[] serialize()
+	public ByteBuffer serialize()
 	{
-		return null;
+		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + 4 * 4 );
+
+		buf.putInt( get_id() ).putInt( 4 * 4 ).putInt( x ).putInt( y ).putInt( z ).putInt( id );
+
+		buf.rewind();
+
+		return buf;
 	};
 }

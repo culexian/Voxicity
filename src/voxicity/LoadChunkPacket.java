@@ -21,7 +21,7 @@ package voxicity;
 
 import java.nio.ByteBuffer;
 
-public class LoadChunkPacket extends Packet
+public class LoadChunkPacket implements Packet
 {
 	Chunk chunk;
 

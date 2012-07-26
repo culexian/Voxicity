@@ -37,13 +37,15 @@ public class PacketFactory
 			case Constants.Packet.RequestChunk:
 				return new RequestChunkPacket( data );
 			case Constants.Packet.UseAction:
-				return null;
+				return new UseActionPacket( data );
+			case Constants.Packet.HitAction:
+				return new HitActionPacket( data );
 			case Constants.Packet.MoveAction:
 				return null;
 			case Constants.Packet.BlockUpdate:
-				return null;
+				return new BlockUpdatePacket( data );
 			case Constants.Packet.PlayerMove:
-				return null;
+				return new PlayerMovePacket( data );
 			default:
 				return null;
 		}

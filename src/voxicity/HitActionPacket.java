@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2011, Erik Lund
  *
@@ -21,9 +22,20 @@ package voxicity;
 
 import java.nio.ByteBuffer;
 
-public interface Packet
+public class HitActionPacket implements Packet
 {
-	public int get_id();
+	public HitActionPacket( ByteBuffer data )
+	{
 
-	public ByteBuffer serialize();
+	}
+
+	public int get_id()
+	{
+		return Constants.Packet.HitAction;
+	}
+
+	public ByteBuffer serialize()
+	{
+		return null;
+	}
 }

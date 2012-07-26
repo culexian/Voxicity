@@ -56,6 +56,7 @@ public class Client
 	void update()
 	{
 		handle_packets();
+		tell_player_position();
 	}
 
 	void shutdown()
@@ -80,9 +81,24 @@ public class Client
 					renderer.set_chunk( c.x, c.y, c.z, c );
 					break;
 				}
+				case Constants.Packet.BlockUpdate:
+				{
+					BlockUpdatePacket p = (BlockUpdatePacket)packet;
+					world.set_block( p.x, p.y, p.z, p.id );
+				}
 			}
 
 			packet = connection.recieve();
 		}
+	}
+
+	void tell_player_position()
+	{
+		connection.send( new PlayerMovePacket( player.pos ) );
+	}
+
+	void tell_use_action( BlockLoc loc, Constants.Direction dir )
+	{
+		connection.send( new UseActionPacket( loc, dir ) );
 	}
 }

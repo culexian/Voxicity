@@ -68,4 +68,9 @@ public class Constants
 			PlayerMove = 6
 			;
 	}
+
+	public static int dir_to_int( Constants.Direction dir )
+	{
+		return dir.ordinal();
+	}
 }

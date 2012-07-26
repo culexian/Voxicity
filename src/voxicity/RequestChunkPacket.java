@@ -21,7 +21,7 @@ package voxicity;
 
 import java.nio.ByteBuffer;
 
-public class RequestChunkPacket extends Packet
+public class RequestChunkPacket implements Packet
 {
 	int x, y, z;
 
