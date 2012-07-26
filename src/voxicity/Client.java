@@ -61,6 +61,7 @@ public class Client
 	void shutdown()
 	{
 		chunk_requester.quit();
+		connection.close();
 	}
 
 	void handle_packets()

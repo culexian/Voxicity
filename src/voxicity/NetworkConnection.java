@@ -19,6 +19,7 @@
 
 package voxicity;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -39,16 +40,24 @@ public class NetworkConnection extends Connection implements Runnable
 	public NetworkConnection( Socket s ) throws IOException
 	{
 		this.s = s;
-		this.in = new DataInputStream( s.getInputStream() );
+		this.in = new DataInputStream( new BufferedInputStream( s.getInputStream() ) );
 		this.out = new DataOutputStream( s.getOutputStream() );
 
 		// Start the thread that traffics packets into/out of the socket
 		new Thread( this ).start();
 	}
 
-	public void close() throws IOException
+	public void close()
 	{
-		s.close();
+		try
+		{
+			s.close();
+		}
+		catch ( IOException e )
+		{
+			System.out.println( e );
+			e.printStackTrace();
+		}
 	}
 
 	public boolean closed()
@@ -85,7 +94,8 @@ public class NetworkConnection extends Connection implements Runnable
 						byte[] data = new byte[size];
 						in.read( data, 0, size );
 
-						// TODO Create the packet and put in incoming queue
+						// Create the packet and put in the incoming queue
+						incoming.put( PacketFactory.create( id, data ) );
 					}
 				}
 
@@ -100,6 +110,11 @@ public class NetworkConnection extends Connection implements Runnable
 			}
 		}
 		catch ( IOException e )
+		{
+			System.out.println( e );
+			e.printStackTrace();
+		}
+		catch ( InterruptedException e )
 		{
 			System.out.println( e );
 			e.printStackTrace();

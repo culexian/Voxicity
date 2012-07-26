@@ -38,6 +38,9 @@ import org.lwjgl.Sys;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -67,7 +70,6 @@ public class Voxicity
 
 	Server server;
 	Client client;
-	static ConnectionGlue conn_glue;
 
 	public Voxicity( Server server, Client client )
 	{
@@ -599,16 +601,6 @@ public class Voxicity
 
 	void shutdown()
 	{
-		conn_glue.quit();
-		try
-		{
-			//chunk_loader.join();
-		}
-		catch ( Exception e )
-		{
-			e.printStackTrace();
-		}
-
 		client.shutdown();
 		server.quit();
 		System.out.println( "Destroying display" );
@@ -622,6 +614,11 @@ public class Voxicity
 		TextureManager.get_texture( "textures/grass.png" );
 	}
 
+	static ServerSocket create_server_socket( Config c ) throws IOException
+	{
+		return new ServerSocket( 11000 );
+	}
+
 	public static void main( String[] args )
 	{
 		try
@@ -631,11 +628,14 @@ public class Voxicity
 
 			Config config = new Config( "voxicity.properties" );
 
-			Connection server_conn = new Connection();
-			Connection client_conn = new Connection();
+			ServerSocket server_s = create_server_socket( config );
 
-			conn_glue = new ConnectionGlue( server_conn, client_conn );
-			new Thread( conn_glue ).start();
+			Socket client_s = new Socket( "culex.no-ip.org", 11000 );
+
+			Socket serv_to_client = server_s.accept();
+
+			Connection server_conn = new NetworkConnection( serv_to_client );
+			Connection client_conn = new NetworkConnection( client_s );
 
 			Server server = new Server( config );
 			Client client = new Client( config, client_conn );

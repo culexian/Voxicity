@@ -46,7 +46,7 @@ public class Connection
 		return incoming.poll();
 	}
 
-	public void close() throws IOException
+	public void close()
 	{
 
 	}

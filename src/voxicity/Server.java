@@ -74,6 +74,9 @@ public class Server extends Thread
 	void shutdown()
 	{
 		chunk_server.shutdown();
+
+		for ( Connection c : player_to_connection.values() )
+			c.close();
 	}
 
 	void new_connection( Player player, Connection connection )
