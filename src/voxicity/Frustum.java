@@ -241,7 +241,13 @@ public class Frustum
 		boolean z_check = false;
 
 		for ( int i = 0 ; i < 8 ; i++ )
-			z_check |= ( dots[i][2] < far_dist && dots[i][2] > near_dist );
+			z_check |= ( dots[i][2] < far_dist );
+
+		if ( !z_check )
+			return false;
+
+		for ( int i = 0 ; i < 8 ; i++ )
+			z_check |= ( dots[i][2] > near_dist );
 
 		if ( !z_check )
 			return false;
@@ -251,7 +257,16 @@ public class Frustum
 		for ( int i = 0 ; i < 8 ; i++ )
 		{
 			float y_extreme = dots[i][2] * tan_vert_angle;
-			y_check |= ( dots[i][1] < y_extreme && dots[i][1] > -y_extreme );
+			y_check |= ( dots[i][1] < y_extreme );
+		}
+
+		if ( !y_check )
+			return false;
+
+		for ( int i = 0 ; i < 8 ; i++ )
+		{
+			float y_extreme = dots[i][2] * tan_vert_angle;
+			y_check |= ( dots[i][1] > -y_extreme );
 		}
 
 		if ( !y_check )
@@ -262,7 +277,16 @@ public class Frustum
 		for ( int i = 0 ; i < 8 ; i++ )
 		{
 			float x_extreme = ( dots[i][2] * tan_vert_angle ) * ratio;
-			x_check |= ( dots[i][0] < x_extreme && dots[i][0] > -x_extreme );
+			x_check |= ( dots[i][0] < x_extreme );
+		}
+
+		if ( !x_check )
+			return false;
+
+		for ( int i = 0 ; i < 8 ; i++ )
+		{
+			float x_extreme = ( dots[i][2] * tan_vert_angle ) * ratio;
+			x_check |= ( dots[i][0] > -x_extreme );
 		}
 
 		if ( !x_check )
