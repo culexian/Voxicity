@@ -65,7 +65,9 @@ public class Constants
 			HitAction = 3,
 			MoveAction = 4,
 			BlockUpdate = 5,
-			PlayerMove = 6
+			PlayerMove = 6,
+			Disconnet = 7,
+			KeepAlive = 8
 			;
 	}
 

@@ -46,6 +46,8 @@ public class PacketFactory
 				return new BlockUpdatePacket( data );
 			case Constants.Packet.PlayerMove:
 				return new PlayerMovePacket( data );
+			case Constants.Packet.KeepAlive:
+				return new KeepAlivePacket( data );
 			default:
 				return null;
 		}
