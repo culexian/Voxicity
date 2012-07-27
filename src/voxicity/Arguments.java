@@ -82,7 +82,7 @@ public class Arguments
 				// Put the new argument pair in the map,
 				// overwriting any previous pair with the
 				// same key.
-				pairs.put( args[i], args[i + 1] );
+				pairs.put( args[i].substring( 2 ), args[i + 1] );
 
 				// Skip one string ahead over the pair
 				i++;
