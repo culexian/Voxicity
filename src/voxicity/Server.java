@@ -71,6 +71,7 @@ public class Server extends Thread
 	void update()
 	{
 		handle_new_connections();
+		close_old_connections();
 		handle_packets();
 		load_new_chunks();
 		handle_chunk_requests();
@@ -115,6 +116,30 @@ public class Server extends Thread
 		player_to_connection.put( player, connection );
 		chunk_requests.put( player, new HashSet< ChunkID >() );
 		served_chunks.put( player, new HashSet< ChunkID >() );
+	}
+
+	void close_old_connections()
+	{
+		Set< Connection > connections = new HashSet< Connection >( connection_to_player.keySet() );
+
+		for ( Connection c : connections )
+		{
+			if ( c.closed() )
+				remove_connection( c );
+		}
+	}
+
+	void remove_connection( Connection c )
+	{
+		System.out.println( "Removing connection " + c );
+		if ( !connection_to_player.containsKey( c ) )
+			return;
+
+		Player p = connection_to_player.get( c );
+		connection_to_player.remove( c );
+		player_to_connection.remove( p );
+		chunk_requests.remove( p );
+		served_chunks.remove( p );
 	}
 
 	public void load_new_chunks()

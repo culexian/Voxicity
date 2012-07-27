@@ -50,4 +50,9 @@ public class Connection
 	{
 
 	}
+
+	public boolean closed()
+	{
+		return false;
+	}
 }
