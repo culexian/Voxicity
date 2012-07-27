@@ -51,7 +51,7 @@ public class Arguments
 	public String get_value( String key, String default_value )
 	{
 		String value = get_value( key );
-		return key == null ? default_value : value;
+		return ( value == null ? default_value : value );
 	}
 
 	// Return whether or not the flag is present.
