@@ -3,7 +3,8 @@ all:
 	jar cvfme Voxicity.jar Manifest.mf voxicity.Voxicity -C src/ .
 
 test:
-	java -XX:+UseConcMarkSweepGC -Xmx4G -Djava.library.path=native/linux -jar Voxicity.jar voxicity.Voxicity --mode server
+	java -XX:+UseConcMarkSweepGC -Xmx4G -Djava.library.path=native/linux -jar Voxicity.jar voxicity.Voxicity --mode server &
+	java -XX:+UseConcMarkSweepGC -Xmx4G -Djava.library.path=native/linux -jar Voxicity.jar voxicity.Voxicity --mode client
 
 pack:
 	

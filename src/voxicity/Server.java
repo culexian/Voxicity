@@ -84,8 +84,11 @@ public class Server extends Thread
 
 	void shutdown()
 	{
-		listener.quit();
-		chunk_server.shutdown();
+		if ( listener != null )
+			listener.quit();
+
+		if ( chunk_server != null )
+			chunk_server.shutdown();
 
 		for ( Connection c : player_to_connection.values() )
 			c.close();

@@ -71,83 +71,104 @@ public class Voxicity
 	Server server;
 	Client client;
 	Config config;
+	Arguments args;
+
+	public Voxicity( Arguments args )
+	{
+		this.args = args;
+	}
 
 	public void init()
 	{
-		try
+		// Load the specified config file
+		config = new Config( args.get_value( "config", "voxicity.properties" ) );
+
+		String mode = args.get_value( "mode", "client" );
+
+		if ( mode.equals( "server" ) )
 		{
-			System.out.println( "Intializing display" );
-			Display.setDisplayMode( new DisplayMode( 1200, 720 ) );
-			Display.create();
-			System.out.println( "Display created" );
+			server = new Server( config );
+			server.run();
 		}
-		catch ( LWJGLException e )
+		else if ( mode.equals( "client" ) )
 		{
-			e.printStackTrace();
-			System.exit(0);
+			try
+			{
+				System.out.println( "Intializing display" );
+				Display.setDisplayMode( new DisplayMode( 1200, 720 ) );
+				Display.create();
+				System.out.println( "Display created" );
+			}
+			catch ( LWJGLException e )
+			{
+				e.printStackTrace();
+				System.exit(0);
+			}
+
+			TextRenderer.init();
+
+			Mouse.setGrabbed( true );
+
+			System.out.println( "Setting up OpenGL states" );
+			GL11.glShadeModel( GL11.GL_SMOOTH );
+			GL11.glEnable( GL11.GL_DEPTH_TEST );
+			GL11.glEnable( GL11.GL_TEXTURE_2D );
+			GL11.glEnable( GL11.GL_CULL_FACE );
+			GL11.glEnable( GL11.GL_BLEND );
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			GL11.glClearColor( 126.0f / 255.0f, 169.0f / 255.0f, 254.0f / 255.0f, 1.0f );
+
+			System.out.println( "Checking for GL_TEXTURE_2D_ARRAY_EXT: " + GLContext.getCapabilities().GL_EXT_texture_array );
+			GL11.glEnable( EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT );
+
+			System.out.println( "Number of texture units: " + GL11.glGetInteger( GL13.GL_MAX_TEXTURE_UNITS ) );
+			System.out.println( "Number of image texture units: " + GL11.glGetInteger( GL20.GL_MAX_TEXTURE_IMAGE_UNITS ) );
+			System.out.println( "Number of vertex texture units: " + GL11.glGetInteger( GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS ) );
+			System.out.println( "Number of combined vertex/image texture units: " + GL11.glGetInteger( GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS ) );
+
+			try
+			{
+				Socket client_s = new Socket( "culex.no-ip.org", 11000 );
+				client = new Client( config, new NetworkConnection( client_s ) );
+			}
+			catch ( Exception e )
+			{
+				System.out.println( e );
+				e.printStackTrace();
+			}
+
+
+			load_texture_pack();
+
+			last_fps_update = Time.get_time_ms();
+			get_time_delta();
+
+			client.init();
+			camera = client.player.pos;
+
+			setup_camera();
+
+			while ( !is_close_requested )
+			{
+				System.out.println( "Update at " + Time.get_time_µs() );
+				client.update();
+				update( get_time_delta() / 1000.0f, client.world );
+				System.out.println( "Load new chunks at " + Time.get_time_µs() );
+				System.out.println( "Render at " + Time.get_time_µs() );
+				client.renderer.render();
+				System.out.println( "Loop done" );
+
+				is_close_requested |= Display.isCloseRequested();
+			}
+
+			client.shutdown();
+			System.out.println( "Destroying display" );
+			Display.destroy();
 		}
-
-		TextRenderer.init();
-
-		Mouse.setGrabbed( true );
-
-		System.out.println( "Setting up OpenGL states" );
-		GL11.glShadeModel( GL11.GL_SMOOTH );
-		GL11.glEnable( GL11.GL_DEPTH_TEST );
-		GL11.glEnable( GL11.GL_TEXTURE_2D );
-		GL11.glEnable( GL11.GL_CULL_FACE );
-		GL11.glEnable( GL11.GL_BLEND );
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glClearColor( 126.0f / 255.0f, 169.0f / 255.0f, 254.0f / 255.0f, 1.0f );
-
-		System.out.println( "Checking for GL_TEXTURE_2D_ARRAY_EXT: " + GLContext.getCapabilities().GL_EXT_texture_array );
-		GL11.glEnable( EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT );
-
-		System.out.println( "Number of texture units: " + GL11.glGetInteger( GL13.GL_MAX_TEXTURE_UNITS ) );
-		System.out.println( "Number of image texture units: " + GL11.glGetInteger( GL20.GL_MAX_TEXTURE_IMAGE_UNITS ) );
-		System.out.println( "Number of vertex texture units: " + GL11.glGetInteger( GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS ) );
-		System.out.println( "Number of combined vertex/image texture units: " + GL11.glGetInteger( GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS ) );
-
-		config = new Config( "voxicity.properties" );
-		server = new Server( config );
-		server.start();
-
-		try
+		else
 		{
-			Socket client_s = new Socket( "culex.no-ip.org", 11000 );
-			client = new Client( config, new NetworkConnection( client_s ) );
+			System.out.println( "Invalid mode: " + mode );
 		}
-		catch ( Exception e )
-		{
-			System.out.println( e );
-			e.printStackTrace();
-		}
-
-
-		load_texture_pack();
-
-		last_fps_update = Time.get_time_ms();
-		get_time_delta();
-
-		client.init();
-		camera = client.player.pos;
-
-		setup_camera();
-
-		while ( !is_close_requested )
-		{
-			System.out.println( "Update at " + Time.get_time_µs() );
-			client.update();
-			update( get_time_delta() / 1000.0f, client.world );
-			System.out.println( "Load new chunks at " + Time.get_time_µs() );
-			System.out.println( "Render at " + Time.get_time_µs() );
-			client.renderer.render();
-			System.out.println( "Loop done" );
-
-			is_close_requested |= Display.isCloseRequested();
-		}
-
-		shutdown();
 	}
 
 	int get_time_delta()
@@ -586,14 +607,6 @@ public class Voxicity
 		
 	}
 
-	void shutdown()
-	{
-		client.shutdown();
-		server.quit();
-		System.out.println( "Destroying display" );
-		Display.destroy();
-	}
-
 	void load_texture_pack()
 	{
 		TextureManager.get_texture( "textures/stone.png" );
@@ -618,7 +631,7 @@ public class Voxicity
 			File new_out = new File( "voxicity.log" );
 			System.setOut( new PrintStream( new_out ) );
 
-			Voxicity voxy = new Voxicity();
+			Voxicity voxy = new Voxicity( cmd_args );
 			voxy.init();
 		}
 		catch ( Exception e )
