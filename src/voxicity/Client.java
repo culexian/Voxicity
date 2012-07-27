@@ -87,6 +87,12 @@ public class Client
 					System.out.println( "Server told client to update block " + p.x + " " + p.y + " " + p.z + " " + p.id );
 					world.set_block( p.x, p.y, p.z, p.id );
 				}
+				case Constants.Packet.KeepAlive:
+				{
+					// Accept the KeepAlivePacket and
+					// return the same one to the server
+					connection.send( packet );
+				}
 			}
 
 			packet = connection.recieve();
