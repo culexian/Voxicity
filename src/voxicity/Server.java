@@ -34,6 +34,7 @@ public class Server implements Runnable
 	World world;
 
 	Map< Connection, Player > connection_to_player = new HashMap< Connection, Player >();
+	Map< Connection, ConnectionInfo > connection_info = new HashMap< Connection, ConnectionInfo >();
 	Map< Player, Connection > player_to_connection = new HashMap< Player, Connection >();
 	Map< Player, Set< ChunkID > > chunk_requests = new HashMap< Player, Set< ChunkID > >();
 	Map< Player, Set< ChunkID > > served_chunks = new HashMap< Player, Set< ChunkID > >();
@@ -71,8 +72,8 @@ public class Server implements Runnable
 	void update()
 	{
 		handle_new_connections();
-		close_old_connections();
 		handle_packets();
+		handle_connection_keepalive();
 		load_new_chunks();
 		handle_chunk_requests();
 	}
@@ -112,20 +113,33 @@ public class Server implements Runnable
 		if ( connection_to_player.containsKey( connection ) )
 			return;
 
+		connection_info.put( connection, new ConnectionInfo() );
 		connection_to_player.put( connection, player );
 		player_to_connection.put( player, connection );
 		chunk_requests.put( player, new HashSet< ChunkID >() );
 		served_chunks.put( player, new HashSet< ChunkID >() );
 	}
 
-	void close_old_connections()
+	void handle_connection_keepalive()
 	{
 		Set< Connection > connections = new HashSet< Connection >( connection_to_player.keySet() );
 
 		for ( Connection c : connections )
 		{
-			if ( c.closed() )
+			ConnectionInfo info = connection_info.get( c );
+			long update_delta = Time.get_time_ms() - info.get_last_update();
+
+			// Time to send out a new KeepAlivePacket to this connection
+			if ( !info.awaiting_update && update_delta < 5000 )
+			{
+				// We're awaiting a packet back from now on
+				info.awaiting_update = true;
+				c.send( new KeepAlivePacket( info.get_update_id() ) );
+			} // Connection has timed out, close it
+			else if ( info.awaiting_update && update_delta > 10000 )
+			{
 				remove_connection( c );
+			}
 		}
 	}
 
@@ -136,6 +150,10 @@ public class Server implements Runnable
 			return;
 
 		Player p = connection_to_player.get( c );
+
+		c.close();
+
+		connection_info.remove( c );
 		connection_to_player.remove( c );
 		player_to_connection.remove( p );
 		chunk_requests.remove( p );
@@ -200,6 +218,19 @@ public class Server implements Runnable
 					{
 						HitActionPacket r = (HitActionPacket)p;
 						player_hit_action( r.x, r.y, r.z, connection_to_player.get( c ) );
+						break;
+					}
+					case Constants.Packet.KeepAlive:
+					{
+						// Accept the KeepAlivePacket
+						KeepAlivePacket r = (KeepAlivePacket)p;
+						ConnectionInfo i = connection_info.get( c );
+
+						// If the id matches, update the keep-alive status
+						if ( i.get_update_id() == r.id )
+							i.update();
+
+
 						break;
 					}
 				}

@@ -19,35 +19,36 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
-public class KeepAlivePacket implements Packet
+public class ConnectionInfo
 {
-	int id;
+	int update_id;
+	long last_update;
+	boolean awaiting_update = false;
 
-	public KeepAlivePacket( int id )
+	public ConnectionInfo()
 	{
-		this.id = id;
+		update();
 	}
 
-	public KeepAlivePacket( ByteBuffer buf )
+	public int get_update_id()
 	{
-		id = buf.getInt();
+		return update_id;
 	}
 
-	public int get_id()
+	public long get_last_update()
 	{
-		return Constants.Packet.KeepAlive;
+		return last_update;
 	}
 
-	public ByteBuffer serialize()
+	public long get_next_update()
 	{
-		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + 4 );
+		return last_update + 10000;
+	}
 
-		buf.putInt( get_id() ).putInt( 4 ).putInt( id );
-
-		buf.rewind();
-
-		return buf;
+	public void update()
+	{
+		last_update = Time.get_time_ms();
+		update_id = new java.util.Random( last_update ).nextInt();
+		awaiting_update = false;
 	}
 }
