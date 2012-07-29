@@ -65,9 +65,8 @@ public class ConnectionGlue implements Runnable
 				// Skip length check, is a local connection
 				buf.getInt();
 
-
 				// Deserialize the same packet with the id and the buffer from this point
-				Packet i = deserialize( id, buf.slice() );
+				Packet i = PacketFactory.create( id, buf.slice() );
 
 				// Place the new packet on the incoming queue
 				in.incoming.put( i );
