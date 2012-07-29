@@ -24,6 +24,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 
 public class NetworkConnection extends Connection implements Runnable
 {
@@ -102,10 +103,20 @@ public class NetworkConnection extends Connection implements Runnable
 				// Get and remove the next packet from the outgoing queue
 				Packet p = outgoing.poll();
 
+				// If a packet is to be sent
 				if ( p != null )
 				{
+					// Serialize the packet data
+					ByteBuffer buf = p.serialize();
+
+					// Write the packet id
+					out.writeInt( p.get_id() );
+
+					// Write the length of this packet in bytes
+					out.writeInt( buf.limit() );
+
 					// Write the serialized packet to the socket
-					out.write( p.serialize().array() );
+					out.write( buf.array() );
 				}
 			}
 		}

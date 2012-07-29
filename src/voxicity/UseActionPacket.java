@@ -52,8 +52,8 @@ public class UseActionPacket implements Packet
 
 	public ByteBuffer serialize()
 	{
-		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + 4 * 4 );
-		buf.putInt( get_id() ).putInt( 4 * 4 ).putInt( x ).putInt( y ).putInt( z ).putInt( dir.ordinal() );
+		ByteBuffer buf = ByteBuffer.allocate( 4 * 4 );
+		buf.putInt( x ).putInt( y ).putInt( z ).putInt( dir.ordinal() );
 
 		buf.rewind();
 

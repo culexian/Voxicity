@@ -42,9 +42,9 @@ public class KeepAlivePacket implements Packet
 
 	public ByteBuffer serialize()
 	{
-		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + 4 );
+		ByteBuffer buf = ByteBuffer.allocate( 4 );
 
-		buf.putInt( get_id() ).putInt( 4 ).putInt( id );
+		buf.putInt( id );
 
 		buf.rewind();
 

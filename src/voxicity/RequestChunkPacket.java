@@ -54,9 +54,9 @@ public class RequestChunkPacket implements Packet
 	// Serialize this with id, length and coords
 	public ByteBuffer serialize()
 	{
-		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + 3 * 4 );
+		ByteBuffer buf = ByteBuffer.allocate( 3 * 4 );
 
-		buf.putInt( get_id() ).putInt( 3 * 4 ).putInt( x ).putInt( y ).putInt( z );
+		buf.putInt( x ).putInt( y ).putInt( z );
 
 		buf.rewind();
 

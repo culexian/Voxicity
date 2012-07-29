@@ -43,9 +43,9 @@ public class LoadChunkPacket implements Packet
 	public ByteBuffer serialize()
 	{
 		ByteBuffer chunk_ser = chunk.serialize();
-		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + chunk_ser.limit() );
+		ByteBuffer buf = ByteBuffer.allocate( chunk_ser.limit() );
 
-		buf.putInt( get_id() ).putInt( chunk_ser.limit() ).put( chunk_ser );
+		buf.put( chunk_ser );
 
 		buf.rewind();
 

@@ -51,9 +51,9 @@ public class BlockUpdatePacket implements Packet
 
 	public ByteBuffer serialize()
 	{
-		ByteBuffer buf = ByteBuffer.allocate( 4 + 4 + 4 * 4 );
+		ByteBuffer buf = ByteBuffer.allocate( 4 * 4 );
 
-		buf.putInt( get_id() ).putInt( 4 * 4 ).putInt( x ).putInt( y ).putInt( z ).putInt( id );
+		buf.putInt( x ).putInt( y ).putInt( z ).putInt( id );
 
 		buf.rewind();
 

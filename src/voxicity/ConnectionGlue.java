@@ -56,17 +56,14 @@ public class ConnectionGlue implements Runnable
 				// Get the packet from the outgoing queue
 				Packet p = out.outgoing.take();
 
-				// Serialize the packet
+				// Serialize the packet data
 				ByteBuffer buf = p.serialize();
 
 				// Get packet id
-				int id = buf.getInt();
+				int id = p.get_id();
 
-				// Skip length check, is a local connection
-				buf.getInt();
-
-				// Deserialize the same packet with the id and the buffer from this point
-				Packet i = PacketFactory.create( id, buf.slice() );
+				// Deserialize the same packet data with the same id
+				Packet i = PacketFactory.create( id, buf );
 
 				// Place the new packet on the incoming queue
 				in.incoming.put( i );
