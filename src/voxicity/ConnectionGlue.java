@@ -78,18 +78,4 @@ public class ConnectionGlue implements Runnable
 			e.printStackTrace();
 		}
 	}
-
-
-	Packet deserialize( int id, ByteBuffer buf )
-	{
-		switch ( id )
-		{
-			case Constants.Packet.LoadChunk:
-				return new LoadChunkPacket( buf );
-			case Constants.Packet.RequestChunk:
-				return new RequestChunkPacket( buf );
-			default:
-				return null;
-		}
-	}
 }
