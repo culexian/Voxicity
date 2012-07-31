@@ -38,6 +38,7 @@ public class Server implements Runnable
 	Map< Player, Connection > player_to_connection = new HashMap< Player, Connection >();
 	Map< Player, Set< ChunkID > > chunk_requests = new HashMap< Player, Set< ChunkID > >();
 	Map< Player, Set< ChunkID > > served_chunks = new HashMap< Player, Set< ChunkID > >();
+	Set< Connection > closing_queue = new HashSet< Connection >();
 
 	public Server( Config config )
 	{
@@ -74,6 +75,7 @@ public class Server implements Runnable
 		handle_new_connections();
 		handle_packets();
 		handle_connection_keepalive();
+		remove_closed_connections();
 		load_new_chunks();
 		handle_chunk_requests();
 	}
@@ -93,7 +95,11 @@ public class Server implements Runnable
 			chunk_server.shutdown();
 
 		for ( Connection c : player_to_connection.values() )
+		{
+			c.send( new DisconnectPacket() );
+			c.wait_send();
 			c.close();
+		}
 	}
 
 	void handle_new_connections()
@@ -138,9 +144,24 @@ public class Server implements Runnable
 			} // Connection has timed out, close it
 			else if ( info.awaiting_update && update_delta > 10000 )
 			{
-				remove_connection( c );
+				closing_queue.add( c );
 			}
 		}
+	}
+
+	// Disconnect, close and remove Connections
+	// that have been queued for closing
+	void remove_closed_connections()
+	{
+		for ( Connection c : closing_queue )
+		{
+			c.send( new DisconnectPacket() );
+			c.wait_send();
+			c.close();
+			remove_connection( c );
+		}
+
+		closing_queue.clear();
 	}
 
 	void remove_connection( Connection c )
@@ -150,8 +171,6 @@ public class Server implements Runnable
 			return;
 
 		Player p = connection_to_player.get( c );
-
-		c.close();
 
 		connection_info.remove( c );
 		connection_to_player.remove( c );
@@ -230,7 +249,11 @@ public class Server implements Runnable
 						if ( i.get_update_id() == r.id )
 							i.update();
 
-
+						break;
+					}
+					case Constants.Packet.Disconnect:
+					{
+						closing_queue.add( c );
 						break;
 					}
 				}

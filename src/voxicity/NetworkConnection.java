@@ -66,6 +66,21 @@ public class NetworkConnection extends Connection implements Runnable
 		return s.isClosed();
 	}
 
+	public void wait_send()
+	{
+		super.wait_send();
+
+		// Flush the socket
+		try {
+			out.flush();
+		}
+		catch ( IOException e )
+		{
+			System.out.println( e );
+			e.printStackTrace();
+		}
+	}
+
 	public void run()
 	{
 		try

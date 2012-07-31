@@ -19,47 +19,27 @@
 
 package voxicity;
 
-import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.nio.ByteBuffer;
 
-public class Connection
+public class DisconnectPacket implements Packet
 {
-	BlockingQueue< Packet > incoming = new LinkedBlockingQueue< Packet >();
-	BlockingQueue< Packet > outgoing = new LinkedBlockingQueue< Packet >();
-
-	public void send( Packet packet )
-	{
-		try
-		{
-			outgoing.put( packet );
-		}
-		catch ( Exception e )
-		{
-			System.out.println( e );
-			e.printStackTrace();
-		}
-	}
-
-	public Packet recieve()
-	{
-		return incoming.poll();
-	}
-
-	public void close()
+	public DisconnectPacket()
 	{
 
 	}
 
-	public boolean closed()
+	public DisconnectPacket( ByteBuffer buf )
 	{
-		return false;
+
 	}
 
-	// Wait until all packets have been sent
-	public void wait_send()
+	public int get_id()
 	{
-		while ( !outgoing.isEmpty() )
-			;
+		return Constants.Packet.Disconnect;
+	}
+
+	public ByteBuffer serialize()
+	{
+		return ByteBuffer.allocate( 0 );
 	}
 }

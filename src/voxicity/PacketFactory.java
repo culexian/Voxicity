@@ -48,6 +48,8 @@ public class PacketFactory
 				return new PlayerMovePacket( data );
 			case Constants.Packet.KeepAlive:
 				return new KeepAlivePacket( data );
+			case Constants.Packet.Disconnect:
+				return new DisconnectPacket( data );
 			default:
 				return null;
 		}

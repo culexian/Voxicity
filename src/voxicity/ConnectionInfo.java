@@ -22,7 +22,7 @@ package voxicity;
 public class ConnectionInfo
 {
 	int update_id;
-	long last_update;
+	long last_update = Time.get_time_ms();
 	boolean awaiting_update = false;
 
 	public ConnectionInfo()

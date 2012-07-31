@@ -25,6 +25,7 @@ public class Client
 
 	Config config;
 	Connection connection;
+	long last_packet_time = Time.get_time_ms();
 	Renderer renderer;
 	World world;
 	Player player = new Player();
@@ -53,16 +54,22 @@ public class Client
 		}
 	}
 
+	void quit()
+	{
+		quitting = true;
+	}
+
 	void update()
 	{
 		handle_packets();
+		check_connection();
 		tell_player_position();
 	}
 
 	void shutdown()
 	{
 		chunk_requester.quit();
-		connection.close();
+		disconnect();
 	}
 
 	void handle_packets()
@@ -71,6 +78,9 @@ public class Client
 
 		while ( packet != null )
 		{
+			// Update the last time a packet was recieved from the server
+			last_packet_time = Time.get_time_ms();
+
 			switch ( packet.get_id() )
 			{
 				case Constants.Packet.LoadChunk:
@@ -86,12 +96,19 @@ public class Client
 					BlockUpdatePacket p = (BlockUpdatePacket)packet;
 					System.out.println( "Server told client to update block " + p.x + " " + p.y + " " + p.z + " " + p.id );
 					world.set_block( p.x, p.y, p.z, p.id );
+					break;
 				}
 				case Constants.Packet.KeepAlive:
 				{
 					// Accept the KeepAlivePacket and
 					// return the same one to the server
 					connection.send( packet );
+					break;
+				}
+				case Constants.Packet.Disconnect:
+				{
+					disconnect();
+					break;
 				}
 			}
 
@@ -112,5 +129,22 @@ public class Client
 	void tell_hit_action( int x, int y, int z )
 	{
 		connection.send( new HitActionPacket( x, y, z ) );
+	}
+
+	void check_connection()
+	{
+		long delta = Time.get_time_ms() - last_packet_time;
+
+		// If more than 10 seconds have passed with no packets, disconnect
+		if ( delta > 10000 )
+			disconnect();
+	}
+
+	void disconnect()
+	{
+		connection.send( new DisconnectPacket() );
+		connection.wait_send();
+		connection.close();
+		quit();
 	}
 }
