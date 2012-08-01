@@ -19,6 +19,14 @@
 
 package voxicity;
 
+import java.io.File;
+import java.io.PrintStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.List;
+import java.util.ArrayList;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -31,18 +39,6 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Matrix3f;
-import org.lwjgl.util.Color;
-import org.lwjgl.Sys;
-
-import java.io.File;
-import java.io.PrintStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.List;
-import java.util.ArrayList;
 
 public class Voxicity
 {
