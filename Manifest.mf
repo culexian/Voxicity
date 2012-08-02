@@ -1,1 +1,1 @@
-Class-Path: jar/lwjgl.jar jar/lwjgl_util.jar jar/jinput.jar jar/slick-util.jar jar/TWL.jar
+Class-Path: jar/lwjgl.jar jar/lwjgl_util.jar jar/jinput.jar jar/slick-util.jar jar/TWL.jar jar/xpp3-1.1.4c.jar
