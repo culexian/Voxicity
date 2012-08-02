@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes>
+	<images file="cursors.png">
+		<cursor name="cursor.edit_text" hotSpotX="3" hotSpotY="7" xywh="1,1,9,17"/>
+	</images>
+</themes>

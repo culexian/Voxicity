@@ -19,6 +19,19 @@
 
 package voxicity;
 
+import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
+import de.matthiasmann.twl.theme.ThemeManager;
+import de.matthiasmann.twl.*;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.List;
+import java.util.ArrayList;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -31,18 +44,6 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Matrix3f;
-import org.lwjgl.util.Color;
-import org.lwjgl.Sys;
-
-import java.io.File;
-import java.io.PrintStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.List;
-import java.util.ArrayList;
 
 public class Voxicity
 {
@@ -72,6 +73,7 @@ public class Voxicity
 	Client client;
 	Config config;
 	Arguments args;
+	LWJGLRenderer gui_renderer;
 
 	public Voxicity( Arguments args )
 	{
@@ -107,7 +109,6 @@ public class Voxicity
 
 			TextRenderer.init();
 
-			Mouse.setGrabbed( true );
 
 			System.out.println( "Setting up OpenGL states" );
 			GL11.glShadeModel( GL11.GL_SMOOTH );
@@ -118,9 +119,6 @@ public class Voxicity
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glClearColor( 126.0f / 255.0f, 169.0f / 255.0f, 254.0f / 255.0f, 1.0f );
 
-			System.out.println( "Checking for GL_TEXTURE_2D_ARRAY_EXT: " + GLContext.getCapabilities().GL_EXT_texture_array );
-			GL11.glEnable( EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT );
-
 			System.out.println( "Number of texture units: " + GL11.glGetInteger( GL13.GL_MAX_TEXTURE_UNITS ) );
 			System.out.println( "Number of image texture units: " + GL11.glGetInteger( GL20.GL_MAX_TEXTURE_IMAGE_UNITS ) );
 			System.out.println( "Number of vertex texture units: " + GL11.glGetInteger( GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS ) );
@@ -128,42 +126,77 @@ public class Voxicity
 
 			try
 			{
-				Socket client_s = new Socket( "culex.no-ip.org", 11000 );
+				gui_renderer = new LWJGLRenderer();
+				LoginGUI login_gui = new LoginGUI();
+				ThemeManager theme = ThemeManager.createThemeManager( Voxicity.class.getResource( "/login.xml" ), gui_renderer );
+				GUI gui = new GUI( login_gui, gui_renderer );
+				gui.applyTheme( theme );
+
+				while ( !login_gui.is_login_pressed() )
+				{
+					GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
+					gui.update();
+					Display.update();
+
+					if ( Display.isCloseRequested() )
+					{
+						Display.destroy();
+						System.exit( 0 );
+					}
+				}
+
+				Mouse.setGrabbed( true );
+
+				Socket client_s = new Socket( login_gui.get_server_name(), 11000 );
 				client = new Client( config, new NetworkConnection( client_s ) );
+
+				load_texture_pack();
+
+				last_fps_update = Time.get_time_ms();
+				get_time_delta();
+
+				client.init();
+				camera = client.player.pos;
+
+				setup_camera();
+
+				while ( !is_close_requested )
+				{
+					System.out.println( "Update at " + Time.get_time_µs() );
+					client.update();
+					update( get_time_delta() / 1000.0f, client.world );
+					System.out.println( "Load new chunks at " + Time.get_time_µs() );
+					System.out.println( "Render at " + Time.get_time_µs() );
+					client.renderer.render();
+					System.out.println( "Loop done" );
+
+					is_close_requested |= Display.isCloseRequested();
+				}
+
+				client.shutdown();
+				System.out.println( "Destroying display" );
+				Display.destroy();
+			}
+
+			// Catch exceptions from the game init and main game-loop
+
+			catch ( LWJGLException e )
+			{
+				System.out.println( e );
+				e.printStackTrace();
+				System.exit(1);
+			}
+			catch ( IOException e )
+			{
+				System.out.println( e );
+				e.printStackTrace();
+				System.exit(1);
 			}
 			catch ( Exception e )
 			{
 				System.out.println( e );
 				e.printStackTrace();
 			}
-
-
-			load_texture_pack();
-
-			last_fps_update = Time.get_time_ms();
-			get_time_delta();
-
-			client.init();
-			camera = client.player.pos;
-
-			setup_camera();
-
-			while ( !is_close_requested )
-			{
-				System.out.println( "Update at " + Time.get_time_µs() );
-				client.update();
-				update( get_time_delta() / 1000.0f, client.world );
-				System.out.println( "Load new chunks at " + Time.get_time_µs() );
-				System.out.println( "Render at " + Time.get_time_µs() );
-				client.renderer.render();
-				System.out.println( "Loop done" );
-
-				is_close_requested |= Display.isCloseRequested();
-			}
-
-			client.shutdown();
-			System.out.println( "Destroying display" );
-			Display.destroy();
 		}
 		else
 		{
