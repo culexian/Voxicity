@@ -2,7 +2,7 @@
 <themes>
 	<include filename="cursors.xml"/>
 
-	<images file="logo.png" format="RGB" filter="linear">
+	<images file="logo.png">
 		<area name="background-image" xywh="0,0,1200,700"/>
 	</images>
 
