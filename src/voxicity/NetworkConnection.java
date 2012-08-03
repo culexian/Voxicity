@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
-public class NetworkConnection extends Connection implements Runnable
+public class NetworkConnection extends Connection
 {
 	// To be set to the socket's input stream
 	DataInputStream in;
@@ -37,6 +37,9 @@ public class NetworkConnection extends Connection implements Runnable
 	// The network socket
 	Socket s;
 
+	Thread sender;
+	Thread receiver;
+
 	// Connection is constructed with a socket that's already been prepared
 	public NetworkConnection( Socket s ) throws IOException
 	{
@@ -44,8 +47,70 @@ public class NetworkConnection extends Connection implements Runnable
 		this.in = new DataInputStream( new BufferedInputStream( s.getInputStream() ) );
 		this.out = new DataOutputStream( s.getOutputStream() );
 
-		// Start the thread that traffics packets into/out of the socket
-		new Thread( this ).start();
+		// Start the threads that send/receive packets in/out of the socket
+		start_receive_thread();
+		start_send_thread();
+	}
+
+	void start_receive_thread()
+	{
+		Runnable receiver = new Runnable()
+		{
+			public void run()
+			{
+				try
+				{
+					while ( true )
+					{
+						int id = in.readInt();
+						int length = in.readInt();
+						byte[] data = new byte[length];
+
+						in.readFully( data, 0, length );
+						ByteBuffer buf = ByteBuffer.wrap( data );
+						incoming.put( PacketFactory.create( id, buf ) );
+					}
+				}
+				catch ( Exception e )
+				{
+					close();
+				}
+			}
+		};
+
+		this.receiver = new Thread( receiver );
+		this.receiver.start();
+		this.receiver.setName( "Socket receiver thread - " + s.getInetAddress() );
+	}
+
+	void start_send_thread()
+	{
+		Runnable sender = new Runnable()
+		{
+			public void run()
+			{
+				try
+				{
+					while ( true )
+					{
+						Packet p = outgoing.take();
+						ByteBuffer buf = p.serialize();
+
+						out.writeInt( p.get_id() );
+						out.writeInt( buf.limit() );
+						out.write( buf.array() );
+					}
+				}
+				catch ( Exception e )
+				{
+					close();
+				}
+			}
+		};
+
+		this.sender = new Thread( sender );
+		this.sender.start();
+		this.sender.setName( "Socket sender thread - " + s.getInetAddress() );
 	}
 
 	public void close()
@@ -53,6 +118,8 @@ public class NetworkConnection extends Connection implements Runnable
 		try
 		{
 			s.close();
+			sender.interrupt();
+			receiver.interrupt();
 		}
 		catch ( IOException e )
 		{
@@ -61,7 +128,7 @@ public class NetworkConnection extends Connection implements Runnable
 		}
 	}
 
-	public boolean closed()
+	public boolean is_closed()
 	{
 		return s.isClosed();
 	}
@@ -75,72 +142,6 @@ public class NetworkConnection extends Connection implements Runnable
 			out.flush();
 		}
 		catch ( IOException e )
-		{
-			System.out.println( e );
-			e.printStackTrace();
-		}
-	}
-
-	public void run()
-	{
-		try
-		{
-			while( !s.isClosed() )
-			{
-				// If there's a packet id and packet size in the stream, start getting the packet
-				if ( in.available() >= 8 )
-				{
-					// Mark the position in case the packet isn't done sending
-					in.mark( Integer.MAX_VALUE );
-
-					// Get the packet id
-					int id = in.readInt();
-
-					// Get the packet size
-					int size = in.readInt();
-
-					// Not enough data in the stream yet
-					if ( in.available() < size )
-					{
-						// Reset back to the mark we just made
-						in.reset();
-					}
-					else // The whole packet has arrived
-					{
-						byte[] data = new byte[size];
-						in.read( data, 0, size );
-
-						// Create the packet and put in the incoming queue
-						incoming.put( PacketFactory.create( id, data ) );
-					}
-				}
-
-				// Get and remove the next packet from the outgoing queue
-				Packet p = outgoing.poll();
-
-				// If a packet is to be sent
-				if ( p != null )
-				{
-					// Serialize the packet data
-					ByteBuffer buf = p.serialize();
-
-					// Write the packet id
-					out.writeInt( p.get_id() );
-
-					// Write the length of this packet in bytes
-					out.writeInt( buf.limit() );
-
-					// Write the serialized packet to the socket
-					out.write( buf.array() );
-				}
-			}
-		}
-		catch ( IOException e )
-		{
-			System.out.println( e );
-			e.printStackTrace();
-		}
-		catch ( InterruptedException e )
 		{
 			System.out.println( e );
 			e.printStackTrace();

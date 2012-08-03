@@ -32,7 +32,8 @@ public class Connection
 	{
 		try
 		{
-			outgoing.put( packet );
+			if ( !is_closed() )
+				outgoing.put( packet );
 		}
 		catch ( Exception e )
 		{
@@ -43,7 +44,10 @@ public class Connection
 
 	public Packet recieve()
 	{
-		return incoming.poll();
+		if ( !is_closed() )
+			return incoming.poll();
+		else
+			return null;
 	}
 
 	public void close()
@@ -51,7 +55,7 @@ public class Connection
 
 	}
 
-	public boolean closed()
+	public boolean is_closed()
 	{
 		return false;
 	}

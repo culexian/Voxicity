@@ -28,6 +28,8 @@ public class Server implements Runnable
 {
 	boolean quitting = false;
 
+	long last_tick_start;
+
 	Config config;
 	ChunkServer chunk_server = new ChunkServer();
 	Listener listener;
@@ -72,12 +74,31 @@ public class Server implements Runnable
 
 	void update()
 	{
+		tick_delay();
 		handle_new_connections();
 		handle_packets();
 		handle_connection_keepalive();
 		remove_closed_connections();
 		load_new_chunks();
 		handle_chunk_requests();
+	}
+
+	void tick_delay()
+	{
+		
+		long delta = last_tick_start + 50 - Time.get_time_ms();
+
+		if ( delta > 0 )
+		try
+		{
+			Thread.currentThread().sleep( delta );
+		}
+		catch ( InterruptedException e )
+		{
+
+		}
+
+		last_tick_start = Time.get_time_ms();
 	}
 
 	public void quit()
@@ -142,7 +163,7 @@ public class Server implements Runnable
 				info.awaiting_update = true;
 				c.send( new KeepAlivePacket( info.get_update_id() ) );
 			} // Connection has timed out, close it
-			else if ( info.awaiting_update && update_delta > 10000 )
+			else if ( info.awaiting_update && update_delta > 10000 || c.is_closed() )
 			{
 				closing_queue.add( c );
 			}
@@ -155,8 +176,11 @@ public class Server implements Runnable
 	{
 		for ( Connection c : closing_queue )
 		{
-			c.send( new DisconnectPacket() );
-			c.wait_send();
+			if ( !c.is_closed() )
+			{
+				c.send( new DisconnectPacket() );
+				c.wait_send();
+			}
 			c.close();
 			remove_connection( c );
 		}
