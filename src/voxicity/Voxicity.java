@@ -107,9 +107,6 @@ public class Voxicity
 				System.exit(0);
 			}
 
-			TextRenderer.init();
-
-
 			System.out.println( "Setting up OpenGL states" );
 			GL11.glShadeModel( GL11.GL_SMOOTH );
 			GL11.glEnable( GL11.GL_DEPTH_TEST );
@@ -166,8 +163,14 @@ public class Voxicity
 					client.update();
 					update( get_time_delta() / 1000.0f, client.world );
 					System.out.println( "Load new chunks at " + Time.get_time_µs() );
+					client.hud.set_fps( fps );
+					client.hud.set_loc( client.player.pos );
+					client.hud.set_chunks( client.renderer.draw_calls, client.renderer.chunks.size(), client.renderer.batch_draw_calls );
+					client.hud.set_quads( client.renderer.quads );
 					System.out.println( "Render at " + Time.get_time_µs() );
 					client.renderer.render();
+					client.hud.render();
+					Display.update();
 					System.out.println( "Loop done" );
 
 					is_close_requested |= Display.isCloseRequested();
@@ -331,7 +334,7 @@ public class Voxicity
 			fps = fps_count * 4;
 			fps_count = 0;
 			last_fps_update += 250;
-			Display.setTitle( "Voxicity - FPS: " + fps );
+			//Display.setTitle( "Voxicity - FPS: " + fps );
 		}
 		fps_count++;
 	}

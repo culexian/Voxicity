@@ -29,6 +29,7 @@ public class Client
 	Renderer renderer;
 	World world;
 	Player player = new Player();
+	HUD hud;
 
 	BackgroundTask chunk_requester;
 
@@ -39,6 +40,7 @@ public class Client
 		this.world = new World( config );
 		this.renderer = new Renderer( config );
 		this.chunk_requester = new ChunkRequester( player, world, connection );
+		this.hud = new HUD();
 	}
 
 	public void init()

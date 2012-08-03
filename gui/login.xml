@@ -3,7 +3,7 @@
 	<include filename="cursors.xml"/>
 
 	<images file="logo.png">
-		<area name="background-image" xywh="0,0,1200,700"/>
+		<area name="background-image" xywh="*"/>
 	</images>
 
 	<images file="frame.png">

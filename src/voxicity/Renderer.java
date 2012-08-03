@@ -81,20 +81,6 @@ public class Renderer
 
 		System.out.println( "After render " + Time.get_time_µs() );
 
-		TextRenderer.draw( "FPS: " + Integer.toString( Voxicity.fps), 5, 5 + TextRenderer.line_height() * 0 );
-		TextRenderer.draw( "X: " + Float.toString(camera.pos.x), 5, 5 + TextRenderer.line_height() * 1 );
-		TextRenderer.draw( "Y: " + Float.toString(camera.pos.y), 5, 5 + TextRenderer.line_height() * 2 );
-		TextRenderer.draw( "Z: " + Float.toString(camera.pos.z), 5, 5 + TextRenderer.line_height() * 3 );
-		TextRenderer.draw( "Verts: " + Integer.toString(quads * 4), 5, 5 + TextRenderer.line_height() * 4 );
-		TextRenderer.draw( "Tris: " + Integer.toString(quads * 2), 5, 5 + TextRenderer.line_height() * 5 );
-		TextRenderer.draw( "Render chunks: " + Integer.toString(draw_calls) + "/" + chunks.size(), 5, 5 + TextRenderer.line_height() * 6 );
-		TextRenderer.draw( "Render batches: " + Integer.toString(batch_draw_calls), 5, 5 + TextRenderer.line_height() * 7 );
-
-		int[] chunk = Coord.GlobalToChunk( Math.round( camera.pos.x), Math.round( camera.pos.y ), Math.round( camera.pos.z ) );
-
-		TextRenderer.draw( "Chunk X Y Z: " + chunk[0] + " " + chunk[1] + " " + chunk[2], 5, 5 + TextRenderer.line_height() * 8 );
-
-		Display.update();
 		cleaned_one = false;
 	}
 }
