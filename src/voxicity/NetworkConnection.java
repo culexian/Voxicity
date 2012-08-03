@@ -78,9 +78,8 @@ public class NetworkConnection extends Connection
 			}
 		};
 
-		this.receiver = new Thread( receiver );
+		this.receiver = new Thread( receiver, "Socket receiver thread - " + s.getInetAddress() );
 		this.receiver.start();
-		this.receiver.setName( "Socket receiver thread - " + s.getInetAddress() );
 	}
 
 	void start_send_thread()
@@ -108,9 +107,8 @@ public class NetworkConnection extends Connection
 			}
 		};
 
-		this.sender = new Thread( sender );
+		this.sender = new Thread( sender, "Socket sender thread - " + s.getInetAddress() );
 		this.sender.start();
-		this.sender.setName( "Socket sender thread - " + s.getInetAddress() );
 	}
 
 	public void close()
