@@ -54,6 +54,17 @@ public class Chunk
 		blocks.load( buf );
 	}
 
+	public Chunk( java.io.DataInputStream in ) throws java.io.IOException
+	{
+		x = in.readInt();
+		y = in.readInt();
+		z = in.readInt();
+
+		write_timestamp = in.readLong();
+
+		blocks.load( in );
+	}
+
 	public int hashCode()
 	{
 		return x ^ y ^ z;
@@ -194,6 +205,18 @@ public class Chunk
 
 		// Return the serialized chunk
 		return buf;
+	}
+
+	public void serialize( java.io.DataOutputStream out ) throws java.io.Exception
+	{
+		// Write the coords and timestamp to the stream
+		out.writeInt( x );
+		out.writeInt( y );
+		out.writeInt( z );
+		out.writeLong( write_timestamp );
+
+		// Write the blocks to the stream
+		blocks.serialize( out );
 	}
 }
 

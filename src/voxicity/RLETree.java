@@ -20,7 +20,6 @@
 package voxicity;
 
 import java.nio.ByteBuffer;
-import java.io.DataOutputStream;
 
 public class RLETree
 {
@@ -658,7 +657,7 @@ public class RLETree
 		return buf;
 	}
 
-	synchronized DataOutputStream serialize( DataOutputStream out ) throws java.io.IOException
+	synchronized void serialize( java.io.DataOutputStream out ) throws java.io.IOException
 	{
 		// Write the size of this variable length list
 		out.writeInt( 2 * Integer.SIZE * size );
@@ -671,8 +670,5 @@ public class RLETree
 			out.writeInt( cur.data );
 			cur = cur.next;
 		}
-
-		// Return the stream for chaining
-		return out;
 	}
 }
