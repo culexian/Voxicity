@@ -20,6 +20,7 @@
 package voxicity;
 
 import java.nio.ByteBuffer;
+import java.io.DataOutputStream;
 
 public class RLETree
 {
@@ -45,27 +46,47 @@ public class RLETree
 		}
 	}
 
-	Node head;
-	Node root;
-
-	public RLETree()
-	{
-		head = new Node( 0, 0 );
-		root = head;
-	}
+	Node head = new Node( 0, 0 );
+	Node root = head;
+	int size = 1;
 
 	public synchronized void load( ByteBuffer buf )
 	{
+		int remaining = buf.getInt();
+
 		Node tail = new Node( buf.getInt(), buf.getInt() );
 		head = tail;
 		root = tail;
-		
-		while( buf.remaining() != 0 )
+
+		remaining -= 2 * Integer.SIZE;
+
+		while( remaining != 0 )
 		{
 			Node a = new Node( buf.getInt(), buf.getInt() );
 			list_insert_after( a, tail );
 			root = tree_insert( root, a );
 			tail = a;
+			remaining -= 2 * Integer.SIZE;
+		}
+	}
+
+	public synchronized void load( java.io.DataInputStream in ) throws java.io.IOException
+	{
+		int remaining = in.readInt();
+
+		Node tail = new Node( in.readInt(), in.readInt() );
+		head = tail;
+		root = tail;
+
+		remaining -= 2 * Integer.SIZE;
+
+		while( remaining != 0 )
+		{
+			Node a = new Node( in.readInt(), in.readInt() );
+			list_insert_after( a, tail );
+			root = tree_insert( root, a );
+			tail = a;
+			remaining -= 2 * Integer.SIZE;
 		}
 	}
 
@@ -234,6 +255,9 @@ public class RLETree
 			a.next = b;
 			b.prev = a;
 		}
+
+		// Increase the size of the list
+		size++;
 	}
 
 	// Insert Node a after Node b in the linked list
@@ -267,6 +291,9 @@ public class RLETree
 			a.prev = b;
 			b.next = a;
 		}
+
+		// Increase the size of the list
+		size++;
 	}
 
 	// Removes a Node from the linked list
@@ -296,6 +323,9 @@ public class RLETree
 			n.prev.next = n.next;
 			n.next.prev = n.prev;
 		}
+
+		// Decrease the list size
+		size--;
 	}
 
 	// Try to collapse Node n in both directions
@@ -608,21 +638,14 @@ public class RLETree
 
 	synchronized ByteBuffer serialize()
 	{
-		// Find out how long the list of runs is
-		Node cur = head;
-		int length = 0;
-		while ( cur != null )
-		{
-			cur = cur.next;
-			length++;
-		}
+		// Allocate a buffer with space for an int and the rest of the list
+		ByteBuffer buf = ByteBuffer.allocate( Integer.SIZE + 2 * Integer.SIZE * size );
 
-		// Each run is 2 ints = 2 * int_size * length
-		int int_size = 4;
-		ByteBuffer buf = ByteBuffer.allocate( 2 * int_size * length );
+		// Each run is 2 ints = 2 * Integer.SIZE
+		buf.putInt( 2 * Integer.SIZE * size );
 
 		// Iterate over the runs and write them to the bufer
-		cur = head;
+		Node cur = head;
 		while ( cur != null )
 		{
 			buf.putInt( cur.pos );
@@ -633,5 +656,23 @@ public class RLETree
 		buf.rewind();
 
 		return buf;
+	}
+
+	synchronized DataOutputStream serialize( DataOutputStream out ) throws java.io.IOException
+	{
+		// Write the size of this variable length list
+		out.writeInt( 2 * Integer.SIZE * size );
+
+		// Iterate over the runs and write them to the buffer
+		Node cur = head;
+		while ( cur != null )
+		{
+			out.writeInt( cur.pos );
+			out.writeInt( cur.data );
+			cur = cur.next;
+		}
+
+		// Return the stream for chaining
+		return out;
 	}
 }
