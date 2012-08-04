@@ -75,7 +75,7 @@ public class BlockLoc
 		world.set_block( x, y, z, id );
 	}
 
-	public BlockLoc get( Constants.Direction dir )
+	public BlockLoc get( Direction dir )
 	{
 		switch ( dir )
 		{

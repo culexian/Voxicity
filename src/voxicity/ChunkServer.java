@@ -19,7 +19,6 @@
 
 package voxicity;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ChunkServer implements Runnable
@@ -74,13 +73,15 @@ public class ChunkServer implements Runnable
 		}
 	}
 
+	// Adds a new chunk request to the queue
 	public void request_chunk( ChunkID id )
 	{
+		// Try adding the given ChunkID to the queue
 		try
 		{
 			incoming_requests.put( id );
 		}
-		catch ( InterruptedException e )
+		catch ( Exception e )
 		{
 
 		}

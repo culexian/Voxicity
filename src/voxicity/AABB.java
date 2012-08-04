@@ -77,14 +77,14 @@ public class AABB
 		return Float.POSITIVE_INFINITY;
 	}
 
-	public Constants.Direction collision_side( final Vector3f start, final Vector3f length )
+	public Direction collision_side( final Vector3f start, final Vector3f length )
 	{
 		float nearest_distance = Float.POSITIVE_INFINITY;
-		Constants.Direction nearest_dir = Constants.Direction.None;
+		Direction nearest_dir = Direction.None;
 
 		Vector3f dir_normal = length.normalise( null );
 
-		for ( Constants.Direction dir : Constants.Direction.values() )
+		for ( Direction dir : Direction.values() )
 		{
 			float distance = collision_side_distance( start, dir_normal, dir );
 
@@ -128,9 +128,9 @@ public class AABB
 		return nearest_dir;
 	}
 
-	public float collision_side_distance( final Vector3f start, final Vector3f length, Constants.Direction dir )
+	public float collision_side_distance( final Vector3f start, final Vector3f length, Direction dir )
 	{
-		if ( ( dir == Constants.Direction.All ) || ( dir == Constants.Direction.None ) )
+		if ( ( dir == Direction.All ) || ( dir == Direction.None ) )
 			return Float.POSITIVE_INFINITY;
 
 		float distance = Float.POSITIVE_INFINITY;

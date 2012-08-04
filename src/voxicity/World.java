@@ -72,23 +72,23 @@ public class World
 
 	synchronized void mark_neighbors( ChunkID id )
 	{
-		if ( is_chunk_loaded( id.get( Constants.Direction.West ) ) )
-			get_chunk( id.get( Constants.Direction.West ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Direction.West ) ) )
+			get_chunk( id.get( Direction.West ) ).update_timestamp();
 
-		if ( is_chunk_loaded( id.get( Constants.Direction.East ) ) )
-			get_chunk( id.get( Constants.Direction.East ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Direction.East ) ) )
+			get_chunk( id.get( Direction.East ) ).update_timestamp();
 
-		if ( is_chunk_loaded( id.get( Constants.Direction.North ) ) )
-			get_chunk( id.get( Constants.Direction.North ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Direction.North ) ) )
+			get_chunk( id.get( Direction.North ) ).update_timestamp();
 
-		if ( is_chunk_loaded( id.get( Constants.Direction.South ) ) )
-			get_chunk( id.get( Constants.Direction.South ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Direction.South ) ) )
+			get_chunk( id.get( Direction.South ) ).update_timestamp();
 
-		if ( is_chunk_loaded( id.get( Constants.Direction.Up ) ) )
-			get_chunk( id.get( Constants.Direction.Up ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Direction.Up ) ) )
+			get_chunk( id.get( Direction.Up ) ).update_timestamp();
 
-		if ( is_chunk_loaded( id.get( Constants.Direction.Down ) ) )
-			get_chunk( id.get( Constants.Direction.Down ) ).update_timestamp();
+		if ( is_chunk_loaded( id.get( Direction.Down ) ) )
+			get_chunk( id.get( Direction.Down ) ).update_timestamp();
 	}
 
 	public int get_block( int x, int y, int z )

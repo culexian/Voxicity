@@ -80,7 +80,6 @@ public class Server implements Runnable
 		handle_packets();
 		handle_connection_keepalive();
 		remove_closed_connections();
-//		load_new_chunks();
 		handle_chunk_requests();
 	}
 
@@ -274,7 +273,7 @@ public class Server implements Runnable
 		}
 	}
 
-	void player_use_action( int x, int y, int z, Constants.Direction dir, Player player )
+	void player_use_action( int x, int y, int z, Direction dir, Player player )
 	{
 		System.out.println( "Processing player use action for " + x + " " + y + " " + z + " " + dir + " " + player );
 		BlockLoc loc = new BlockLoc( x, y, z, world ).get( dir );

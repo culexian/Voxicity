@@ -67,7 +67,7 @@ public class ChunkID
 		return x ^ y ^ z;
 	}
 
-	public ChunkID get( Constants.Direction d )
+	public ChunkID get( Direction d )
 	{
 		switch ( d )
 		{

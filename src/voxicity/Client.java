@@ -123,7 +123,7 @@ public class Client
 		connection.send( new PlayerMovePacket( player.pos ) );
 	}
 
-	void tell_use_action( BlockLoc loc, Constants.Direction dir )
+	void tell_use_action( BlockLoc loc, Direction dir )
 	{
 		connection.send( new UseActionPacket( loc, dir ) );
 	}

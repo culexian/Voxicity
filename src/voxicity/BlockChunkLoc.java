@@ -44,7 +44,7 @@ public class BlockChunkLoc
 		return chunk.get_block( x, y, z );
 	}
 
-	public BlockChunkLoc get( Constants.Direction dir )
+	public BlockChunkLoc get( Direction dir )
 	{
 		switch ( dir )
 		{

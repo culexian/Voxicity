@@ -50,14 +50,8 @@ public class Constants
 		};
 	}
 
-	public enum Direction
-	{
-		North, East, South, West, Up, Down, All, None
-	}
-
 	public static class Packet
 	{
-
 		public static final int
 			LoadChunk = 0,
 			RequestChunk = 1,
@@ -69,10 +63,5 @@ public class Constants
 			Disconnect = 7,
 			KeepAlive = 8
 			;
-	}
-
-	public static int dir_to_int( Constants.Direction dir )
-	{
-		return dir.ordinal();
 	}
 }

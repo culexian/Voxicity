@@ -19,44 +19,14 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
-public class UseActionPacket implements Packet
+public enum Direction
 {
-	int x;
-	int y;
-	int z;
+	East( 0 ), West( 1 ), North( 2 ), South( 3 ), Up( 4 ), Down( 5 ), All( 6 ), None( 7 );
 
-	Direction dir;
+	public final int num;
 
-	public UseActionPacket( BlockLoc loc, Direction dir )
+	private Direction( int num )
 	{
-		this.x = loc.x;
-		this.y = loc.y;
-		this.z = loc.z;
-		this.dir = dir;
-	}
-
-	public UseActionPacket( ByteBuffer buf )
-	{
-		x = buf.getInt();
-		y = buf.getInt();
-		z = buf.getInt();
-		dir = Direction.values()[buf.getInt()];
-	}
-
-	public int get_id()
-	{
-		return Constants.Packet.UseAction;
-	}
-
-	public ByteBuffer serialize()
-	{
-		ByteBuffer buf = ByteBuffer.allocate( 4 * 4 );
-		buf.putInt( x ).putInt( y ).putInt( z ).putInt( dir.num );
-
-		buf.rewind();
-
-		return buf;
+		this.num = num;
 	}
 }

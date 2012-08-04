@@ -426,7 +426,7 @@ public class ChunkNode
 
 	boolean cull( BlockChunkLoc loc )
 	{
-		for ( Constants.Direction dir : Constants.Direction.values() )
+		for ( Direction dir : Direction.values() )
 		{
 			if ( loc.get( dir ).get() == Constants.Blocks.air )
 				return false;
@@ -439,7 +439,7 @@ public class ChunkNode
 	{
 		BlockLoc world_loc = new BlockLoc( loc );
 
-		for ( Constants.Direction dir : Constants.Direction.values() )
+		for ( Direction dir : Direction.values() )
 		{
 			BlockLoc dir_loc = world_loc.get( dir );
 
