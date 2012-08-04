@@ -159,10 +159,6 @@ public class Chunk
 				}
 			}
 		}
-
-		System.out.println( blocks );
-		System.out.println( Arrays.toString( blocks.serialize().array() ) );
-		System.out.println( Arrays.toString( this.serialize().array() ) );
 		long end = System.nanoTime();
 	}
 
