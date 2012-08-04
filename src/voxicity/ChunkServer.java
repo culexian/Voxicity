@@ -19,122 +19,70 @@
 
 package voxicity;
 
-import java.util.List;
-import java.util.LinkedList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.lwjgl.util.vector.Vector3f;
-
-public class ChunkServer
+public class ChunkServer implements Runnable
 {
-	// List of loaders being processed or done
-	LinkedList<Loader> loading = new LinkedList<Loader>();
+	// The thread running this object
+	Thread thread;
 
-	// List of Loaders to be processed
-	LinkedList<Loader> queue = new LinkedList<Loader>();
+	// The world to supply finished chunks to
+	World world;
 
-	// Comparator for sorting queue
-	java.util.Comparator< Loader > comp = new java.util.Comparator<Loader>()
+	// The queue of incoming requests for chunk serving
+	LinkedBlockingQueue<ChunkID> incoming_requests = new LinkedBlockingQueue<ChunkID>();
+
+	public ChunkServer( World world )
 	{
-		public int compare( Loader o1, Loader o2 )
-		{
-			if ( o1.shortest_dist() < o2.shortest_dist() )
-				return -1;
-			else
-				return 1;
-		}
-	};
+		if ( world == null )
+			throw new NullPointerException( "Argument world is null" );
 
-	// Service for async chunk loading
-	ExecutorService executor = Executors.newSingleThreadExecutor();
+		this.world = world;
 
-	private class Loader implements Runnable
+		// Start this chunk serving thread
+		thread = new Thread( this, "Chunk Server" );
+		thread.start();
+	}
+
+	public void quit()
 	{
-		public final ChunkID id;
-		List< Player > players = new LinkedList< Player >();
-		Chunk result;
+		thread.interrupt();
+	}
 
-		public Loader( ChunkID id, Player p )
+	public void run()
+	{
+		try
 		{
-			this.id = new ChunkID( id );
-			add_player( p );
+			while ( true )
+			{
+				// Try to get a new request
+				ChunkID id = incoming_requests.take();
+
+				// Don't get a chunk that's already loaded
+				if ( world.is_chunk_loaded( id ) )
+					continue;
+
+				Chunk c = new Chunk( id );
+
+				world.set_chunk( id.x, id.y, id.z, c );
+			}
 		}
-
-		public void add_player( Player player )
+		catch ( InterruptedException e )
 		{
-			if ( !players.contains( player ) )
-				players.add( player );
-		}
 
-		public void run()
-		{
-			Chunk new_chunk = new Chunk( id );
-			result = new_chunk;
-			Thread.currentThread().yield();
-		}
-
-		public float shortest_dist()
-		{
-			float dist = Float.POSITIVE_INFINITY;
-
-			for ( Player p : players )
-				dist = Math.min( dist, Vector3f.sub( id.coords(), p.pos, null ).lengthSquared() );
-
-			return dist;
-		}
-
-		public Chunk result()
-		{
-			return result;
 		}
 	}
 
-	public void load_chunk( ChunkID id, Player player )
+	public void request_chunk( ChunkID id )
 	{
-		Loader loader = chunk_queued( id );
-
-		if ( loader != null )
-			loader.add_player( player );
-		else
+		try
 		{
-			queue.add( new Loader( id, player ) );
-			java.util.Collections.sort( queue, comp );
+			incoming_requests.put( id );
 		}
-	}
-
-	public Chunk get_next_chunk()
-	{
-		if( !queue.isEmpty() )
+		catch ( InterruptedException e )
 		{
-			java.util.Collections.sort( queue, comp );
-			Loader loader = queue.poll();
-			loading.add( loader );
-			executor.execute( loader );
+
 		}
-
-		if ( loading.isEmpty() || loading.peek().result() == null )
-			return null;
-		else
-			return loading.poll().result();
-	}
-
-	private Loader chunk_queued( ChunkID id )
-	{
-		for ( Loader loader : queue )
-			if ( loader.id.equals( id ) )
-				return loader;
-
-		for ( Loader loader : loading )
-			if ( loader.id.equals( id ) )
-				return loader;
-
-		return null;
-	}
-
-	public void shutdown()
-	{
-		executor.shutdownNow();
 	}
 }

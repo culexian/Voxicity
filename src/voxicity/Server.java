@@ -31,7 +31,7 @@ public class Server implements Runnable
 	long last_tick_start;
 
 	Config config;
-	ChunkServer chunk_server = new ChunkServer();
+	ChunkServer chunk_server;
 	Listener listener;
 	World world;
 
@@ -46,6 +46,7 @@ public class Server implements Runnable
 	{
 		this.config = config;
 		this.world = new World( config );
+		this.chunk_server = new ChunkServer( world );
 	}
 
 	void init()
@@ -79,7 +80,7 @@ public class Server implements Runnable
 		handle_packets();
 		handle_connection_keepalive();
 		remove_closed_connections();
-		load_new_chunks();
+//		load_new_chunks();
 		handle_chunk_requests();
 	}
 
@@ -113,7 +114,7 @@ public class Server implements Runnable
 			listener.quit();
 
 		if ( chunk_server != null )
-			chunk_server.shutdown();
+			chunk_server.quit();
 
 		for ( Connection c : player_to_connection.values() )
 		{
@@ -203,25 +204,11 @@ public class Server implements Runnable
 		served_chunks.remove( p );
 	}
 
-	public void load_new_chunks()
-	{
-		Chunk new_chunk = chunk_server.get_next_chunk();
-
-		if ( new_chunk == null )
-			return;
-
-		new_chunk.world = world;
-		world.set_chunk( new_chunk.x, new_chunk.y, new_chunk.z, new_chunk );
-
-		for ( Connection c : connection_to_player.keySet() )
-			c.send( new LoadChunkPacket( new_chunk ) );
-	}
-
 	public void load_chunk( int x, int y, int z, Player p )
 	{
 		if ( world.is_chunk_loaded( x, y, z ) ) return;
 
-		chunk_server.load_chunk( new ChunkID( x, y, z ), p );
+		chunk_server.request_chunk( new ChunkID( x, y, z ) );
 	}
 
 	public void load_chunk( float x, float y, float z, Player p )

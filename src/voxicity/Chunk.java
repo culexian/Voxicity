@@ -32,17 +32,6 @@ public class Chunk
 
 	RLETree blocks = new RLETree();
 
-	public Chunk( int x, int y, int z )
-	{
-		this.x = x * Constants.Chunk.side_length;
-		this.y = y * Constants.Chunk.side_length;
-		this.z = z * Constants.Chunk.side_length;
-
-		System.out.println( "Created chunk at " + x + " " + y + " " + z );
-
-		generate_blocks();
-	}
-
 	public Chunk( ChunkID id )
 	{
 		this.x = id.x;
