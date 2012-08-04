@@ -24,7 +24,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 
 public class NetworkConnection extends Connection
 {
@@ -67,8 +66,8 @@ public class NetworkConnection extends Connection
 						byte[] data = new byte[length];
 
 						in.readFully( data, 0, length );
-						ByteBuffer buf = ByteBuffer.wrap( data );
-						incoming.put( PacketFactory.create( id, buf ) );
+						java.io.ByteArrayInputStream buf = new java.io.ByteArrayInputStream( data );
+						incoming.put( PacketFactory.create( id, new DataInputStream( buf ) ) );
 					}
 				}
 				catch ( Exception e )
@@ -93,11 +92,12 @@ public class NetworkConnection extends Connection
 					while ( true )
 					{
 						Packet p = outgoing.take();
-						ByteBuffer buf = p.serialize();
+						java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream();
+						p.serialize( new DataOutputStream( buf ) );
 
 						out.writeInt( p.get_id() );
-						out.writeInt( buf.limit() );
-						out.write( buf.array() );
+						out.writeInt( buf.size() );
+						buf.writeTo( out );
 					}
 				}
 				catch ( Exception e )

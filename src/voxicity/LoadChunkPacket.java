@@ -19,8 +19,6 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public class LoadChunkPacket implements Packet
 {
 	Chunk chunk;
@@ -30,9 +28,9 @@ public class LoadChunkPacket implements Packet
 		this.chunk = chunk;
 	}
 
-	public LoadChunkPacket( ByteBuffer buf )
+	public LoadChunkPacket( java.io.DataInputStream in ) throws java.io.IOException
 	{
-		chunk = new Chunk( buf );
+		this.chunk = new Chunk( in );
 	}
 
 	public int get_id()
@@ -40,15 +38,8 @@ public class LoadChunkPacket implements Packet
 		return Constants.Packet.LoadChunk;
 	}
 
-	public ByteBuffer serialize()
+	public void serialize( java.io.DataOutputStream out ) throws java.io.IOException
 	{
-		ByteBuffer chunk_ser = chunk.serialize();
-		ByteBuffer buf = ByteBuffer.allocate( chunk_ser.limit() );
-
-		buf.put( chunk_ser );
-
-		buf.rewind();
-
-		return buf;
+		chunk.serialize( out );
 	}
 }

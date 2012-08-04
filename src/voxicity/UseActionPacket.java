@@ -19,8 +19,6 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public class UseActionPacket implements Packet
 {
 	int x;
@@ -37,12 +35,12 @@ public class UseActionPacket implements Packet
 		this.dir = dir;
 	}
 
-	public UseActionPacket( ByteBuffer buf )
+	public UseActionPacket( java.io.DataInputStream in ) throws java.io.IOException
 	{
-		x = buf.getInt();
-		y = buf.getInt();
-		z = buf.getInt();
-		dir = Direction.values()[buf.getInt()];
+		x = in.readInt();
+		y = in.readInt();
+		z = in.readInt();
+		dir = Direction.values()[in.readInt()];
 	}
 
 	public int get_id()
@@ -50,13 +48,11 @@ public class UseActionPacket implements Packet
 		return Constants.Packet.UseAction;
 	}
 
-	public ByteBuffer serialize()
+	public void serialize( java.io.DataOutputStream out ) throws java.io.IOException
 	{
-		ByteBuffer buf = ByteBuffer.allocate( 4 * 4 );
-		buf.putInt( x ).putInt( y ).putInt( z ).putInt( dir.num );
-
-		buf.rewind();
-
-		return buf;
+		out.writeInt( x );
+		out.writeInt( y );
+		out.writeInt( z );
+		out.writeInt( dir.num );
 	}
 }

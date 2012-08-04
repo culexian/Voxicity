@@ -19,8 +19,6 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public class BlockUpdatePacket implements Packet
 {
 	int x;
@@ -36,12 +34,12 @@ public class BlockUpdatePacket implements Packet
 		this.id = id;
 	}
 
-	public BlockUpdatePacket( ByteBuffer buf )
+	public BlockUpdatePacket( java.io.DataInputStream in ) throws java.io.IOException
 	{
-		this.x = buf.getInt();
-		this.y = buf.getInt();
-		this.z = buf.getInt();
-		this.id = buf.getInt();
+		this.x = in.readInt();
+		this.y = in.readInt();
+		this.z = in.readInt();
+		this.id = in.readInt();
 	}
 
 	public int get_id()
@@ -49,14 +47,11 @@ public class BlockUpdatePacket implements Packet
 		return Constants.Packet.BlockUpdate;
 	}
 
-	public ByteBuffer serialize()
+	public void serialize( java.io.DataOutputStream out ) throws java.io.IOException
 	{
-		ByteBuffer buf = ByteBuffer.allocate( 4 * 4 );
-
-		buf.putInt( x ).putInt( y ).putInt( z ).putInt( id );
-
-		buf.rewind();
-
-		return buf;
-	};
+		out.writeInt( x );
+		out.writeInt( y );
+		out.writeInt( z );
+		out.writeInt( id );
+	}
 }

@@ -19,11 +19,9 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public interface Packet
 {
 	public int get_id();
 
-	public ByteBuffer serialize();
+	public void serialize( java.io.DataOutputStream out ) throws java.io.IOException;
 }

@@ -19,8 +19,6 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public class DisconnectPacket implements Packet
 {
 	public DisconnectPacket()
@@ -28,7 +26,7 @@ public class DisconnectPacket implements Packet
 
 	}
 
-	public DisconnectPacket( ByteBuffer buf )
+	public DisconnectPacket( java.io.DataInputStream in )
 	{
 
 	}
@@ -38,8 +36,8 @@ public class DisconnectPacket implements Packet
 		return Constants.Packet.Disconnect;
 	}
 
-	public ByteBuffer serialize()
+	public void serialize( java.io.DataOutputStream out )
 	{
-		return ByteBuffer.allocate( 0 );
+
 	}
 }

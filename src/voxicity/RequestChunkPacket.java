@@ -19,8 +19,6 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public class RequestChunkPacket implements Packet
 {
 	int x, y, z;
@@ -39,11 +37,11 @@ public class RequestChunkPacket implements Packet
 		this( Math.round( x ), Math.round( y ), Math.round( z ) );
 	}
 
-	public RequestChunkPacket( ByteBuffer buf )
+	public RequestChunkPacket( java.io.DataInputStream in ) throws java.io.IOException
 	{
-		x = buf.getInt();
-		y = buf.getInt();
-		z = buf.getInt();
+		x = in.readInt();
+		y = in.readInt();
+		z = in.readInt();
 	}
 
 	public int get_id()
@@ -51,15 +49,10 @@ public class RequestChunkPacket implements Packet
 		return Constants.Packet.RequestChunk;
 	}
 
-	// Serialize this with id, length and coords
-	public ByteBuffer serialize()
+	public void serialize( java.io.DataOutputStream out ) throws java.io.IOException
 	{
-		ByteBuffer buf = ByteBuffer.allocate( 3 * 4 );
-
-		buf.putInt( x ).putInt( y ).putInt( z );
-
-		buf.rewind();
-
-		return buf;
+		out.writeInt( x );
+		out.writeInt( y );
+		out.writeInt( z );
 	}
 }

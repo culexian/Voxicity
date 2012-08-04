@@ -19,8 +19,6 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public class ConnectionGlue implements Runnable
 {
 	Connection a, b;
@@ -56,14 +54,17 @@ public class ConnectionGlue implements Runnable
 				// Get the packet from the outgoing queue
 				Packet p = out.outgoing.take();
 
-				// Serialize the packet data
-				ByteBuffer buf = p.serialize();
-
 				// Get packet id
 				int id = p.get_id();
 
+				// Serialize the packet data
+				java.io.ByteArrayOutputStream out_buf_stream = new java.io.ByteArrayOutputStream();
+				p.serialize( new java.io.DataOutputStream( out_buf_stream ) );
+				byte[] buf = out_buf_stream.toByteArray();
+
 				// Deserialize the same packet data with the same id
-				Packet i = PacketFactory.create( id, buf );
+				java.io.ByteArrayInputStream in_buf_stream = new java.io.ByteArrayInputStream( buf );
+				Packet i = PacketFactory.create( id, new java.io.DataInputStream( in_buf_stream ) );
 
 				// Place the new packet on the incoming queue
 				in.incoming.put( i );

@@ -19,16 +19,9 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public class PacketFactory
 {
-	public static Packet create( int id, byte[] data )
-	{
-		return create( id, ByteBuffer.wrap( data ) );
-	}
-
-	public static Packet create( int id, ByteBuffer data )
+	public static Packet create( int id, java.io.DataInputStream data ) throws java.io.IOException
 	{
 		switch ( id )
 		{

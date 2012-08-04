@@ -20,8 +20,6 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public class HitActionPacket implements Packet
 {
 	int x;
@@ -35,11 +33,11 @@ public class HitActionPacket implements Packet
 		this.z = z;
 	}
 
-	public HitActionPacket( ByteBuffer data )
+	public HitActionPacket( java.io.DataInputStream in ) throws java.io.IOException
 	{
-		this.x = data.getInt();
-		this.y = data.getInt();
-		this.z = data.getInt();
+		this.x = in.readInt();
+		this.y = in.readInt();
+		this.z = in.readInt();
 	}
 
 	public int get_id()
@@ -47,14 +45,10 @@ public class HitActionPacket implements Packet
 		return Constants.Packet.HitAction;
 	}
 
-	public ByteBuffer serialize()
+	public void serialize( java.io.DataOutputStream out ) throws java.io.IOException
 	{
-		ByteBuffer buf = ByteBuffer.allocate( 3 * 4 );
-
-		buf.putInt( x ).putInt( y ).putInt( z );
-
-		buf.rewind();
-
-		return buf;
+		out.writeInt( x );
+		out.writeInt( y );
+		out.writeInt( z );
 	}
 }

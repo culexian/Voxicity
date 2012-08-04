@@ -19,8 +19,6 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public class RLETree
 {
 	private class Node
@@ -48,26 +46,6 @@ public class RLETree
 	Node head = new Node( 0, 0 );
 	Node root = head;
 	int size = 1;
-
-	public synchronized void load( ByteBuffer buf )
-	{
-		int remaining = buf.getInt();
-
-		Node tail = new Node( buf.getInt(), buf.getInt() );
-		head = tail;
-		root = tail;
-
-		remaining -= 2 * Integer.SIZE;
-
-		while( remaining != 0 )
-		{
-			Node a = new Node( buf.getInt(), buf.getInt() );
-			list_insert_after( a, tail );
-			root = tree_insert( root, a );
-			tail = a;
-			remaining -= 2 * Integer.SIZE;
-		}
-	}
 
 	public synchronized void load( java.io.DataInputStream in ) throws java.io.IOException
 	{
@@ -633,28 +611,6 @@ public class RLETree
 		out += tree_out;
 
 		return out;
-	}
-
-	synchronized ByteBuffer serialize()
-	{
-		// Allocate a buffer with space for an int and the rest of the list
-		ByteBuffer buf = ByteBuffer.allocate( Integer.SIZE + 2 * Integer.SIZE * size );
-
-		// Each run is 2 ints = 2 * Integer.SIZE
-		buf.putInt( 2 * Integer.SIZE * size );
-
-		// Iterate over the runs and write them to the bufer
-		Node cur = head;
-		while ( cur != null )
-		{
-			buf.putInt( cur.pos );
-			buf.putInt( cur.data );
-			cur = cur.next;
-		}
-
-		buf.rewind();
-
-		return buf;
 	}
 
 	synchronized void serialize( java.io.DataOutputStream out ) throws java.io.IOException

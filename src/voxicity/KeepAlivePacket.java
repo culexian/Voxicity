@@ -19,8 +19,6 @@
 
 package voxicity;
 
-import java.nio.ByteBuffer;
-
 public class KeepAlivePacket implements Packet
 {
 	int id;
@@ -30,9 +28,9 @@ public class KeepAlivePacket implements Packet
 		this.id = id;
 	}
 
-	public KeepAlivePacket( ByteBuffer buf )
+	public KeepAlivePacket( java.io.DataInputStream in ) throws java.io.IOException
 	{
-		id = buf.getInt();
+		id = in.readInt();
 	}
 
 	public int get_id()
@@ -40,14 +38,8 @@ public class KeepAlivePacket implements Packet
 		return Constants.Packet.KeepAlive;
 	}
 
-	public ByteBuffer serialize()
+	public void serialize( java.io.DataOutputStream out ) throws java.io.IOException
 	{
-		ByteBuffer buf = ByteBuffer.allocate( 4 );
-
-		buf.putInt( id );
-
-		buf.rewind();
-
-		return buf;
+		out.writeInt( id );
 	}
 }
