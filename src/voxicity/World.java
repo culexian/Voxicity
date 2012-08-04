@@ -31,8 +31,6 @@ public class World
 	// Chunk lookup map
 	Map< ChunkID, Chunk > chunks = new HashMap< ChunkID, Chunk >();
 
-	java.util.concurrent.locks.Lock lock = new java.util.concurrent.locks.ReentrantLock();
-
 	public World( Config config )
 	{
 		this.config = config;
