@@ -31,13 +31,15 @@ public class World
 	// Chunk lookup map
 	Map< ChunkID, Chunk > chunks = new HashMap< ChunkID, Chunk >();
 
+	java.util.concurrent.locks.Lock lock = new java.util.concurrent.locks.ReentrantLock();
+
 	public World( Config config )
 	{
 		this.config = config;
 	}
 
 	// Checks if a chunk is loaded and returns true if so
-	public boolean is_chunk_loaded( ChunkID id )
+	public synchronized boolean is_chunk_loaded( ChunkID id )
 	{
 		return ( chunks.get( id ) != null );
 	}
@@ -47,7 +49,7 @@ public class World
 		return is_chunk_loaded( new ChunkID( x, y, z ) );
 	}
 
-	public Chunk get_chunk( ChunkID id )
+	public synchronized Chunk get_chunk( ChunkID id )
 	{
 		return chunks.get( id );
 	}
@@ -60,7 +62,7 @@ public class World
 	// Sets a chunk in the world to the given chunk.
 	// Doesn't care about overwriting existing chunks
 	// Marks neighbors for update after.
-	public void set_chunk( int x, int y, int z, Chunk chunk )
+	public synchronized void set_chunk( int x, int y, int z, Chunk chunk )
 	{
 		if ( chunk == null ) return;
 
@@ -70,7 +72,7 @@ public class World
 		mark_neighbors( id );
 	}
 
-	void mark_neighbors( ChunkID id )
+	synchronized void mark_neighbors( ChunkID id )
 	{
 		if ( is_chunk_loaded( id.get( Constants.Direction.West ) ) )
 			get_chunk( id.get( Constants.Direction.West ) ).update_timestamp();

@@ -54,7 +54,7 @@ public class RLETree
 		root = head;
 	}
 
-	public void load( ByteBuffer buf )
+	public synchronized void load( ByteBuffer buf )
 	{
 		Node tail = new Node( buf.getInt(), buf.getInt() );
 		head = tail;
@@ -69,7 +69,7 @@ public class RLETree
 		}
 	}
 
-	int get( int pos )
+	synchronized int get( int pos )
 	{
 		if ( pos < 0 )
 			return -1;
@@ -107,7 +107,7 @@ public class RLETree
 	}
 
 	// Will always succeed. pos is never less than 0 and runs stretch infinitely if unhindered
-	void set( int pos, int data )
+	synchronized void set( int pos, int data )
 	{
 		if ( pos < 0 )
 		{
@@ -606,7 +606,7 @@ public class RLETree
 		return out;
 	}
 
-	ByteBuffer serialize()
+	synchronized ByteBuffer serialize()
 	{
 		// Find out how long the list of runs is
 		Node cur = head;
