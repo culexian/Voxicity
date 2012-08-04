@@ -36,6 +36,11 @@ public class ChunkID
 		this.z = c[2];
 	}
 
+	public ChunkID( float x, float y, float z )
+	{
+		this( Math.round( x ), Math.round( y ), Math.round( z ) );
+	}
+
 	public ChunkID( ChunkID id )
 	{
 		this( id.x, id.y, id.z );

@@ -203,18 +203,6 @@ public class Server implements Runnable
 		served_chunks.remove( p );
 	}
 
-	public void load_chunk( int x, int y, int z, Player p )
-	{
-		if ( world.is_chunk_loaded( x, y, z ) ) return;
-
-		chunk_server.request_chunk( new ChunkID( x, y, z ) );
-	}
-
-	public void load_chunk( float x, float y, float z, Player p )
-	{
-		load_chunk( Math.round( x ), Math.round( y ), Math.round( z ), p );
-	}
-
 	public void handle_packets()
 	{
 		for ( Connection c : connection_to_player.keySet() )
@@ -304,9 +292,10 @@ public class Server implements Runnable
 	{
 		Player p = connection_to_player.get( c );
 		Set< ChunkID > id_set = chunk_requests.get( p );
+		ChunkID id = new ChunkID( x, y, z );
 
-		id_set.add( new ChunkID( x, y, z ) );
-		load_chunk( x, y, z, p );
+		id_set.add( id );
+		chunk_server.request_chunk( id );
 	}
 
 	void handle_chunk_requests()
