@@ -28,6 +28,7 @@ public class InputHandler
 	Client client;
 
 	long last_block_change;
+	long last_frame = 0;
 
 	float rot_x;
 	float rot_y;
@@ -40,10 +41,13 @@ public class InputHandler
 	public InputHandler( Client client )
 	{
 		this.client = client;
+		get_time_delta();
 	}
 
-	void update( float delta, World world )
+	void update( World world )
 	{
+		float delta = get_time_delta() / 1000.0f;
+
 		// Get the input state
 		InputState in_state = new InputState();
 
@@ -239,5 +243,212 @@ public class InputHandler
 				}
 
 		return new Vector3f( nearest_block.x, nearest_block.y, nearest_block.z );
+	}
+
+	int get_time_delta()
+	{
+		// Get the time in milliseconds
+		long new_time = Time.get_time_ms();
+		int delta = (int) ( new_time - last_frame );
+		last_frame = new_time;
+		return delta;
+	}
+
+	Vector3f[] check_collisions()
+	{
+		Vector3f last_pos = client.player.last_pos;
+		Vector3f new_pos = new Vector3f( client.player.pos );
+		World world = client.world;
+		Player p = client.player;
+
+		int slice_num = 10;
+
+		boolean collided_x = false;
+		boolean collided_y = false;
+		boolean collided_z = false;
+
+		Vector3f[] result = { new Vector3f(), new Vector3f(), new Vector3f() };
+
+		AABB player = new AABB( 0.5f, 1.7f, 0.5f );
+
+		Vector3f slice_distance = new Vector3f();
+		Vector3f.sub( new_pos, last_pos, slice_distance );
+		slice_distance.scale( 1.0f / ( slice_num * 1.0f ) );
+
+		Vector3f slice_pos = new Vector3f( last_pos );
+		player.pos = slice_pos;
+
+		Vector3f corrected_pos = new Vector3f( new_pos );
+
+		// Check y axis for collisions
+		for ( int i = 0 ; i < slice_num ; i++ )
+		{
+			
+			Vector3f.add( slice_pos, slice_distance, slice_pos );
+
+			AABB above = world.get_hit_box( Math.round( player.pos.x ), Math.round( player.top() ), Math.round( player.pos.z ) );
+			if ( above != null )
+			{
+				if ( player.collides( above ) )
+				{
+					collided_y = true;
+					player.pos.y += above.bottom_intersect( player );
+					p.velocity.y = -p.velocity.y;
+					p.accel.y = 0;
+				}
+			}
+
+			AABB beneath = world.get_hit_box( Math.round( player.pos.x), Math.round( player.bottom() - 0.01f ), Math.round(player.pos.z) );
+			if ( beneath != null )
+			{
+				if ( player.collides( beneath ) && p.velocity.y < 0 )
+				{
+					collided_y = true;
+					player.pos.y += beneath.top_intersect( player ) + 0.0001f;
+					p.velocity.y = 0;
+					p.accel.y = 0;
+					p.jumping = false;
+				}
+			}
+			else
+			{
+				p.jumping = true;
+			}
+
+			if ( collided_y )
+				break;
+		}
+
+		corrected_pos.y = slice_pos.y;
+		slice_pos = new Vector3f( last_pos );
+		player.pos = slice_pos;
+
+		// Check x axis for collisions
+		for ( int i = 0 ; i < slice_num ; i++ )
+		{
+
+			Vector3f.add( slice_pos, slice_distance, slice_pos );
+
+			AABB upper_neg_x = world.get_hit_box( Math.round(player.left()), Math.round(player.top()), Math.round(player.pos.z) );
+			if ( upper_neg_x != null )
+			{
+				if ( player.collides( upper_neg_x ) )
+				{
+					collided_x = true;
+					p.velocity.x = 0;
+					player.pos.x += upper_neg_x.right_intersect( player ) + 0.0001f;
+				}
+			}
+
+			AABB upper_pos_x = world.get_hit_box( Math.round(player.right()), Math.round(player.top()), Math.round(player.pos.z) );
+			if ( upper_pos_x != null )
+			{
+				if ( player.collides( upper_pos_x ) )
+				{
+					collided_x = true;
+					p.velocity.x = 0;
+					player.pos.x += upper_pos_x.left_intersect( player ) - 0.0001f;
+				}
+			}
+
+			AABB lower_neg_x = world.get_hit_box( Math.round(player.left()), Math.round(player.bottom()), Math.round(player.pos.z) );
+			if ( lower_neg_x != null )
+			{
+				if ( player.collides( lower_neg_x ) )
+				{
+					collided_x = true;
+					p.velocity.x = 0;
+
+					if ( Math.abs( lower_neg_x.right_intersect( player ) ) < Math.abs( lower_neg_x.top_intersect( player ) ) )
+						player.pos.x += lower_neg_x.right_intersect( player ) + 0.0001f;
+				}
+			}
+
+			AABB lower_pos_x = world.get_hit_box( Math.round(player.right()), Math.round(player.bottom()), Math.round(player.pos.z) );
+			if ( lower_pos_x != null )
+			{
+				if ( player.collides( lower_pos_x ) )
+				{
+					collided_x = true;
+					p.velocity.x = 0;
+					if ( Math.abs( lower_pos_x.left_intersect( player ) ) < Math.abs( lower_pos_x.top_intersect( player ) ) )
+						player.pos.x += lower_pos_x.left_intersect( player ) - 0.0001f;
+				}
+			}
+
+			if ( collided_x )
+				break;
+		}
+
+		corrected_pos.x = slice_pos.x;
+		slice_pos = new Vector3f( last_pos );
+		player.pos = slice_pos;
+
+		for ( int i = 0 ; i < slice_num ; i++ )
+		{
+			Vector3f.add( slice_pos, slice_distance, slice_pos );
+
+			AABB upper_neg_z = world.get_hit_box( Math.round(player.pos.x), Math.round(player.top()), Math.round(player.back()) );
+			if ( upper_neg_z != null )
+			{
+				if ( player.collides( upper_neg_z ) )
+				{
+					collided_z = true;
+					p.velocity.z = 0;
+					player.pos.z += upper_neg_z.front_intersect( player ) + 0.0001f;
+				}
+			}
+
+			AABB upper_pos_z = world.get_hit_box( Math.round(player.pos.x), Math.round(player.top()), Math.round(player.front()) );
+			if ( upper_pos_z != null )
+			{
+				if ( player.collides( upper_pos_z ) )
+				{
+					collided_z = true;
+					p.velocity.z = 0;
+					player.pos.z += upper_pos_z.back_intersect( player ) - 0.0001f;
+				}
+			}
+
+			AABB lower_neg_z = world.get_hit_box( Math.round(player.pos.x), Math.round(player.bottom()), Math.round(player.back()) );
+			if ( lower_neg_z != null )
+			{
+				if ( player.collides( lower_neg_z ) )
+				{
+					collided_z = true;
+					p.velocity.z = 0;
+					if ( Math.abs( lower_neg_z.front_intersect( player ) ) < Math.abs( lower_neg_z.top_intersect( player ) ) )
+						player.pos.z += lower_neg_z.front_intersect( player ) + 0.0001f;
+				}
+			}
+
+			AABB lower_pos_z = world.get_hit_box( Math.round(player.pos.x), Math.round(player.bottom()), Math.round(player.front()) );
+			if ( lower_pos_z != null )
+			{
+				if ( player.collides( lower_pos_z ) )
+				{
+					collided_z = true;
+					p.velocity.z = 0;
+					if ( Math.abs( lower_pos_z.back_intersect( player ) ) < Math.abs( lower_pos_z.top_intersect( player ) ) )
+						player.pos.z += lower_pos_z.back_intersect( player ) - 0.0001f;
+				}
+			}
+
+			if ( collided_z )
+				break;
+		}
+
+		corrected_pos.z = slice_pos.z;
+
+
+		if ( collided_x || collided_y || collided_z )
+		{
+			// Set the player's new position after collision checking/handling
+			p.pos.x = corrected_pos.x;
+			p.pos.y = corrected_pos.y;
+			p.pos.z = corrected_pos.z;
+		}
+
+		return result;
 	}
 }

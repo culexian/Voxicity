@@ -19,6 +19,8 @@
 
 package voxicity;
 
+import org.lwjgl.opengl.Display;
+
 public class Client
 {
 	boolean quitting = false;
@@ -50,6 +52,8 @@ public class Client
 	{
 		chunk_requester.start();
 		fps_counter.reset();
+		player.pos.set( 0, 3, 0 );
+		renderer.setup_camera( 45.0f, 1200 / 720.0f, 1000f );
 	}
 
 	public void run()
@@ -69,6 +73,17 @@ public class Client
 	{
 		handle_packets();
 		check_connection();
+		input_handler.update( world );
+		input_handler.check_collisions();
+		input_handler.place_loc.set( input_handler.calc_place_loc( world ) );
+		input_handler.update_camera();
+		hud.set_loc( player.pos );
+		hud.set_chunks( renderer.draw_calls, renderer.chunks.size(), renderer.batch_draw_calls );
+		hud.set_quads( renderer.quads );
+		renderer.render();
+		hud.render();
+		update_fps();
+		Display.update();
 		tell_player_position();
 	}
 
@@ -76,6 +91,17 @@ public class Client
 	{
 		chunk_requester.quit();
 		disconnect();
+	}
+
+	void update_fps()
+	{
+		if ( fps_counter.time_delta() > 200 )
+		{
+			hud.set_fps( fps_counter.fps() );
+			fps_counter.reset();
+		}
+
+		fps_counter.update();
 	}
 
 	void handle_packets()

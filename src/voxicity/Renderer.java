@@ -83,4 +83,14 @@ public class Renderer
 
 		cleaned_one = false;
 	}
+
+	void setup_camera( float fov, float ratio, float view_distance )
+	{
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glLoadIdentity();
+		GLU.gluPerspective( fov, ratio, 0.01f, view_distance );
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+
+		camera.set_attribs( fov, ratio, 0.01f, view_distance );
+	}
 }

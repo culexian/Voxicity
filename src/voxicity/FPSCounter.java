@@ -40,7 +40,7 @@ public class FPSCounter
 		if ( delta == 0 )
 			return 1000 * counter;
 		else
-			return 1000 * counter / (int)time_delta();
+			return (int)(1000 * counter / ( time_delta() * 1.0f ) );
 	}
 
 	// Return the time delta since the last reset
