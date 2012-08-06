@@ -45,17 +45,9 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class Voxicity
 {
-
-	long last_fps_update = 0;
-	int fps_count = 0;
-
-	static int fps = 0;
-
 	long last_frame = 0;
 
 	static Vector3f camera;
-
-	Vector3f look_vec = new Vector3f();
 
 	boolean is_close_requested = false;
 
@@ -138,9 +130,6 @@ public class Voxicity
 				Socket client_s = new Socket( login_gui.get_server_name(), 11000 );
 				client = new Client( config, new NetworkConnection( client_s ) );
 
-				load_texture_pack();
-
-				last_fps_update = Time.get_time_ms();
 				get_time_delta();
 
 				client.init();
@@ -159,8 +148,7 @@ public class Voxicity
 					client.input_handler.place_loc.set( client.input_handler.calc_place_loc( client.world ) );
 					client.input_handler.update_camera();
 					update_fps();
-					System.out.println( "Load new chunks at " + Time.get_time_µs() );
-					client.hud.set_fps( fps );
+					client.fps_counter.update();
 					client.hud.set_loc( client.player.pos );
 					client.hud.set_chunks( client.renderer.draw_calls, client.renderer.chunks.size(), client.renderer.batch_draw_calls );
 					client.hud.set_quads( client.renderer.quads );
@@ -215,13 +203,11 @@ public class Voxicity
 
 	void update_fps()
 	{
-		if ( Time.get_time_ms() - last_fps_update > 250 )
+		if ( client.fps_counter.time_delta() > 200 )
 		{
-			fps = fps_count * 4;
-			fps_count = 0;
-			last_fps_update += 250;
+			client.hud.set_fps( client.fps_counter.fps() );
+			client.fps_counter.reset();
 		}
-		fps_count++;
 	}
 
 
@@ -436,13 +422,6 @@ public class Voxicity
 	void get_system_info()
 	{
 		
-	}
-
-	void load_texture_pack()
-	{
-		TextureManager.get_texture( "textures/stone.png" );
-		TextureManager.get_texture( "textures/dirt.png" );
-		TextureManager.get_texture( "textures/grass.png" );
 	}
 
 	static void print_usage()

@@ -28,6 +28,7 @@ public class Client
 	BackgroundTask chunk_requester;
 	Config config;
 	Connection connection;
+	FPSCounter fps_counter = new FPSCounter();
 	HUD hud;
 	InputHandler input_handler;
 	Player player = new Player();
@@ -48,6 +49,7 @@ public class Client
 	public void init()
 	{
 		chunk_requester.start();
+		fps_counter.reset();
 	}
 
 	public void run()
