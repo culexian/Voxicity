@@ -23,15 +23,16 @@ public class Client
 {
 	boolean quitting = false;
 
-	Config config;
-	Connection connection;
 	long last_packet_time = Time.get_time_ms();
-	Renderer renderer;
-	World world;
-	Player player = new Player();
-	HUD hud;
 
 	BackgroundTask chunk_requester;
+	Config config;
+	Connection connection;
+	HUD hud;
+	InputHandler input_handler;
+	Player player = new Player();
+	Renderer renderer;
+	World world;
 
 	public Client( Config config, Connection connection )
 	{
@@ -41,6 +42,7 @@ public class Client
 		this.renderer = new Renderer( config );
 		this.chunk_requester = new ChunkRequester( player, world, connection );
 		this.hud = new HUD();
+		this.input_handler = new InputHandler( this );
 	}
 
 	public void init()

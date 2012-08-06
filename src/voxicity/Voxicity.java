@@ -53,16 +53,8 @@ public class Voxicity
 
 	long last_frame = 0;
 
-	long last_block_change = 0;
-
-	float rot_x;
-	float rot_y;
-	float mouse_speed = 2.0f;
-	float camera_offset = 0.75f;
-
 	static Vector3f camera;
 
-	Vector3f place_loc = new Vector3f( 0, 0, 0 );
 	Vector3f look_vec = new Vector3f();
 
 	boolean is_close_requested = false;
@@ -160,7 +152,12 @@ public class Voxicity
 				{
 					System.out.println( "Update at " + Time.get_time_µs() );
 					client.update();
-					update( get_time_delta() / 1000.0f, client.world );
+					client.input_handler.update( get_time_delta() / 1000.0f, client.world );
+					System.out.println( "Check collisions at " + Time.get_time_µs() );
+					check_collisions( client.player.last_pos, new Vector3f( client.player.pos ), client.world, client.player );
+					System.out.println( "Done checking collisions at " + Time.get_time_µs() );
+					client.input_handler.place_loc.set( client.input_handler.calc_place_loc( client.world ) );
+					client.input_handler.update_camera();
 					update_fps();
 					System.out.println( "Load new chunks at " + Time.get_time_µs() );
 					client.hud.set_fps( fps );
@@ -216,111 +213,6 @@ public class Voxicity
 		return delta;
 	}
 
-	void update( float delta, World world )
-	{
-		InputState in_state = new InputState();
-
-		//Store the new last position
-		Vector3f last_pos = new Vector3f( client.player.pos );
-
-		is_close_requested = in_state.quit;
-
-		if ( in_state.toggle_mouse )
-			toggle_mouse_grab();
-
-		if ( in_state.toggle_flying )
-			toggle_flying();
-
-		if ( Mouse.isGrabbed() )
-		{
-			float x_move = 0;
-			float z_move = 0;
-
-			if ( in_state.move_left )
-				x_move -= 5;
-
-			if ( in_state.move_right )
-				x_move += 5;
-
-			if ( in_state.move_forward )
-				z_move -= 5;
-
-			if ( in_state.move_backward )
-				z_move += 5;
-
-			if ( client.player.flying )
-			{
-				if ( in_state.start_jumping )
-					camera.y += 5 * delta;
-
-				if ( in_state.fly_down )
-					camera.y -= 5 * delta;
-			}
-			else
-			{
-				if ( in_state.start_jumping && !client.player.jumping )
-				{
-					client.player.velocity.y = 8.0f;
-					client.player.jumping = true;
-				}
-
-				if ( client.player.jumping )
-					client.player.accel.y = -23f;
-			}
-
-			if ( in_state.use_action )
-				place_block( world );
-
-			if ( in_state.hit_action )
-				remove_block( world );
-
-			int x_delta = in_state.x_delta;
-			int y_delta = in_state.y_delta;
-
-			rot_x += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
-			rot_y += ( y_delta / 800.0f ) * 45.0f * mouse_speed;
-
-			// Make sure spinning idiots don't get ludicrously high rotations
-			rot_x = rot_x > 361.0f ? rot_x - 360.0f : rot_x;
-			rot_x = rot_x < -361.0 ? rot_x + 360.0f : rot_x;
-
-			// Avoid NaN in the frustum calculations
-			rot_y = Math.min( rot_y, 89.9999f );
-			rot_y = Math.max( rot_y, -89.9999f );
-
-			float cos_rot_x = ( float ) Math.cos( Math.toRadians( rot_x ) );
-			float sin_rot_x = ( float ) Math.sin( Math.toRadians( rot_x ) );
-			float cos_rot_y = ( float ) Math.cos( Math.toRadians( rot_y ) );
-			float sin_rot_y = ( float ) Math.sin( Math.toRadians( rot_y ) );
-
-			float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
-			float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
-
-			client.player.accel.x = corr_x;
-			client.player.accel.z = corr_z;
-
-			client.player.velocity.x = client.player.accel.x; 
-			client.player.velocity.y += client.player.accel.y * delta;
-			client.player.velocity.z = client.player.accel.z;
-
-			camera.x += client.player.velocity.x * delta;
-			camera.y+= client.player.velocity.y * delta;
-			camera.z += client.player.velocity.z * delta;
-
-			// Set the look vector
-			look_vec.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
-		}
-
-		System.out.println( "Check collisions at " + Time.get_time_µs() );
-		check_collisions( last_pos, new Vector3f( client.player.pos.x, client.player.pos.y, client.player.pos.z ), world, client.player );
-		System.out.println( "Done checking collisions at " + Time.get_time_µs() );
-
-		calc_place_loc( world );
-
-		client.renderer.camera.set_pos( new Vector3f( client.player.pos.x, client.player.pos.y + camera_offset, client.player.pos.z ), new Vector3f( client.player.pos.x + look_vec.x, client.player.pos.y + camera_offset + look_vec.y, client.player.pos.z + look_vec.z ), new Vector3f( 0, 1, 0 ) );
-
-	}
-
 	void update_fps()
 	{
 		if ( Time.get_time_ms() - last_fps_update > 250 )
@@ -343,32 +235,8 @@ public class Voxicity
 		camera.x = 0;
 		camera.y = 3;
 		camera.z = 0;
-		rot_x = 0;
-		rot_y = 0;
 
 		client.renderer.camera.set_attribs( 45.0f, 1200 / 720.0f, 0.1f, 1000.0f );
-	}
-
-	void toggle_mouse_grab()
-	{
-		Mouse.setGrabbed( !Mouse.isGrabbed() );
-	}
-
-	void toggle_flying()
-	{
-		if ( client.player.flying == false )
-		{
-			client.player.flying = true;
-			client.player.accel.y = 0;
-			client.player.velocity.y = 0;
-			System.out.println( "Flying is " + client.player.flying );
-		}
-		else
-		{
-			client.player.flying = false;
-			client.player.jumping = true;
-			System.out.println( "Flying is " + client.player.flying );
-		}
 	}
 
 	Vector3f[] check_collisions( Vector3f last_pos, Vector3f new_pos, World world, Player p )
@@ -564,72 +432,6 @@ public class Voxicity
 		return result;
 	}
 
-	void calc_place_loc( World world )
-	{
-		float nearest_distance = Float.POSITIVE_INFINITY;
-		BlockLoc nearest_block = new BlockLoc( Math.round( camera.x + look_vec.x ), Math.round( camera.y + camera_offset + look_vec.y ), Math.round( camera.z + look_vec.z ), world );
-
-		int x_incr = (int)Math.signum( look_vec.x );
-		int y_incr = (int)Math.signum( look_vec.y );
-		int z_incr = (int)Math.signum( look_vec.z );
-
-		for ( int x = Math.round( camera.x ) ; x != Math.round( camera.x + look_vec.x ) + x_incr ; x += x_incr)
-			for ( int y = Math.round( camera.y + camera_offset ) ; y != Math.round( camera.y + camera_offset + look_vec.y ) + y_incr ; y += y_incr )
-				for ( int z = Math.round( camera.z ) ; z != Math.round( camera.z + look_vec.z ) + z_incr ; z += z_incr )
-				{
-					AABB box = world.get_hit_box( x, y, z );
-
-					if ( box != null )
-					{
-						Float distance = box.collision_distance( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), look_vec );
-						
-						if ( distance < nearest_distance )
-						{
-							nearest_distance = distance;
-							nearest_block.x = x;
-							nearest_block.y = y;
-							nearest_block.z = z;
-						}
-					}
-				}
-
-		place_loc.set( nearest_block.x, nearest_block.y, nearest_block.z );
-	}
-
-	boolean can_change_block()
-	{
-		return Time.get_time_ms() - last_block_change > ( 1000 / 5 );
-	}
-
-	void place_block( World world )
-	{
-		if ( can_change_block() )
-			last_block_change = Time.get_time_ms();
-		else
-			return;
-
-		int id = world.get_block( place_loc.x, place_loc.y, place_loc.z );
-		if ( id == Constants.Blocks.air )
-		{
-			client.tell_use_action( new BlockLoc( place_loc.x, place_loc.y, place_loc.z, client.world ), Direction.None );
-		}
-		else
-		{
-			Direction collision_side = world.get_hit_box( Math.round(place_loc.x), Math.round(place_loc.y), Math.round(place_loc.z) ).collision_side( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), look_vec );
-
-			client.tell_use_action( new BlockLoc( place_loc.x, place_loc.y, place_loc.z, client.world ), collision_side );
-		}
-	}
-
-	void remove_block( World world )
-	{
-		if ( can_change_block() )
-			last_block_change = Time.get_time_ms();
-		else
-			return;
-
-		client.tell_hit_action( Math.round( place_loc.x ), Math.round( place_loc.y ), Math.round( place_loc.z ) );
-	}
 
 	void get_system_info()
 	{
