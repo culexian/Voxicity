@@ -33,11 +33,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.EXTTextureArray;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
@@ -99,6 +97,7 @@ public class Voxicity
 				System.out.println( "Intializing display" );
 				Display.setDisplayMode( new DisplayMode( 1200, 720 ) );
 				Display.create();
+				Display.setTitle( "Voxicity" );
 				System.out.println( "Display created" );
 			}
 			catch ( LWJGLException e )
@@ -162,6 +161,7 @@ public class Voxicity
 					System.out.println( "Update at " + Time.get_time_µs() );
 					client.update();
 					update( get_time_delta() / 1000.0f, client.world );
+					update_fps();
 					System.out.println( "Load new chunks at " + Time.get_time_µs() );
 					client.hud.set_fps( fps );
 					client.hud.set_loc( client.player.pos );
@@ -218,51 +218,47 @@ public class Voxicity
 
 	void update( float delta, World world )
 	{
+		InputState in_state = new InputState();
+
 		//Store the new last position
 		Vector3f last_pos = new Vector3f( client.player.pos );
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) )
-			is_close_requested = true;
+		is_close_requested = in_state.quit;
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_Q ) )
-			is_close_requested = true;
+		if ( in_state.toggle_mouse )
+			toggle_mouse_grab();
 
-		while ( Keyboard.next() )
-		{
-			if ( Keyboard.getEventKey() == Keyboard.KEY_E && Keyboard.getEventKeyState() )
-				toggle_mouse_grab();
-
-			if ( Keyboard.getEventKey() == Keyboard.KEY_G && Keyboard.getEventKeyState() )
-			{
-				toggle_flying();
-			}
-		}
+		if ( in_state.toggle_flying )
+			toggle_flying();
 
 		if ( Mouse.isGrabbed() )
 		{
 			float x_move = 0;
 			float z_move = 0;
 
-			if ( Keyboard.isKeyDown( Keyboard.KEY_A ) )
+			if ( in_state.move_left )
 				x_move -= 5;
 
-			if ( Keyboard.isKeyDown( Keyboard.KEY_D ) )
+			if ( in_state.move_right )
 				x_move += 5;
 
-			if ( Keyboard.isKeyDown( Keyboard.KEY_W ) )
+			if ( in_state.move_forward )
 				z_move -= 5;
 
-			if ( Keyboard.isKeyDown( Keyboard.KEY_S ) )
+			if ( in_state.move_backward )
 				z_move += 5;
 
 			if ( client.player.flying )
 			{
-				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) camera.y += 5 * delta;
-				if ( Keyboard.isKeyDown( Keyboard.KEY_C ) ) camera.y -= 5 * delta;
+				if ( in_state.start_jumping )
+					camera.y += 5 * delta;
+
+				if ( in_state.fly_down )
+					camera.y -= 5 * delta;
 			}
 			else
 			{
-				if ( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) && !client.player.jumping )
+				if ( in_state.start_jumping && !client.player.jumping )
 				{
 					client.player.velocity.y = 8.0f;
 					client.player.jumping = true;
@@ -270,17 +266,16 @@ public class Voxicity
 
 				if ( client.player.jumping )
 					client.player.accel.y = -23f;
-
 			}
 
-			if ( Mouse.isButtonDown( 0 ) )
+			if ( in_state.use_action )
 				place_block( world );
 
-			if ( Mouse.isButtonDown( 1 ) )
+			if ( in_state.hit_action )
 				remove_block( world );
 
-			int x_delta = Mouse.getDX();
-			int y_delta = Mouse.getDY();
+			int x_delta = in_state.x_delta;
+			int y_delta = in_state.y_delta;
 
 			rot_x += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
 			rot_y += ( y_delta / 800.0f ) * 45.0f * mouse_speed;
@@ -317,14 +312,13 @@ public class Voxicity
 		}
 
 		System.out.println( "Check collisions at " + Time.get_time_µs() );
-		check_collisions( last_pos, new Vector3f( camera.x, camera.y, camera.z ), world, client.player );
+		check_collisions( last_pos, new Vector3f( client.player.pos.x, client.player.pos.y, client.player.pos.z ), world, client.player );
 		System.out.println( "Done checking collisions at " + Time.get_time_µs() );
 
 		calc_place_loc( world );
 
-		client.renderer.camera.set_pos( new Vector3f( camera.x, camera.y + camera_offset, camera.z ), new Vector3f( camera.x + look_vec.x, camera.y + camera_offset + look_vec.y, camera.z + look_vec.z ), new Vector3f( 0, 1, 0 ) );
+		client.renderer.camera.set_pos( new Vector3f( client.player.pos.x, client.player.pos.y + camera_offset, client.player.pos.z ), new Vector3f( client.player.pos.x + look_vec.x, client.player.pos.y + camera_offset + look_vec.y, client.player.pos.z + look_vec.z ), new Vector3f( 0, 1, 0 ) );
 
-		update_fps();
 	}
 
 	void update_fps()
@@ -334,7 +328,6 @@ public class Voxicity
 			fps = fps_count * 4;
 			fps_count = 0;
 			last_fps_update += 250;
-			//Display.setTitle( "Voxicity - FPS: " + fps );
 		}
 		fps_count++;
 	}
