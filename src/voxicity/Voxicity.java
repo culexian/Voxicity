@@ -40,8 +40,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.glu.GLU;
-import org.lwjgl.util.vector.Vector3f;
 
 public class Voxicity
 {
