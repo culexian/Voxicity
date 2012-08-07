@@ -54,6 +54,7 @@ public class Client
 		fps_counter.reset();
 		player.pos.set( 0, 3, 0 );
 		renderer.setup_camera( 45.0f, 1200 / 720.0f, 1000f );
+		input_handler.init();
 	}
 
 	public void run()

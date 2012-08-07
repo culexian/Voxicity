@@ -44,8 +44,14 @@ public class InputHandler
 		get_time_delta();
 	}
 
+	void init()
+	{
+		Mouse.setGrabbed( true );
+	}
+
 	void update( World world )
 	{
+		// Get the number of seconds as a float since the last update
 		float delta = get_time_delta() / 1000.0f;
 
 		// Get the input state

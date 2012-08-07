@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
@@ -107,8 +106,6 @@ public class Voxicity
 						System.exit( 0 );
 					}
 				}
-
-				Mouse.setGrabbed( true );
 
 				Socket client_s = new Socket( login_gui.get_server_name(), 11000 );
 				Client client = new Client( config, new NetworkConnection( client_s ) );
