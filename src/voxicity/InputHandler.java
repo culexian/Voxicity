@@ -26,12 +26,14 @@ import org.lwjgl.util.vector.Vector3f;
 public class InputHandler
 {
 	Client client;
+	Player player;
+	World world;
 
 	long last_block_change;
 	long last_frame = 0;
 
-	float rot_x;
-	float rot_y;
+	float yaw;
+	float pitch;
 
 	float mouse_speed = 2.0f;
 	float camera_offset = 0.75f;
@@ -41,6 +43,8 @@ public class InputHandler
 	public InputHandler( Client client )
 	{
 		this.client = client;
+		this.player = client.player;
+		this.world = client.world;
 		get_time_delta();
 	}
 
@@ -57,9 +61,6 @@ public class InputHandler
 		// Get the input state
 		InputState in_state = new InputState();
 
-		//Store the last_position
-		client.player.last_pos.set( client.player.pos );
-
 		if ( in_state.quit )
 			client.quit();
 
@@ -69,8 +70,25 @@ public class InputHandler
 		if ( in_state.toggle_flying )
 			toggle_flying();
 
+		update_movement( delta, in_state );
+
+		if ( in_state.use_action )
+			place_block();
+
+		if ( in_state.hit_action )
+			remove_block();
+	}
+
+	void update_movement( float delta, InputState in_state )
+	{
+		//Store the last_position
+		player.last_pos.set( player.pos );
+
 		if ( Mouse.isGrabbed() )
 		{
+			int x_delta = in_state.x_delta;
+			int y_delta = in_state.y_delta;
+
 			float x_move = 0;
 			float z_move = 0;
 
@@ -86,67 +104,59 @@ public class InputHandler
 			if ( in_state.move_backward )
 				z_move += 5;
 
-			if ( client.player.flying )
+			if ( player.flying )
 			{
-				if ( in_state.start_jumping )
-					client.player.pos.y += 5 * delta;
+				if ( in_state.ascend )
+					player.pos.y += 5 * delta;
 
-				if ( in_state.fly_down )
-					client.player.pos.y -= 5 * delta;
+				if ( in_state.descend )
+					player.pos.y -= 5 * delta;
 			}
 			else
 			{
-				if ( in_state.start_jumping && !client.player.jumping )
+				if ( in_state.ascend && !player.jumping )
 				{
-					client.player.velocity.y = 8.0f;
-					client.player.jumping = true;
+					player.velocity.y = 8.0f;
+					player.jumping = true;
 				}
 
-				if ( client.player.jumping )
-					client.player.accel.y = -23f;
+				if ( player.jumping )
+					player.accel.y = -23f;
 			}
 
-			if ( in_state.use_action )
-				place_block( world );
 
-			if ( in_state.hit_action )
-				remove_block( world );
-
-			int x_delta = in_state.x_delta;
-			int y_delta = in_state.y_delta;
-
-			rot_x += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
-			rot_y += ( y_delta / 800.0f ) * 45.0f * mouse_speed;
+			yaw += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
+			pitch += ( y_delta / 800.0f ) * 45.0f * mouse_speed;
 
 			// Make sure spinning idiots don't get ludicrously high rotations
-			rot_x = rot_x > 361.0f ? rot_x - 360.0f : rot_x;
-			rot_x = rot_x < -361.0 ? rot_x + 360.0f : rot_x;
+			yaw = yaw > 361.0f ? yaw - 360.0f : yaw;
+			yaw = yaw < -361.0 ? yaw + 360.0f : yaw;
 
 			// Avoid NaN in the frustum calculations
-			rot_y = Math.min( rot_y, 89.9999f );
-			rot_y = Math.max( rot_y, -89.9999f );
+			pitch = Math.min( pitch, 89.9999f );
+			pitch = Math.max( pitch, -89.9999f );
 
-			float cos_rot_x = ( float ) Math.cos( Math.toRadians( rot_x ) );
-			float sin_rot_x = ( float ) Math.sin( Math.toRadians( rot_x ) );
-			float cos_rot_y = ( float ) Math.cos( Math.toRadians( rot_y ) );
-			float sin_rot_y = ( float ) Math.sin( Math.toRadians( rot_y ) );
+			float cos_rot_x = ( float ) Math.cos( Math.toRadians( yaw ) );
+			float sin_rot_x = ( float ) Math.sin( Math.toRadians( yaw ) );
+			float cos_rot_y = ( float ) Math.cos( Math.toRadians( pitch ) );
+			float sin_rot_y = ( float ) Math.sin( Math.toRadians( pitch ) );
 
 			float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
 			float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
 
-			client.player.accel.x = corr_x;
-			client.player.accel.z = corr_z;
+			player.accel.x = corr_x;
+			player.accel.z = corr_z;
 
-			client.player.velocity.x = client.player.accel.x; 
-			client.player.velocity.y += client.player.accel.y * delta;
-			client.player.velocity.z = client.player.accel.z;
+			player.velocity.x = player.accel.x; 
+			player.velocity.y += player.accel.y * delta;
+			player.velocity.z = player.accel.z;
 
-			client.player.pos.x += client.player.velocity.x * delta;
-			client.player.pos.y+= client.player.velocity.y * delta;
-			client.player.pos.z += client.player.velocity.z * delta;
+			player.pos.x += player.velocity.x * delta;
+			player.pos.y+= player.velocity.y * delta;
+			player.pos.z += player.velocity.z * delta;
 
 			// Set the look vector
-			client.player.look.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
+			player.look.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
 		}
 	}
 
@@ -157,18 +167,18 @@ public class InputHandler
 
 	void toggle_flying()
 	{
-		if ( client.player.flying == false )
+		if ( player.flying == false )
 		{
-			client.player.flying = true;
-			client.player.accel.y = 0;
-			client.player.velocity.y = 0;
-			System.out.println( "Flying is " + client.player.flying );
+			player.flying = true;
+			player.accel.y = 0;
+			player.velocity.y = 0;
+			System.out.println( "Flying is " + player.flying );
 		}
 		else
 		{
-			client.player.flying = false;
-			client.player.jumping = true;
-			System.out.println( "Flying is " + client.player.flying );
+			player.flying = false;
+			player.jumping = true;
+			System.out.println( "Flying is " + player.flying );
 		}
 	}
 
@@ -177,7 +187,7 @@ public class InputHandler
 		return Time.get_time_ms() - last_block_change > ( 1000 / 5 );
 	}
 
-	void place_block( World world )
+	void place_block()
 	{
 		if ( can_change_block() )
 			last_block_change = Time.get_time_ms();
@@ -187,17 +197,17 @@ public class InputHandler
 		int id = world.get_block( place_loc.x, place_loc.y, place_loc.z );
 		if ( id == Constants.Blocks.air )
 		{
-			client.tell_use_action( new BlockLoc( place_loc.x, place_loc.y, place_loc.z, client.world ), Direction.None );
+			client.tell_use_action( new BlockLoc( place_loc.x, place_loc.y, place_loc.z, world ), Direction.None );
 		}
 		else
 		{
-			Direction collision_side = world.get_hit_box( Math.round(place_loc.x), Math.round(place_loc.y), Math.round(place_loc.z) ).collision_side( new Vector3f( client.player.pos.x, client.player.pos.y + camera_offset, client.player.pos.z ), client.player.look );
+			Direction collision_side = world.get_hit_box( Math.round(place_loc.x), Math.round(place_loc.y), Math.round(place_loc.z) ).collision_side( new Vector3f( player.pos.x, player.pos.y + camera_offset, player.pos.z ), player.look );
 
-			client.tell_use_action( new BlockLoc( place_loc.x, place_loc.y, place_loc.z, client.world ), collision_side );
+			client.tell_use_action( new BlockLoc( place_loc.x, place_loc.y, place_loc.z, world ), collision_side );
 		}
 	}
 
-	void remove_block( World world )
+	void remove_block()
 	{
 		if ( can_change_block() )
 			last_block_change = Time.get_time_ms();
@@ -209,34 +219,34 @@ public class InputHandler
 
 	void update_camera()
 	{
-		Vector3f pos = new Vector3f( client.player.pos );
+		Vector3f pos = new Vector3f( player.pos );
 		pos.y += camera_offset;
 
-		Vector3f look = Vector3f.add( pos, client.player.look, null );
+		Vector3f look = Vector3f.add( pos, player.look, null );
 
 		Vector3f up = new Vector3f( 0, 1, 0 );
 
 		client.renderer.camera.set_pos( pos, look, up );
 	}
 
-	Vector3f calc_place_loc( World world )
+	Vector3f calc_place_loc()
 	{
 		float nearest_distance = Float.POSITIVE_INFINITY;
-		BlockLoc nearest_block = new BlockLoc( Math.round( client.player.pos.x + client.player.look.x ), Math.round( client.player.pos.y + camera_offset + client.player.look.y ), Math.round( client.player.pos.z + client.player.look.z ), world );
+		BlockLoc nearest_block = new BlockLoc( Math.round( player.pos.x + player.look.x ), Math.round( player.pos.y + camera_offset + player.look.y ), Math.round( player.pos.z + player.look.z ), world );
 
-		int x_incr = (int)Math.signum( client.player.look.x );
-		int y_incr = (int)Math.signum( client.player.look.y );
-		int z_incr = (int)Math.signum( client.player.look.z );
+		int x_incr = (int)Math.signum( player.look.x );
+		int y_incr = (int)Math.signum( player.look.y );
+		int z_incr = (int)Math.signum( player.look.z );
 
-		for ( int x = Math.round( client.player.pos.x ) ; x != Math.round( client.player.pos.x + client.player.look.x ) + x_incr ; x += x_incr)
-			for ( int y = Math.round( client.player.pos.y + camera_offset ) ; y != Math.round( client.player.pos.y + camera_offset + client.player.look.y ) + y_incr ; y += y_incr )
-				for ( int z = Math.round( client.player.pos.z ) ; z != Math.round( client.player.pos.z + client.player.look.z ) + z_incr ; z += z_incr )
+		for ( int x = Math.round( player.pos.x ) ; x != Math.round( player.pos.x + player.look.x ) + x_incr ; x += x_incr)
+			for ( int y = Math.round( player.pos.y + camera_offset ) ; y != Math.round( player.pos.y + camera_offset + player.look.y ) + y_incr ; y += y_incr )
+				for ( int z = Math.round( player.pos.z ) ; z != Math.round( player.pos.z + player.look.z ) + z_incr ; z += z_incr )
 				{
 					AABB box = world.get_hit_box( x, y, z );
 
 					if ( box != null )
 					{
-						Float distance = box.collision_distance( new Vector3f( client.player.pos.x, client.player.pos.y + camera_offset, client.player.pos.z ), client.player.look );
+						Float distance = box.collision_distance( new Vector3f( player.pos.x, player.pos.y + camera_offset, player.pos.z ), player.look );
 						
 						if ( distance < nearest_distance )
 						{
@@ -262,10 +272,9 @@ public class InputHandler
 
 	Vector3f[] check_collisions()
 	{
-		Vector3f last_pos = client.player.last_pos;
-		Vector3f new_pos = new Vector3f( client.player.pos );
-		World world = client.world;
-		Player p = client.player;
+		Vector3f last_pos = player.last_pos;
+		Vector3f new_pos = new Vector3f( player.pos );
+		Player p = player;
 
 		int slice_num = 10;
 

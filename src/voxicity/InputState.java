@@ -29,8 +29,8 @@ public class InputState
 		move_right,
 		move_forward,
 		move_backward,
-		start_jumping,
-		fly_down,
+		ascend,
+		descend,
 		toggle_mouse,
 		toggle_flying,
 		hit_action,
@@ -55,8 +55,8 @@ public class InputState
 		move_right = Keyboard.isKeyDown( Keyboard.KEY_D );
 		move_forward = Keyboard.isKeyDown( Keyboard.KEY_W );
 		move_backward = Keyboard.isKeyDown( Keyboard.KEY_S );
-		start_jumping =Keyboard.isKeyDown( Keyboard.KEY_SPACE );
-		fly_down = Keyboard.isKeyDown( Keyboard.KEY_C );
+		ascend = Keyboard.isKeyDown( Keyboard.KEY_SPACE );
+		descend = Keyboard.isKeyDown( Keyboard.KEY_C );
 		hit_action = Mouse.isButtonDown( 0 );
 		use_action = Mouse.isButtonDown( 1 );
 
