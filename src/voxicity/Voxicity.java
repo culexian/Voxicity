@@ -43,30 +43,18 @@ import org.lwjgl.opengl.GLContext;
 
 public class Voxicity
 {
-	boolean is_close_requested = false;
-
-	Server server;
-	Client client;
-	Config config;
-	Arguments args;
-	LWJGLRenderer gui_renderer;
-
-	public Voxicity( Arguments args )
-	{
-		this.args = args;
-	}
-
-	public void init()
+	static void init( Arguments args )
 	{
 		// Load the specified config file
-		config = new Config( args.get_value( "config", "voxicity.properties" ) );
+		Config config = new Config( args.get_value( "config", "voxicity.properties" ) );
 
 		String mode = args.get_value( "mode", "client" );
 
 		if ( mode.equals( "server" ) )
 		{
-			server = new Server( config );
-			server.run();
+			// Start the server, it spawns its own thread
+			// and takes over from here
+			new Server( config ).run();
 		}
 		else if ( mode.equals( "client" ) )
 		{
@@ -80,8 +68,9 @@ public class Voxicity
 			}
 			catch ( LWJGLException e )
 			{
+				System.out.println( "Unable to open Display" );
 				e.printStackTrace();
-				System.exit(0);
+				System.exit(1);
 			}
 
 			System.out.println( "Setting up OpenGL states" );
@@ -100,7 +89,7 @@ public class Voxicity
 
 			try
 			{
-				gui_renderer = new LWJGLRenderer();
+				LWJGLRenderer gui_renderer = new LWJGLRenderer();
 				LoginGUI login_gui = new LoginGUI();
 				ThemeManager theme = ThemeManager.createThemeManager( Voxicity.class.getResource( "/login.xml" ), gui_renderer );
 				GUI gui = new GUI( login_gui, gui_renderer );
@@ -122,18 +111,9 @@ public class Voxicity
 				Mouse.setGrabbed( true );
 
 				Socket client_s = new Socket( login_gui.get_server_name(), 11000 );
-				client = new Client( config, new NetworkConnection( client_s ) );
+				Client client = new Client( config, new NetworkConnection( client_s ) );
+				client.run();
 
-				client.init();
-
-				while ( !is_close_requested )
-				{
-					client.update();
-
-					is_close_requested |= Display.isCloseRequested();
-				}
-
-				client.shutdown();
 				System.out.println( "Destroying display" );
 				Display.destroy();
 			}
@@ -170,7 +150,6 @@ public class Voxicity
 		System.out.println( "The following options are valid\n" );
 		System.out.println( "  --mode <value>        Sets the mode of the program( server, client, server-client )" );
 		System.out.println( "  --config <filename>   Sets the name of the properties file to be loaded( voxicity.properties )" );
-		
 	}
 
 	public static void main( String[] args )
@@ -181,8 +160,7 @@ public class Voxicity
 			File new_out = new File( "voxicity.log" );
 			System.setOut( new PrintStream( new_out ) );
 
-			Voxicity voxy = new Voxicity( cmd_args );
-			voxy.init();
+			init( cmd_args );
 		}
 		catch ( Exception e )
 		{

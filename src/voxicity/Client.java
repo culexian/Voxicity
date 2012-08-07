@@ -58,10 +58,14 @@ public class Client
 
 	public void run()
 	{
+		init();
+
 		while( !quitting )
 		{
 			update();
 		}
+
+		shutdown();
 	}
 
 	void quit()
