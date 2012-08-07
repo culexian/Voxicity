@@ -81,6 +81,9 @@ public class InputHandler
 
 	void update_movement( float delta, InputState in_state )
 	{
+		// Set friction factor
+		float friction = 0.99f;
+
 		//Store the last_position
 		player.last_pos.set( player.pos );
 
@@ -89,20 +92,31 @@ public class InputHandler
 			int x_delta = in_state.x_delta;
 			int y_delta = in_state.y_delta;
 
-			float x_move = 0;
-			float z_move = 0;
+			Vector3f move = new Vector3f();
 
 			if ( in_state.move_left )
-				x_move -= 5;
+				if ( player.jumping )
+					move.x -= 20;
+				else
+					move.x -= 50;
 
 			if ( in_state.move_right )
-				x_move += 5;
+				if ( player.jumping )
+					move.x += 20;
+				else
+					move.x += 50;
 
 			if ( in_state.move_forward )
-				z_move -= 5;
+				if ( player.jumping )
+					move.z -= 25;
+				else
+					move.z -= 50;
 
 			if ( in_state.move_backward )
-				z_move += 5;
+				if ( player.jumping )
+					move.z += 25;
+				else
+					move.z += 50;
 
 			if ( player.flying )
 			{
@@ -124,7 +138,6 @@ public class InputHandler
 					player.accel.y = -23f;
 			}
 
-
 			yaw += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
 			pitch += ( y_delta / 800.0f ) * 45.0f * mouse_speed;
 
@@ -136,27 +149,61 @@ public class InputHandler
 			pitch = Math.min( pitch, 89.9999f );
 			pitch = Math.max( pitch, -89.9999f );
 
-			float cos_rot_x = ( float ) Math.cos( Math.toRadians( yaw ) );
-			float sin_rot_x = ( float ) Math.sin( Math.toRadians( yaw ) );
-			float cos_rot_y = ( float ) Math.cos( Math.toRadians( pitch ) );
-			float sin_rot_y = ( float ) Math.sin( Math.toRadians( pitch ) );
+			float cos_yaw = ( float ) Math.cos( Math.toRadians( yaw ) );
+			float sin_yaw = ( float ) Math.sin( Math.toRadians( yaw ) );
+			float cos_pitch = ( float ) Math.cos( Math.toRadians( pitch ) );
+			float sin_pitch = ( float ) Math.sin( Math.toRadians( pitch ) );
 
-			float corr_x = ( x_move * cos_rot_x ) - ( z_move * sin_rot_x );
-			float corr_z = ( x_move * sin_rot_x ) + ( z_move * cos_rot_x );
+			float corr_x = ( move.x * cos_yaw ) + ( move.z * -sin_yaw );
+			float corr_z = ( move.x * sin_yaw ) + ( move.z * cos_yaw );
 
 			player.accel.x = corr_x;
 			player.accel.z = corr_z;
 
-			player.velocity.x = player.accel.x; 
+			player.velocity.x += player.accel.x * delta; 
 			player.velocity.y += player.accel.y * delta;
-			player.velocity.z = player.accel.z;
+			player.velocity.z += player.accel.z * delta;
+
+			Vector3f friction_vec = new Vector3f( player.velocity );
+			friction_vec = friction_vec.normalise( null );
+			friction_vec.negate();
+			friction_vec.scale( 23 * friction * delta );
+
+			if ( player.velocity.lengthSquared() < friction_vec.lengthSquared() )
+			{
+				player.velocity.x = 0;
+				player.velocity.z = 0;
+			}
+			else
+			{
+				if ( !Float.isNaN( friction_vec.lengthSquared() ) )
+				{
+					player.velocity.x += friction_vec.x;
+					player.velocity.z += friction_vec.z;
+				}
+			}
+
+			if ( player.velocity.lengthSquared() < 0.01 )
+			{
+				player.velocity.x = 0;
+				player.velocity.z = 0;
+			}
+
+			Vector3f horiz_vel = new Vector3f( player.velocity.x, 0, player.velocity.z );
+			if ( horiz_vel.lengthSquared() > 25.0f )
+			{
+				float ratio = 5.0f / horiz_vel.length();
+				horiz_vel.scale( ratio );
+				player.velocity.x = horiz_vel.x;
+				player.velocity.z = horiz_vel.z;
+			}
 
 			player.pos.x += player.velocity.x * delta;
-			player.pos.y+= player.velocity.y * delta;
+			player.pos.y += player.velocity.y * delta;
 			player.pos.z += player.velocity.z * delta;
 
 			// Set the look vector
-			player.look.set( sin_rot_x * cos_rot_y * 4, sin_rot_y * 4, cos_rot_x * cos_rot_y * -4 );
+			player.look.set( sin_yaw * cos_pitch * 4, sin_pitch * 4, cos_yaw * cos_pitch * -4 );
 		}
 	}
 
