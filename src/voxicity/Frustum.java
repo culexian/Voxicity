@@ -222,14 +222,14 @@ public class Frustum
 		Vector3f[] points = { new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f() };
 		float[][] dots = new float[8][3];
 
-		points[0] = Vector3f.sub( new Vector3f( box.left(), box.top(), box.front() ), pos, null );
-		points[1] = Vector3f.sub( new Vector3f( box.right(), box.top(), box.front() ), pos, null );
-		points[2] = Vector3f.sub( new Vector3f( box.left(), box.bottom(), box.front() ), pos, null );
-		points[3] = Vector3f.sub( new Vector3f( box.right(), box.bottom(), box.front() ), pos, null );
-		points[4] = Vector3f.sub( new Vector3f( box.left(), box.top(), box.back() ), pos, null );
-		points[5] = Vector3f.sub( new Vector3f( box.right(), box.top(), box.back() ), pos, null );
-		points[6] = Vector3f.sub( new Vector3f( box.left(), box.bottom(), box.back() ), pos, null );
-		points[7] = Vector3f.sub( new Vector3f( box.right(), box.bottom(), box.back() ), pos, null );
+		points[0] = Vector3f.sub( new Vector3f( box.min_x(), box.max_y(), box.max_z() ), pos, null );
+		points[1] = Vector3f.sub( new Vector3f( box.max_x(), box.max_y(), box.max_z() ), pos, null );
+		points[2] = Vector3f.sub( new Vector3f( box.min_x(), box.min_y(), box.max_z() ), pos, null );
+		points[3] = Vector3f.sub( new Vector3f( box.max_x(), box.min_y(), box.max_z() ), pos, null );
+		points[4] = Vector3f.sub( new Vector3f( box.min_x(), box.max_y(), box.min_z() ), pos, null );
+		points[5] = Vector3f.sub( new Vector3f( box.max_x(), box.max_y(), box.min_z() ), pos, null );
+		points[6] = Vector3f.sub( new Vector3f( box.min_x(), box.min_y(), box.min_z() ), pos, null );
+		points[7] = Vector3f.sub( new Vector3f( box.max_x(), box.min_y(), box.min_z() ), pos, null );
 
 		for ( int i = 0 ; i < 8 ; i++ )
 		{

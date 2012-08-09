@@ -130,8 +130,8 @@ public class World
 		if ( id == Constants.Blocks.air )
 			return null;
 
-		AABB box = new Air().bounds();
-		Vector3f.add( box.pos, new Vector3f( x, y, z ), box.pos );
+		AABB box = Cube.bounds();
+		box.center_on( x, y, z );
 		return box;
 	}
 }

@@ -234,7 +234,7 @@ public class ChunkNode
 
 		AABB chunk_box = new AABB( Constants.Chunk.side_length, Constants.Chunk.side_length, Constants.Chunk.side_length );
 
-		chunk_box.pos.set( chunk.get_x() + chunk_box.dim.x, chunk.get_y() + chunk_box.dim.y, chunk.get_z() + chunk_box.dim.z );
+		chunk_box.center_on( chunk.get_x() + chunk_box.dimensions().x, chunk.get_y() + chunk_box.dimensions().y, chunk.get_z() + chunk_box.dimensions().z );
 
 		//if ( !voxicity.Voxicity.cam_vol.collides_plane_check( chunk_box ) )
 		if ( !camera.collides( chunk_box ) )

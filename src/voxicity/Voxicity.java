@@ -155,7 +155,7 @@ public class Voxicity
 		{
 			Arguments cmd_args = new Arguments( args );
 			File new_out = new File( "voxicity.log" );
-			System.setOut( new PrintStream( new_out ) );
+//			System.setOut( new PrintStream( new_out ) );
 
 			init( cmd_args );
 		}

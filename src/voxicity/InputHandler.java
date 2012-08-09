@@ -19,6 +19,8 @@
 
 package voxicity;
 
+import java.util.List;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector3f;
@@ -71,6 +73,7 @@ public class InputHandler
 			toggle_flying();
 
 		update_movement( delta, in_state );
+		handle_collisions( delta );
 
 		if ( in_state.use_action )
 			place_block();
@@ -121,10 +124,10 @@ public class InputHandler
 			if ( player.flying )
 			{
 				if ( in_state.ascend )
-					player.pos.y += 5 * delta;
+					player.last_pos.y += 5 * delta;
 
 				if ( in_state.descend )
-					player.pos.y -= 5 * delta;
+					player.last_pos.y -= 5 * delta;
 			}
 			else
 			{
@@ -167,7 +170,7 @@ public class InputHandler
 			Vector3f friction_vec = new Vector3f( player.velocity );
 			friction_vec = friction_vec.normalise( null );
 			friction_vec.negate();
-			friction_vec.scale( 23 * friction * delta );
+			friction_vec.scale( 20 * friction * delta );
 
 			if ( player.velocity.lengthSquared() < friction_vec.lengthSquared() )
 			{
@@ -197,10 +200,6 @@ public class InputHandler
 				player.velocity.x = horiz_vel.x;
 				player.velocity.z = horiz_vel.z;
 			}
-
-			player.pos.x += player.velocity.x * delta;
-			player.pos.y += player.velocity.y * delta;
-			player.pos.z += player.velocity.z * delta;
 
 			// Set the look vector
 			player.look.set( sin_yaw * cos_pitch * 4, sin_pitch * 4, cos_yaw * cos_pitch * -4 );
@@ -317,6 +316,133 @@ public class InputHandler
 		return delta;
 	}
 
+	void handle_collisions( float delta )
+	{
+		float epsilon = 0.0001f;
+		Vector3f velocity = new Vector3f( player.velocity );
+		velocity.scale( delta );
+
+		AABB p = new AABB( 0.5f, 1.7f, 0.5f );
+		p.center_on( player.last_pos );
+		AABB q = new AABB( p );
+		q.translate( velocity );
+
+
+		List<AABB> boxes = WorldUtil.get_intersecting_volumes( world, new AABB( p, q ) );
+
+		float y = correct_y_velocity( boxes, p, velocity.y );
+		float x = correct_x_velocity( boxes, p, velocity.x );
+		float z = correct_z_velocity( boxes, p, velocity.z );
+
+		Vector3f.add( player.last_pos, new Vector3f( x, y, z ), player.pos );
+
+		p.center_on( player.pos );
+
+		if ( y < 0 && y > velocity.y )
+		{
+			System.out.println( "Stopped jumping at foot level " + p.min_y());
+			player.jumping = false;
+			player.velocity.y = 0;
+			player.accel.y = 0;
+		}
+		if ( y > 0 && y < velocity.y )
+		{
+			System.out.println( "Player crashed into ceiling level " + p.max_y());
+			player.velocity.y = 0;
+		}
+
+		// Shift the bounding volume down to check for if we're still standing on anything
+		p.translate( 0, -epsilon, 0 );
+
+		if ( !player.jumping && !player.flying )
+		{
+			for ( AABB box : WorldUtil.get_intersecting_volumes( world, p ) )
+			{
+				if ( p.intersects( box ) )
+					player.jumping = false;
+			} 
+		};
+	}
+
+	// Correct X-axis velocity to the nearest box that collides
+	// with the YZ-corridor in the direction of travel
+	float correct_x_velocity( List<AABB> boxes, AABB box, float dist )
+	{
+		float epsilon = 0.0001f;
+
+		for ( AABB hit : boxes )
+		{
+			if ( !box.intersects_yz( hit ) )
+				continue;
+
+			if ( dist < 0 && box.min_x() >= hit.max_x() )
+			{
+				float delta = hit.max_x() - box.min_x();
+				dist = Math.max( dist, delta ) + epsilon;
+			}
+			else if ( dist > 0 && box.max_x() <= hit.min_x() )
+			{
+				float delta = hit.min_x() - box.max_x();
+				dist = Math.min( dist, delta ) - epsilon;
+			}
+		}
+
+		return dist;
+	}
+
+	// Correct Y-axis velocity to the nearest box that collides
+	// with the XZ-corridor in the direction of travel
+	float correct_y_velocity( List<AABB> boxes, AABB box, float y_delta )
+	{
+		float epsilon = 0.0001f;
+
+		for ( AABB hit : boxes )
+		{
+			if ( !box.intersects_xz( hit ) )
+				continue;
+
+			// Check if we're descending on to the box
+			if ( y_delta < 0 && ( box.min_y() + epsilon >= hit.max_y() ) )
+			{
+				float delta = hit.max_y() - box.min_y();
+				y_delta = Math.max( y_delta, delta ) + epsilon;
+			}
+			else if ( y_delta > 0 && box.max_y() - epsilon < hit.min_y() )
+			{
+				float delta = hit.min_y() - box.max_y();
+				y_delta = Math.min( y_delta, delta ) - epsilon;
+			}
+		}
+
+		return y_delta;
+	}
+
+	// Correct Z-axis velocity to the nearest box that collides
+	// with the XY-corridor in the direction of travel
+	float correct_z_velocity( List<AABB> boxes, AABB box, float z_delta )
+	{
+		float epsilon = 0.0001f;
+
+		for ( AABB hit : boxes )
+		{
+			if ( !box.intersects_xy( hit ) )
+				continue;
+
+			if ( z_delta < 0 && box.min_z() >= hit.max_z() )
+			{
+				float delta = hit.max_z() - box.min_z();
+				z_delta = Math.max( z_delta, delta ) + epsilon;
+			}
+			else if ( z_delta > 0 && box.max_z() <= hit.min_z() )
+			{
+				float delta = hit.min_z() - box.max_z();
+				z_delta = Math.min( z_delta, delta ) - epsilon;
+			}
+		}
+
+		return z_delta;
+	}
+
 	Vector3f[] check_collisions()
 	{
 		Vector3f last_pos = player.last_pos;
@@ -338,7 +464,7 @@ public class InputHandler
 		slice_distance.scale( 1.0f / ( slice_num * 1.0f ) );
 
 		Vector3f slice_pos = new Vector3f( last_pos );
-		player.pos = slice_pos;
+		player.center_on( slice_pos );
 
 		Vector3f corrected_pos = new Vector3f( new_pos );
 
@@ -348,25 +474,25 @@ public class InputHandler
 			
 			Vector3f.add( slice_pos, slice_distance, slice_pos );
 
-			AABB above = world.get_hit_box( Math.round( player.pos.x ), Math.round( player.top() ), Math.round( player.pos.z ) );
+			AABB above = world.get_hit_box( Math.round( player.position().x ), Math.round( player.max_y() ), Math.round( player.position().z ) );
 			if ( above != null )
 			{
-				if ( player.collides( above ) )
+				if ( player.intersects( above ) )
 				{
 					collided_y = true;
-					player.pos.y += above.bottom_intersect( player );
+					player.translate( 0, above.bottom_intersect( player ), 0 );
 					p.velocity.y = -p.velocity.y;
 					p.accel.y = 0;
 				}
 			}
 
-			AABB beneath = world.get_hit_box( Math.round( player.pos.x), Math.round( player.bottom() - 0.01f ), Math.round(player.pos.z) );
+			AABB beneath = world.get_hit_box( Math.round( player.position().x), Math.round( player.min_y() - 0.01f ), Math.round(player.position().z) );
 			if ( beneath != null )
 			{
-				if ( player.collides( beneath ) && p.velocity.y < 0 )
+				if ( player.intersects( beneath ) && p.velocity.y < 0 )
 				{
 					collided_y = true;
-					player.pos.y += beneath.top_intersect( player ) + 0.0001f;
+					player.translate( 0, beneath.top_intersect( player ) + 0.0001f, 0 );
 					p.velocity.y = 0;
 					p.accel.y = 0;
 					p.jumping = false;
@@ -383,7 +509,7 @@ public class InputHandler
 
 		corrected_pos.y = slice_pos.y;
 		slice_pos = new Vector3f( last_pos );
-		player.pos = slice_pos;
+		player.center_on( slice_pos );
 
 		// Check x axis for collisions
 		for ( int i = 0 ; i < slice_num ; i++ )
@@ -391,50 +517,50 @@ public class InputHandler
 
 			Vector3f.add( slice_pos, slice_distance, slice_pos );
 
-			AABB upper_neg_x = world.get_hit_box( Math.round(player.left()), Math.round(player.top()), Math.round(player.pos.z) );
+			AABB upper_neg_x = world.get_hit_box( Math.round(player.min_x()), Math.round(player.max_y()), Math.round(player.position().z) );
 			if ( upper_neg_x != null )
 			{
-				if ( player.collides( upper_neg_x ) )
+				if ( player.intersects( upper_neg_x ) )
 				{
 					collided_x = true;
 					p.velocity.x = 0;
-					player.pos.x += upper_neg_x.right_intersect( player ) + 0.0001f;
+					player.translate( upper_neg_x.right_intersect( player ) + 0.0001f, 0, 0 );
 				}
 			}
 
-			AABB upper_pos_x = world.get_hit_box( Math.round(player.right()), Math.round(player.top()), Math.round(player.pos.z) );
+			AABB upper_pos_x = world.get_hit_box( Math.round(player.max_x()), Math.round(player.max_y()), Math.round(player.position().z) );
 			if ( upper_pos_x != null )
 			{
-				if ( player.collides( upper_pos_x ) )
+				if ( player.intersects( upper_pos_x ) )
 				{
 					collided_x = true;
 					p.velocity.x = 0;
-					player.pos.x += upper_pos_x.left_intersect( player ) - 0.0001f;
+					player.translate( upper_pos_x.left_intersect( player ) - 0.0001f, 0, 0 );
 				}
 			}
 
-			AABB lower_neg_x = world.get_hit_box( Math.round(player.left()), Math.round(player.bottom()), Math.round(player.pos.z) );
+			AABB lower_neg_x = world.get_hit_box( Math.round(player.min_x()), Math.round(player.min_y()), Math.round(player.position().z) );
 			if ( lower_neg_x != null )
 			{
-				if ( player.collides( lower_neg_x ) )
+				if ( player.intersects( lower_neg_x ) )
 				{
 					collided_x = true;
 					p.velocity.x = 0;
 
 					if ( Math.abs( lower_neg_x.right_intersect( player ) ) < Math.abs( lower_neg_x.top_intersect( player ) ) )
-						player.pos.x += lower_neg_x.right_intersect( player ) + 0.0001f;
+						player.translate( lower_neg_x.right_intersect( player ) + 0.0001f, 0, 0 );
 				}
 			}
 
-			AABB lower_pos_x = world.get_hit_box( Math.round(player.right()), Math.round(player.bottom()), Math.round(player.pos.z) );
+			AABB lower_pos_x = world.get_hit_box( Math.round(player.max_x()), Math.round(player.min_y()), Math.round(player.position().z) );
 			if ( lower_pos_x != null )
 			{
-				if ( player.collides( lower_pos_x ) )
+				if ( player.intersects( lower_pos_x ) )
 				{
 					collided_x = true;
 					p.velocity.x = 0;
 					if ( Math.abs( lower_pos_x.left_intersect( player ) ) < Math.abs( lower_pos_x.top_intersect( player ) ) )
-						player.pos.x += lower_pos_x.left_intersect( player ) - 0.0001f;
+						player.translate( lower_pos_x.left_intersect( player ) - 0.0001f, 0, 0 );
 				}
 			}
 
@@ -444,55 +570,55 @@ public class InputHandler
 
 		corrected_pos.x = slice_pos.x;
 		slice_pos = new Vector3f( last_pos );
-		player.pos = slice_pos;
+		player.center_on( slice_pos );
 
 		for ( int i = 0 ; i < slice_num ; i++ )
 		{
 			Vector3f.add( slice_pos, slice_distance, slice_pos );
 
-			AABB upper_neg_z = world.get_hit_box( Math.round(player.pos.x), Math.round(player.top()), Math.round(player.back()) );
+			AABB upper_neg_z = world.get_hit_box( Math.round(player.position().x), Math.round(player.max_y()), Math.round(player.min_z()) );
 			if ( upper_neg_z != null )
 			{
-				if ( player.collides( upper_neg_z ) )
+				if ( player.intersects( upper_neg_z ) )
 				{
 					collided_z = true;
 					p.velocity.z = 0;
-					player.pos.z += upper_neg_z.front_intersect( player ) + 0.0001f;
+					player.translate( 0, 0, upper_neg_z.front_intersect( player ) + 0.0001f );
 				}
 			}
 
-			AABB upper_pos_z = world.get_hit_box( Math.round(player.pos.x), Math.round(player.top()), Math.round(player.front()) );
+			AABB upper_pos_z = world.get_hit_box( Math.round(player.position().x), Math.round(player.max_y()), Math.round(player.max_z()) );
 			if ( upper_pos_z != null )
 			{
-				if ( player.collides( upper_pos_z ) )
+				if ( player.intersects( upper_pos_z ) )
 				{
 					collided_z = true;
 					p.velocity.z = 0;
-					player.pos.z += upper_pos_z.back_intersect( player ) - 0.0001f;
+					player.translate( 0, 0, upper_pos_z.back_intersect( player ) - 0.0001f );
 				}
 			}
 
-			AABB lower_neg_z = world.get_hit_box( Math.round(player.pos.x), Math.round(player.bottom()), Math.round(player.back()) );
+			AABB lower_neg_z = world.get_hit_box( Math.round(player.position().x), Math.round(player.min_y()), Math.round(player.min_z()) );
 			if ( lower_neg_z != null )
 			{
-				if ( player.collides( lower_neg_z ) )
+				if ( player.intersects( lower_neg_z ) )
 				{
 					collided_z = true;
 					p.velocity.z = 0;
 					if ( Math.abs( lower_neg_z.front_intersect( player ) ) < Math.abs( lower_neg_z.top_intersect( player ) ) )
-						player.pos.z += lower_neg_z.front_intersect( player ) + 0.0001f;
+						player.translate( 0, 0, lower_neg_z.front_intersect( player ) + 0.0001f );
 				}
 			}
 
-			AABB lower_pos_z = world.get_hit_box( Math.round(player.pos.x), Math.round(player.bottom()), Math.round(player.front()) );
+			AABB lower_pos_z = world.get_hit_box( Math.round(player.position().x), Math.round(player.min_y()), Math.round(player.max_z()) );
 			if ( lower_pos_z != null )
 			{
-				if ( player.collides( lower_pos_z ) )
+				if ( player.intersects( lower_pos_z ) )
 				{
 					collided_z = true;
 					p.velocity.z = 0;
 					if ( Math.abs( lower_pos_z.back_intersect( player ) ) < Math.abs( lower_pos_z.top_intersect( player ) ) )
-						player.pos.z += lower_pos_z.back_intersect( player ) - 0.0001f;
+						player.translate( 0, 0, lower_pos_z.back_intersect( player ) - 0.0001f );
 				}
 			}
 

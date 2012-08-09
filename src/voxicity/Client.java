@@ -79,7 +79,7 @@ public class Client
 		handle_packets();
 		check_connection();
 		input_handler.update( world );
-		input_handler.check_collisions();
+//		input_handler.check_collisions();
 		input_handler.place_loc.set( input_handler.calc_place_loc() );
 		input_handler.update_camera();
 		hud.set_loc( player.pos );
