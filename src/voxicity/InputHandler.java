@@ -133,12 +133,12 @@ public class InputHandler
 			{
 				if ( in_state.ascend && !player.jumping )
 				{
-					player.velocity.y = 8.0f;
+					player.velocity.y = 10.0f;
 					player.jumping = true;
 				}
 
 				if ( player.jumping )
-					player.accel.y = -23f;
+					player.accel.y = -30f;
 			}
 
 			yaw += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
@@ -170,7 +170,7 @@ public class InputHandler
 			Vector3f friction_vec = new Vector3f( player.velocity );
 			friction_vec = friction_vec.normalise( null );
 			friction_vec.negate();
-			friction_vec.scale( 20 * friction * delta );
+			friction_vec.scale( 30 * friction * delta );
 
 			if ( player.velocity.lengthSquared() < friction_vec.lengthSquared() )
 			{
@@ -322,54 +322,44 @@ public class InputHandler
 		Vector3f velocity = new Vector3f( player.velocity );
 		velocity.scale( delta );
 
-		AABB p = new AABB( 0.5f, 1.7f, 0.5f );
+		AABB p = new AABB( 0.5f, 1.5f, 0.5f );
 		p.center_on( player.last_pos );
 		AABB q = new AABB( p );
 		q.translate( velocity );
 
-
 		List<AABB> boxes = WorldUtil.get_intersecting_volumes( world, new AABB( p, q ) );
 
 		float y = correct_y_velocity( boxes, p, velocity.y );
+		p.translate( 0, y, 0 );
 		float x = correct_x_velocity( boxes, p, velocity.x );
+		p.translate( x, 0, 0 );
 		float z = correct_z_velocity( boxes, p, velocity.z );
+		p.translate( 0, 0, z );
 
-		Vector3f.add( player.last_pos, new Vector3f( x, y, z ), player.pos );
+//		Vector3f.add( player.last_pos, new Vector3f( x, y, z ), player.pos );a
+		player.pos.set( p.position() );
+		//p.center_on( player.pos );
 
-		p.center_on( player.pos );
+		// If collisions happen in any direction, set that velocity to 0
+		if ( x != velocity.x )
+			player.velocity.x = 0f;
+		if ( y != velocity.y )
+			player.velocity.y = 0f;
+		if ( z != velocity.z )
+			player.velocity.z = 0;
 
-		if ( y < 0 && y > velocity.y )
-		{
-			System.out.println( "Stopped jumping at foot level " + p.min_y());
-			player.jumping = false;
-			player.velocity.y = 0;
-			player.accel.y = 0;
-		}
-		if ( y > 0 && y < velocity.y )
-		{
-			System.out.println( "Player crashed into ceiling level " + p.max_y());
-			player.velocity.y = 0;
-		}
+		AABB standing_box = new AABB( p );
+		standing_box.translate( 0, -epsilon, 0 );
 
-		// Shift the bounding volume down to check for if we're still standing on anything
-		p.translate( 0, -epsilon, 0 );
-
-		if ( !player.jumping && !player.flying )
-		{
-			for ( AABB box : WorldUtil.get_intersecting_volumes( world, p ) )
-			{
-				if ( p.intersects( box ) )
-					player.jumping = false;
-			} 
-		};
+		for ( AABB box : WorldUtil.get_intersecting_volumes( world, standing_box ) )
+			if ( standing_box.intersects( box ) && y == 0f )
+				player.jumping = false;
 	}
 
 	// Correct X-axis velocity to the nearest box that collides
 	// with the YZ-corridor in the direction of travel
 	float correct_x_velocity( List<AABB> boxes, AABB box, float dist )
 	{
-		float epsilon = 0.0001f;
-
 		for ( AABB hit : boxes )
 		{
 			if ( !box.intersects_yz( hit ) )
@@ -378,12 +368,12 @@ public class InputHandler
 			if ( dist < 0 && box.min_x() >= hit.max_x() )
 			{
 				float delta = hit.max_x() - box.min_x();
-				dist = Math.max( dist, delta ) + epsilon;
+				dist = Math.max( dist, delta );
 			}
 			else if ( dist > 0 && box.max_x() <= hit.min_x() )
 			{
 				float delta = hit.min_x() - box.max_x();
-				dist = Math.min( dist, delta ) - epsilon;
+				dist = Math.min( dist, delta );
 			}
 		}
 
@@ -394,23 +384,21 @@ public class InputHandler
 	// with the XZ-corridor in the direction of travel
 	float correct_y_velocity( List<AABB> boxes, AABB box, float y_delta )
 	{
-		float epsilon = 0.0001f;
-
 		for ( AABB hit : boxes )
 		{
 			if ( !box.intersects_xz( hit ) )
 				continue;
 
 			// Check if we're descending on to the box
-			if ( y_delta < 0 && ( box.min_y() + epsilon >= hit.max_y() ) )
+			if ( y_delta < 0 && ( box.min_y() >= hit.max_y() ) )
 			{
 				float delta = hit.max_y() - box.min_y();
-				y_delta = Math.max( y_delta, delta ) + epsilon;
+				y_delta = Math.max( y_delta, delta );
 			}
-			else if ( y_delta > 0 && box.max_y() - epsilon < hit.min_y() )
+			else if ( y_delta > 0 && box.max_y() <= hit.min_y() )
 			{
 				float delta = hit.min_y() - box.max_y();
-				y_delta = Math.min( y_delta, delta ) - epsilon;
+				y_delta = Math.min( y_delta, delta );
 			}
 		}
 
@@ -421,8 +409,6 @@ public class InputHandler
 	// with the XY-corridor in the direction of travel
 	float correct_z_velocity( List<AABB> boxes, AABB box, float z_delta )
 	{
-		float epsilon = 0.0001f;
-
 		for ( AABB hit : boxes )
 		{
 			if ( !box.intersects_xy( hit ) )
@@ -431,12 +417,12 @@ public class InputHandler
 			if ( z_delta < 0 && box.min_z() >= hit.max_z() )
 			{
 				float delta = hit.max_z() - box.min_z();
-				z_delta = Math.max( z_delta, delta ) + epsilon;
+				z_delta = Math.max( z_delta, delta );
 			}
 			else if ( z_delta > 0 && box.max_z() <= hit.min_z() )
 			{
 				float delta = hit.min_z() - box.max_z();
-				z_delta = Math.min( z_delta, delta ) - epsilon;
+				z_delta = Math.min( z_delta, delta );
 			}
 		}
 

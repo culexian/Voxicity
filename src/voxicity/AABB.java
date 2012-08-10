@@ -155,6 +155,21 @@ public class AABB
 		translate( new Vector3f( x, y, z ) );
 	}
 
+	public void scale( float x, float y, float z )
+	{
+		Vector3f center = position();
+		Vector3f dim = dimensions();
+
+		dim.x *= x;
+		dim.y *= y;
+		dim.z *= z;
+
+		min.set( -dim.x, -dim.y, -dim.z );
+		max.set( dim.x, dim.y, dim.z );
+
+		center_on( center );
+	}
+
 	public void center_on( Vector3f v )
 	{
 		Vector3f delta = Vector3f.sub( v, position(), null );
@@ -324,19 +339,19 @@ public class AABB
 	// Test an AABB against the X-axis
 	public boolean intersects_x( AABB rhs )
 	{
-		return !( min_x() > rhs.max_x() || max_x() < rhs.min_x() );
+		return !( min_x() >= rhs.max_x() || max_x() <= rhs.min_x() );
 	}
 
 	// Test and AABB against the Y-axis
 	public boolean intersects_y( AABB rhs )
 	{
-		return !( min_y() > rhs.max_y() || max_y() < rhs.min_y() );
+		return !( min_y() >= rhs.max_y() || max_y() <= rhs.min_y() );
 	}
 
 	// Test an AABB against the Z-axis
 	public boolean intersects_z( AABB rhs )
 	{
-		return !( min_z() > rhs.max_z() || max_z() < rhs.min_z() );
+		return !( min_z() >= rhs.max_z() || max_z() <= rhs.min_z() );
 	}
 
 	// Test an AABB against the XY-corridor
