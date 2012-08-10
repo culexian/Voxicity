@@ -99,27 +99,27 @@ public class InputHandler
 
 			if ( in_state.move_left )
 				if ( player.jumping )
-					move.x -= 20;
+					move.x -= 35;
 				else
-					move.x -= 50;
+					move.x -= 60;
 
 			if ( in_state.move_right )
 				if ( player.jumping )
-					move.x += 20;
+					move.x += 35;
 				else
-					move.x += 50;
+					move.x += 60;
 
 			if ( in_state.move_forward )
 				if ( player.jumping )
-					move.z -= 25;
+					move.z -= 35;
 				else
-					move.z -= 50;
+					move.z -= 60;
 
 			if ( in_state.move_backward )
 				if ( player.jumping )
-					move.z += 25;
+					move.z += 35;
 				else
-					move.z += 50;
+					move.z += 60;
 
 			if ( player.flying )
 			{
@@ -138,7 +138,7 @@ public class InputHandler
 				}
 
 				if ( player.jumping )
-					player.accel.y = -30f;
+					player.accel.y = -25f;
 			}
 
 			yaw += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
@@ -167,26 +167,29 @@ public class InputHandler
 			player.velocity.y += player.accel.y * delta;
 			player.velocity.z += player.accel.z * delta;
 
-			Vector3f friction_vec = new Vector3f( player.velocity );
-			friction_vec = friction_vec.normalise( null );
-			friction_vec.negate();
-			friction_vec.scale( 30 * friction * delta );
+			if ( player.velocity.x != 0.0f || player.velocity.y != 0.0f || player.velocity.z != 0.0f )
+			{
+				Vector3f friction_vec = new Vector3f( player.velocity );
+				friction_vec = friction_vec.normalise( null );
+				friction_vec.negate();
+				friction_vec.scale( 30 * friction * delta );
 
-			if ( player.velocity.lengthSquared() < friction_vec.lengthSquared() )
-			{
-				player.velocity.x = 0;
-				player.velocity.z = 0;
-			}
-			else
-			{
-				if ( !Float.isNaN( friction_vec.lengthSquared() ) )
+				if ( player.velocity.lengthSquared() < friction_vec.lengthSquared() )
 				{
-					player.velocity.x += friction_vec.x;
-					player.velocity.z += friction_vec.z;
+					player.velocity.x = 0;
+					player.velocity.z = 0;
+				}
+				else
+				{
+					if ( !Float.isNaN( friction_vec.lengthSquared() ) )
+					{
+						player.velocity.x += friction_vec.x;
+						player.velocity.z += friction_vec.z;
+					}
 				}
 			}
 
-			if ( player.velocity.lengthSquared() < 0.01 )
+			if ( player.velocity.lengthSquared() < 0.001 )
 			{
 				player.velocity.x = 0;
 				player.velocity.z = 0;
