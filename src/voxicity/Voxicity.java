@@ -80,6 +80,8 @@ public class Voxicity
 			GL11.glEnable( GL11.GL_BLEND );
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glClearColor( 126.0f / 255.0f, 169.0f / 255.0f, 254.0f / 255.0f, 1.0f );
+			GL11.glEnableClientState( GL11.GL_VERTEX_ARRAY );
+			GL11.glEnableClientState( GL11.GL_TEXTURE_COORD_ARRAY );
 
 			System.out.println( "Number of texture units: " + GL11.glGetInteger( GL13.GL_MAX_TEXTURE_UNITS ) );
 			System.out.println( "Number of image texture units: " + GL11.glGetInteger( GL20.GL_MAX_TEXTURE_IMAGE_UNITS ) );
@@ -155,7 +157,7 @@ public class Voxicity
 		{
 			Arguments cmd_args = new Arguments( args );
 			File new_out = new File( "voxicity.log" );
-//			System.setOut( new PrintStream( new_out ) );
+			System.setOut( new PrintStream( new_out ) );
 
 			init( cmd_args );
 		}

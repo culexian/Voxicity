@@ -252,12 +252,10 @@ public class ChunkNode
 			GL20.glUseProgram( shader_prog );
 
 		// Bind VBO to vertex pointer
-		GL11.glEnableClientState( GL11.GL_VERTEX_ARRAY );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, vert_buf );
 		GL11.glVertexPointer( 3, GL11.GL_FLOAT, 0, 0 );
 
 		// Bind the texture coord VBO to texture pointer
-		GL11.glEnableClientState( GL11.GL_TEXTURE_COORD_ARRAY );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, tex_buf );
 		GL11.glTexCoordPointer( 2, GL11.GL_FLOAT, 0, 0 );
 
@@ -284,12 +282,6 @@ public class ChunkNode
 		// Unbind all buffers
 		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
 		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
-
-		// Disable Texture pointer
-		GL11.glDisableClientState( GL11.GL_TEXTURE_COORD_ARRAY );
-
-		// Disable Vertex pointer
-		GL11.glDisableClientState( GL11.GL_VERTEX_ARRAY );
 
 		// Disable the shader once more
 		if ( shader_prog != 0 )
