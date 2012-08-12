@@ -319,19 +319,27 @@ public class InputHandler
 		return delta;
 	}
 
+	// Handle the player collisions by moving the player out of solid volumes
+	// and disabling jumping if needed
 	void handle_collisions( float delta )
 	{
+		// Epsilon used for small differences
 		float epsilon = 0.0001f;
+
+		// Copy the player velocity and scale it to the movement in this update
 		Vector3f velocity = new Vector3f( player.velocity );
 		velocity.scale( delta );
 
-		AABB p = new AABB( 0.5f, 1.5f, 0.5f );
+		// Create two bounding boxes, one at the start and one at the end of the path
+		AABB p = new AABB( 0.5f, 1.75f, 0.5f );
 		p.center_on( player.last_pos );
 		AABB q = new AABB( p );
 		q.translate( velocity );
 
+		// Find all the volumes possibly intersected by this path by combining one large bounding box
 		List<AABB> boxes = WorldUtil.get_intersecting_volumes( world, new AABB( p, q ) );
 
+		// Translate the bounding volume as corrections are found in y, x, and z axes
 		float y = correct_y_velocity( boxes, p, velocity.y );
 		p.translate( 0, y, 0 );
 		float x = correct_x_velocity( boxes, p, velocity.x );
@@ -351,9 +359,14 @@ public class InputHandler
 		if ( z != velocity.z )
 			player.velocity.z = 0;
 
+		// Create a new box to test for solid volumes under the player
 		AABB standing_box = new AABB( p );
+		// Translate the standing box slightly down to check for surfaces to
+		// stand on
 		standing_box.translate( 0, -epsilon, 0 );
 
+		// Check if the player is standing on anything after having set y movement to 0
+		// Disable jumping if so
 		for ( AABB box : WorldUtil.get_intersecting_volumes( world, standing_box ) )
 			if ( standing_box.intersects( box ) && y == 0f )
 				player.jumping = false;
