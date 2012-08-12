@@ -400,36 +400,6 @@ public class AABB
 		return z_col.collides_point( point );
 	}
 
-	public float top_intersect( AABB rhs )
-	{
-		return max_y() - rhs.min_y();
-	}
-
-	public float bottom_intersect( final AABB rhs )
-	{
-		return min_y() - rhs.max_y();
-	}
-
-	public float left_intersect( final AABB rhs )
-	{
-		return min_x() - rhs.max_x();
-	}
-
-	public float right_intersect( final AABB rhs )
-	{
-		return max_x() - rhs.min_x();
-	}
-
-	public float front_intersect( final AABB rhs )
-	{
-		return max_z() - rhs.min_z();
-	}
-
-	public float back_intersect( final AABB rhs )
-	{
-		return min_z() - rhs.max_z();
-	}
-
 	public String toString()
 	{
 		return min + " " + max;
