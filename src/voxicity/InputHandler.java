@@ -138,7 +138,7 @@ public class InputHandler
 				}
 
 				if ( player.jumping )
-					player.accel.y = -25f;
+					player.accel.y = -30f;
 			}
 
 			yaw += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
