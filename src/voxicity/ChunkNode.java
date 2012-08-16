@@ -58,7 +58,7 @@ public class ChunkNode
 	static FloatBuffer verts = BufferUtils.createFloatBuffer( 3 * 24 * Constants.Chunk.block_number );
 	static FloatBuffer tex_coords = BufferUtils.createFloatBuffer( 2 * 24 * Constants.Chunk.block_number );
 
-	private class Batch
+	public class Batch
 	{
 		public final int tex;
 		public final int indices;

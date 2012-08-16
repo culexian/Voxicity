@@ -21,14 +21,17 @@ package voxicity;
 
 import de.matthiasmann.twl.*;
 
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
-public class Renderer
+public class Renderer implements Runnable
 {
 	public static int quads = 0;
 	public static int draw_calls = 0;
@@ -37,11 +40,54 @@ public class Renderer
 	Config config;
 	Map< ChunkID, ChunkNode > chunks = new HashMap< ChunkID, ChunkNode >();
 
+	// Contains the full set of batches to render
+	Set< ChunkNode.Batch > batches = new HashSet< ChunkNode.Batch >();
+
+	// The lock used for locking the set of batches
+	ReentrantLock lock = new ReentrantLock();
+
+	// Reference to the render thread
+	Thread thread;
+
 	Frustum camera = new Frustum();
 
 	public Renderer( Config config )
 	{
 		this.config = config;
+
+		thread = new Thread( this );
+		thread.start();
+	}
+
+	public void run()
+	{
+		try
+		{
+			// Loop locking, rendering, unlocking
+			// Allows updater to update during unlock
+			// if already waiting at the lock
+			while ( true )
+			{
+				lock.lockInterruptibly();
+
+				// Render the set of batches
+
+				lock.unlock();
+			}
+		}
+		// Use interrupt to signal the thread to quit
+		// Release the lock if held so updater can quit too
+		catch ( Exception e )
+		{
+			if ( lock.isHeldByCurrentThread() )
+				lock.unlock();
+		}
+	}
+
+	// Interrupting the rendering thread causes it to quit
+	public void quit()
+	{
+		thread.interrupt();
 	}
 
 	public void set_chunk( int x, int y, int z, Chunk chunk )

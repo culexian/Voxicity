@@ -95,6 +95,7 @@ public class Client
 	{
 		chunk_requester.quit();
 		disconnect();
+		renderer.quit();
 	}
 
 	void update_fps()
