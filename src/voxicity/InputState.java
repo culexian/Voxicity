@@ -51,8 +51,6 @@ public class InputState
 			quit |= ( Keyboard.getEventKey() == Keyboard.KEY_Q && Keyboard.getEventKeyState() );
 		}
 
-		//quit = Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) || Keyboard.isKeyDown( Keyboard.KEY_Q );
-
 		move_left = Keyboard.isKeyDown( Keyboard.KEY_A );
 		move_right = Keyboard.isKeyDown( Keyboard.KEY_D );
 		move_forward = Keyboard.isKeyDown( Keyboard.KEY_W );
