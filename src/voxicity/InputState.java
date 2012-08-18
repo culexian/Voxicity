@@ -47,9 +47,11 @@ public class InputState
 		{
 			toggle_mouse = ( Keyboard.getEventKey() == Keyboard.KEY_E && Keyboard.getEventKeyState() );
 			toggle_flying = ( Keyboard.getEventKey() == Keyboard.KEY_G && Keyboard.getEventKeyState() );
+			quit |= ( Keyboard.getEventKey() == Keyboard.KEY_ESCAPE && Keyboard.getEventKeyState() );
+			quit |= ( Keyboard.getEventKey() == Keyboard.KEY_Q && Keyboard.getEventKeyState() );
 		}
 
-		quit = Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) || Keyboard.isKeyDown( Keyboard.KEY_Q );
+		//quit = Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) || Keyboard.isKeyDown( Keyboard.KEY_Q );
 
 		move_left = Keyboard.isKeyDown( Keyboard.KEY_A );
 		move_right = Keyboard.isKeyDown( Keyboard.KEY_D );
