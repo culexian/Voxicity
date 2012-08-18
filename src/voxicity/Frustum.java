@@ -76,8 +76,10 @@ public class Frustum
 		}
 	}
 
-	Vector3f pos = new Vector3f();
-	Vector3f look, right, up;
+	Vector3f pos   = new Vector3f( 0, 0, 0 );
+	Vector3f right = new Vector3f( 1, 0, 0 );
+	Vector3f up    = new Vector3f( 0, 1, 0 );
+	Vector3f look  = new Vector3f( 0, 0, 1 );
 
 	Plane[] planes = new Plane[6];
 

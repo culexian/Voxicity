@@ -60,15 +60,23 @@ public class ChunkNode
 
 	public class Batch
 	{
-		public final int tex;
-		public final int indices;
-		public final int num_elements;
+		public AABB box;
+		public int indices;
+		public int num_elements;
+		public int shader;
+		public int tex;
+		public int tex_buf;
+		public int vert_buf;
 
-		public Batch( int tex, int indices, int num_elements )
+		public Batch( int tex, int indices, int num_elements, int shader, int tex_buf, int vert_buf, AABB box )
 		{
 			this.tex = tex;
 			this.indices = indices;
 			this.num_elements = num_elements;
+			this.shader = shader;
+			this.tex_buf = tex_buf;
+			this.vert_buf = vert_buf;
+			this.box = box;
 		}
 	}
 
@@ -91,29 +99,18 @@ public class ChunkNode
  
 		last_update = Time.get_time_ms();
 
-		if ( vert_buf == 0 )
-		{
-			IntBuffer buf = BufferUtils.createIntBuffer(1);
-			GL15.glGenBuffers( buf );
-			vert_buf = buf.get(0);
-		}
-
-		if ( tex_buf == 0 )
-		{
-			IntBuffer buf = BufferUtils.createIntBuffer(1);
-			GL15.glGenBuffers( buf );
-			tex_buf = buf.get(0);
-		}
+		vert_buf = GL15.glGenBuffers();
+		tex_buf = GL15.glGenBuffers();
 
 		if ( shader_prog == 0 )
 			create_shader_prog();
 
 		int offset = 0;
 
-		clear_batches();
 
 		verts.clear();
 		tex_coords.clear();
+		batches.clear();
 
 		Map< Integer, IntBuffer> id_ind = new HashMap< Integer, IntBuffer >();
 
@@ -140,7 +137,7 @@ public class ChunkNode
 						if ( !cull( loc ) && !chunk_edge_cull( loc ) )
 						{
 							// Get the vertices for this block and put them in the verts buffer
-							verts.put( Coord.offset_coords( b.vertices(), new Vector3f( loc.x, loc.y, loc.z ) ) );
+							verts.put( Coord.offset_coords( b.vertices(), new Vector3f( pos.x + loc.x, pos.y + loc.y, pos.z + loc.z ) ) );
 
 							// Get the texture coords for this block and put them in the tex_coords buffer
 							tex_coords.put( b.texture_coords() );
@@ -176,6 +173,9 @@ public class ChunkNode
 		verts.limit( verts.position() ).rewind();
 		tex_coords.limit( tex_coords.position() ).rewind();
 		System.out.println( verts.limit() + " " + tex_coords.limit() );
+
+		AABB box = new AABB( Constants.Chunk.side_length, Constants.Chunk.side_length, Constants.Chunk.side_length );
+		box.center_on( pos.x + box.dimensions().x, pos.y + box.dimensions().y, pos.z + box.dimensions().z );
 
 		// Pass the buffer to a VBO
 		System.out.println( "Binding vertex buffer" );
@@ -215,7 +215,7 @@ public class ChunkNode
 			System.out.println( "Size of index buffer is: " + GL15.glGetBufferParameter( GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE )  + " with " + entry.getValue().limit() + " indices" );
 
 			System.out.println( "Creating batch: " + entry.getKey() + " " + ibo.get(0) + " " + entry.getValue().limit() );
-			batches.add( new Batch( entry.getKey(), ibo.get(0), entry.getValue().limit() ) );
+			batches.add( new Batch( entry.getKey(), ibo.get(0), entry.getValue().limit(), shader_prog, tex_buf, vert_buf, box ) );
 
 			GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
 			GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
@@ -236,15 +236,8 @@ public class ChunkNode
 
 		chunk_box.center_on( chunk.get_x() + chunk_box.dimensions().x, chunk.get_y() + chunk_box.dimensions().y, chunk.get_z() + chunk_box.dimensions().z );
 
-		//if ( !voxicity.Voxicity.cam_vol.collides_plane_check( chunk_box ) )
 		if ( !camera.collides( chunk_box ) )
 			return;
-
-		// Push the world matrix
-		GL11.glPushMatrix();
-
-		// Translate to this chunk
-		GL11.glTranslatef( pos.x, pos.y, pos.z );
 
 		Renderer.draw_calls++;
 
@@ -286,9 +279,6 @@ public class ChunkNode
 		// Disable the shader once more
 		if ( shader_prog != 0 )
 		GL20.glUseProgram( 0 );
-
-		// Pop the world matrix
-		GL11.glPopMatrix();
 	}
 
 	void create_shader_prog()
@@ -440,15 +430,5 @@ public class ChunkNode
 		}
 
 		return true;
-	}
-
-	void clear_batches()
-	{
-		for ( Batch batch : batches )
-		{
-			GL15.glDeleteBuffers( batch.indices );
-		}
-
-		batches.clear();
 	}
 }

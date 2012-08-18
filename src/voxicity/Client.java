@@ -19,6 +19,8 @@
 
 package voxicity;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.lwjgl.opengl.Display;
 
 public class Client
@@ -35,6 +37,7 @@ public class Client
 	InputHandler input_handler;
 	Player player = new Player();
 	Renderer renderer;
+	RenderUpdater render_updater;
 	World world;
 
 	public Client( Config config, Connection connection )
@@ -43,6 +46,7 @@ public class Client
 		this.connection = connection;
 		this.world = new World( config );
 		this.renderer = new Renderer( config );
+		this.render_updater = new RenderUpdater( this );
 		this.chunk_requester = new ChunkRequester( player, world, connection );
 		this.hud = new HUD();
 		this.input_handler = new InputHandler( this );
@@ -53,7 +57,6 @@ public class Client
 		chunk_requester.start();
 		fps_counter.reset();
 		player.pos.set( 0, 3, 0 );
-		renderer.setup_camera( 45.0f, 1200 / 720.0f, 1000f );
 		input_handler.init();
 	}
 
@@ -82,12 +85,12 @@ public class Client
 		input_handler.place_loc.set( input_handler.calc_place_loc() );
 		input_handler.update_camera();
 		hud.set_loc( player.pos );
-		hud.set_chunks( renderer.draw_calls, renderer.chunks.size(), renderer.batch_draw_calls );
+		hud.set_chunks( renderer.draw_calls, world.chunks.size(), renderer.batch_draw_calls );
 		hud.set_quads( renderer.quads );
 		renderer.render();
 		hud.render();
-		update_fps();
 		Display.update();
+		update_fps();
 		tell_player_position();
 	}
 
@@ -95,7 +98,7 @@ public class Client
 	{
 		chunk_requester.quit();
 		disconnect();
-		renderer.quit();
+		render_updater.quit();
 	}
 
 	void update_fps()
@@ -125,7 +128,7 @@ public class Client
 					LoadChunkPacket p = (LoadChunkPacket)packet;
 					Chunk c = p.chunk;
 					world.set_chunk( c.x, c.y, c.z, c );
-					renderer.set_chunk( c.x, c.y, c.z, c );
+					render_updater.set_chunk( c.x, c.y, c.z, c );
 					break;
 				}
 				case Constants.Packet.BlockUpdate:

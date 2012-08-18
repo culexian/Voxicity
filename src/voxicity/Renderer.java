@@ -21,6 +21,7 @@ package voxicity;
 
 import de.matthiasmann.twl.*;
 
+import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,105 +30,67 @@ import java.util.Set;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.SharedDrawable;
 import org.lwjgl.util.glu.GLU;
 
-public class Renderer implements Runnable
+public class Renderer
 {
 	public static int quads = 0;
 	public static int draw_calls = 0;
 	public static int batch_draw_calls = 0;
 
-	Config config;
-	Map< ChunkID, ChunkNode > chunks = new HashMap< ChunkID, ChunkNode >();
+	private Config config;
 
 	// Contains the full set of batches to render
-	Set< ChunkNode.Batch > batches = new HashSet< ChunkNode.Batch >();
+	private Set< ChunkNode.Batch > batches = new HashSet< ChunkNode.Batch >();
 
 	// The lock used for locking the set of batches
-	ReentrantLock lock = new ReentrantLock();
-
-	// Reference to the render thread
-	Thread thread;
+	private ReentrantLock lock = new ReentrantLock();
 
 	Frustum camera = new Frustum();
 
 	public Renderer( Config config )
 	{
 		this.config = config;
-
-		thread = new Thread( this );
-		thread.start();
+		setup_camera( 45.0f, 1200 / 720.0f, 1000f );
 	}
 
-	public void run()
+	public void add_remove( ArrayList< ChunkNode.Batch > additions, ArrayList< ChunkNode.Batch > removals )
 	{
-		try
-		{
-			// Loop locking, rendering, unlocking
-			// Allows updater to update during unlock
-			// if already waiting at the lock
-			while ( true )
-			{
-				lock.lockInterruptibly();
+		lock.lock();
 
-				// Render the set of batches
+		for ( ChunkNode.Batch batch : removals )
+			batches.remove( batch );
 
-				lock.unlock();
-			}
-		}
-		// Use interrupt to signal the thread to quit
-		// Release the lock if held so updater can quit too
-		catch ( Exception e )
-		{
-			if ( lock.isHeldByCurrentThread() )
-				lock.unlock();
-		}
-	}
+		batches.addAll( additions );
 
-	// Interrupting the rendering thread causes it to quit
-	public void quit()
-	{
-		thread.interrupt();
-	}
-
-	public void set_chunk( int x, int y, int z, Chunk chunk )
-	{
-		if ( chunk == null )
-			return;
-
-		ChunkNode node = new ChunkNode( chunk );
-		node.set_pos( x, y, z );
-
-		chunks.put( new ChunkID( x, y, z ), node );
+		lock.unlock();
 	}
 
 	public void render()
 	{
-		boolean cleaned_one = false;
+		lock.lock();
+
 		quads = 0;
 		draw_calls = 0;
 		batch_draw_calls = 0;
 
 		GL11.glLoadIdentity();
-		GLU.gluLookAt( camera.pos.x, camera.pos.y, camera.pos.z, camera.pos.x + camera.look.x, camera.pos.y + camera.look.y, camera.pos.z  + camera.look.z, 0,1,0 );
+		GLU.gluLookAt( camera.pos.x, camera.pos.y, camera.pos.z,
+		               camera.pos.x + camera.look.x, camera.pos.y + camera.look.y, camera.pos.z  + camera.look.z,
+		               0, 1, 0 );
 
-
-		// Clear the screen and depth buffer
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-		
-//		System.out.println( "Before clean " + Time.get_time_µs() );
-		for ( ChunkNode chunk : chunks.values() )
-//			if ( !cleaned_one )
-				cleaned_one = chunk.clean();
+		for ( ChunkNode.Batch batch : batches )
+			render_batch( batch );
 
-//		System.out.println( "Before render " + Time.get_time_µs() );
-		for ( ChunkNode chunk : chunks.values() )
-			chunk.render( camera );
+		GL11.glFlush();
 
-//		System.out.println( "After render " + Time.get_time_µs() );
-
-		cleaned_one = false;
+		lock.unlock();
 	}
 
 	void setup_camera( float fov, float ratio, float view_distance )
@@ -138,5 +101,45 @@ public class Renderer implements Runnable
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
 		camera.set_attribs( fov, ratio, 0.01f, view_distance );
+	}
+
+	private void render_batch( ChunkNode.Batch batch )
+	{
+		if ( !camera.collides( batch.box ) )
+			return;
+
+		Renderer.draw_calls++;
+
+		// Use the shader the batch needs
+		GL20.glUseProgram( batch.shader );
+
+		// Bind VBO to vertex pointer
+		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, batch.vert_buf );
+		GL11.glVertexPointer( 3, GL11.GL_FLOAT, 0, 0 );
+
+		// Bind the texture coord VBO to texture pointer
+		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, batch.tex_buf );
+		GL11.glTexCoordPointer( 2, GL11.GL_FLOAT, 0, 0 );
+
+		// Bind the texture for this batch
+		GL11.glBindTexture( GL11.GL_TEXTURE_2D, batch.tex );
+
+		// Bind index array
+		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, batch.indices );
+
+		// Draw the block
+		GL12.glDrawRangeElements( GL11.GL_QUADS, 0, Constants.Chunk.block_number * 24 -1, batch.num_elements, GL11.GL_UNSIGNED_INT, 0 );
+
+		Renderer.batch_draw_calls++;
+		Renderer.quads += batch.num_elements;
+
+		// Unbind the texture
+		GL11.glBindTexture( GL11.GL_TEXTURE_2D, 0 );
+
+		// Unbind all buffers
+		GL15.glBindBuffer( GL15.GL_ELEMENT_ARRAY_BUFFER, 0 );
+		GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, 0 );
+
+		GL20.glUseProgram( 0 );
 	}
 }

@@ -25,10 +25,10 @@ public class Player
 {
 	String name = "Player";
 	Vector3f last_pos = new Vector3f();
-	Vector3f pos = new Vector3f();
+	Vector3f pos = new Vector3f( 0, 3, 0 );
 	Vector3f accel = new Vector3f();
 	Vector3f velocity = new Vector3f();
-	Vector3f look = new Vector3f();
+	Vector3f look = new Vector3f( 0, 0, 1 );
 
 	boolean flying = true;
 	boolean jumping = true;
