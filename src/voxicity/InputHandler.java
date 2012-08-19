@@ -417,6 +417,9 @@ public class InputHandler
 
 		// Check if the player is standing on anything after having set y movement to 0
 		// Disable jumping if so
+
+		player.jumping = true;
+
 		for ( AABB box : WorldUtil.get_intersecting_volumes( world, standing_box ) )
 			if ( standing_box.intersects( box ) && y == 0f )
 				player.jumping = false;
