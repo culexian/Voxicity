@@ -21,6 +21,7 @@ package voxicity;
 
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ public class RenderUpdater implements Runnable
 	private ReentrantLock lock = new ReentrantLock();
 	private SharedDrawable drawable;
 	private Thread thread;
+	private LinkedBlockingQueue< ChunkID > updates = new LinkedBlockingQueue< ChunkID >();
 
 	public RenderUpdater( Client client )
 	{
@@ -70,6 +72,25 @@ public class RenderUpdater implements Runnable
 		lock.unlock();
 	}
 
+	public void mark_for_update( ChunkID id )
+	{
+		try
+		{
+			updates.put( id );
+			updates.put( id.get( Direction.Down ) );
+			updates.put( id.get( Direction.Up ) );
+			updates.put( id.get( Direction.West ) );
+			updates.put( id.get( Direction.East ) );
+			updates.put( id.get( Direction.South ) );
+			updates.put( id.get( Direction.North ) );
+		}
+		catch ( Exception e )
+		{
+			e.printStackTrace();
+			System.out.println( e );
+		}
+	}
+
 	public void run()
 	{
 		boolean cleaned_one = false;
@@ -80,25 +101,39 @@ public class RenderUpdater implements Runnable
 
 			while ( !quitting )
 			{
+				ArrayList< ChunkID > ids = new ArrayList< ChunkID >();
+				updates.drainTo( ids, 5 );
+
+				ArrayList< ChunkNode > nodes = new ArrayList< ChunkNode >();
+				for ( ChunkID id : ids )
+				{
+					lock.lock();
+					ChunkNode node = chunks.get( id );
+					lock.unlock();
+
+					if ( node != null )
+						nodes.add( node );
+				}
+
 				ArrayList< ChunkNode.Batch > additions = new ArrayList< ChunkNode.Batch >();
 				ArrayList< ChunkNode.Batch > removals = new ArrayList< ChunkNode.Batch >();
 
-				lock.lock();
-				for ( ChunkNode chunk : chunks.values() )
+				for ( ChunkNode node : nodes )
 				{
-					ArrayList< ChunkNode.Batch > old_batches = new ArrayList< ChunkNode.Batch >( chunk.batches );
-					if ( chunk.clean() )
+					ArrayList< ChunkNode.Batch > old_batches = new ArrayList< ChunkNode.Batch >( node.batches );
+					if ( node.clean() )
 					{
-						additions.addAll( new ArrayList< ChunkNode.Batch >( chunk.batches ) );
+						additions.addAll( new ArrayList< ChunkNode.Batch >( node.batches ) );
 						removals.addAll( old_batches );
 					}
 				}
-				lock.unlock();
 
-				GL11.glFlush();
 
 				if ( additions.size() > 0 || removals.size() > 0 )
+				{
+					GL11.glFlush();
 					client.renderer.add_remove( additions, removals );
+				}
 
 				for ( ChunkNode.Batch batch : removals )
 				{
@@ -110,7 +145,7 @@ public class RenderUpdater implements Runnable
 		}
 		catch ( Exception e )
 		{
-			System.out.println( "Renderer exception" );
+			System.out.println( "Render Updater is quitting" );
 			System.out.println( e );
 			e.printStackTrace();
 		}
@@ -120,6 +155,7 @@ public class RenderUpdater implements Runnable
 	{
 		quitting = true;
 
+		thread.interrupt();
 		while ( thread.isAlive() )
 			;
 	}

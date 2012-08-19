@@ -129,6 +129,7 @@ public class Client
 					Chunk c = p.chunk;
 					world.set_chunk( c.x, c.y, c.z, c );
 					render_updater.set_chunk( c.x, c.y, c.z, c );
+					render_updater.mark_for_update( new ChunkID( c.x, c.y, c.z ) );
 					break;
 				}
 				case Constants.Packet.BlockUpdate:
@@ -136,6 +137,7 @@ public class Client
 					BlockUpdatePacket p = (BlockUpdatePacket)packet;
 					System.out.println( "Server told client to update block " + p.x + " " + p.y + " " + p.z + " " + p.id );
 					world.set_block( p.x, p.y, p.z, p.id );
+					render_updater.mark_for_update( new ChunkID( p.x, p.y, p.z ) );
 					break;
 				}
 				case Constants.Packet.KeepAlive:
