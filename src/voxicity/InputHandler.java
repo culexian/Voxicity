@@ -98,28 +98,56 @@ public class InputHandler
 			Vector3f move = new Vector3f();
 
 			if ( in_state.move_left )
-				if ( player.jumping )
-					move.x -= 35;
+			{
+				if ( player.flying )
+					move.x -= 100;
 				else
-					move.x -= 60;
+				{
+					if ( player.jumping )
+						move.x -= 35;
+					else
+						move.x -= 60;
+				}
+			}
 
 			if ( in_state.move_right )
-				if ( player.jumping )
-					move.x += 35;
+			{
+				if ( player.flying )
+					move.x += 100;
 				else
-					move.x += 60;
+				{
+					if ( player.jumping )
+						move.x += 35;
+					else
+						move.x += 60;
+				}
+			}
 
 			if ( in_state.move_forward )
-				if ( player.jumping )
-					move.z -= 35;
+			{
+				if ( player.flying )
+					move.z -= 100;
 				else
-					move.z -= 60;
+				{
+					if ( player.jumping )
+						move.z -= 35;
+					else
+						move.z -= 60;
+				}
+			}
 
 			if ( in_state.move_backward )
-				if ( player.jumping )
-					move.z += 35;
+			{
+				if ( player.flying )
+					move.z += 100;
 				else
-					move.z += 60;
+				{
+					if ( player.jumping )
+						move.z += 35;
+					else
+						move.z += 60;
+				}
+			}
 
 			if ( player.flying )
 			{
