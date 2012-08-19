@@ -70,7 +70,7 @@ public class InputHandler
 			toggle_mouse_grab();
 
 		if ( in_state.toggle_flying )
-			toggle_flying();
+			set_flying( !player.flying );
 
 		update_movement( delta, in_state );
 		handle_collisions( delta );
@@ -100,7 +100,7 @@ public class InputHandler
 			if ( in_state.move_left )
 			{
 				if ( player.flying )
-					move.x -= 100;
+					move.x -= 80;
 				else
 				{
 					if ( player.jumping )
@@ -113,7 +113,7 @@ public class InputHandler
 			if ( in_state.move_right )
 			{
 				if ( player.flying )
-					move.x += 100;
+					move.x += 80;
 				else
 				{
 					if ( player.jumping )
@@ -126,7 +126,7 @@ public class InputHandler
 			if ( in_state.move_forward )
 			{
 				if ( player.flying )
-					move.z -= 100;
+					move.z -= 80;
 				else
 				{
 					if ( player.jumping )
@@ -139,7 +139,7 @@ public class InputHandler
 			if ( in_state.move_backward )
 			{
 				if ( player.flying )
-					move.z += 100;
+					move.z += 80;
 				else
 				{
 					if ( player.jumping )
@@ -152,10 +152,10 @@ public class InputHandler
 			if ( player.flying )
 			{
 				if ( in_state.ascend )
-					player.last_pos.y += 5 * delta;
+					move.y += 80;
 
 				if ( in_state.descend )
-					player.last_pos.y -= 5 * delta;
+					move.y -= 80;
 			}
 			else
 			{
@@ -166,7 +166,7 @@ public class InputHandler
 				}
 
 				if ( player.jumping )
-					player.accel.y = -30f;
+					move.y = -30f;
 			}
 
 			yaw += ( x_delta / 800.0f ) * 45.0f * mouse_speed;
@@ -189,6 +189,7 @@ public class InputHandler
 			float corr_z = ( move.x * sin_yaw ) + ( move.z * cos_yaw );
 
 			player.accel.x = corr_x;
+			player.accel.y = move.y;
 			player.accel.z = corr_z;
 
 			player.velocity.x += player.accel.x * delta; 
@@ -206,6 +207,9 @@ public class InputHandler
 				{
 					player.velocity.x = 0;
 					player.velocity.z = 0;
+
+					if ( player.flying )
+						player.velocity.y = 0;
 				}
 				else
 				{
@@ -213,6 +217,9 @@ public class InputHandler
 					{
 						player.velocity.x += friction_vec.x;
 						player.velocity.z += friction_vec.z;
+
+						if ( player.flying )
+							player.velocity.y += friction_vec.y;
 					}
 				}
 			}
@@ -221,15 +228,29 @@ public class InputHandler
 			{
 				player.velocity.x = 0;
 				player.velocity.z = 0;
+
+				if ( player.flying )
+					player.velocity.y = 0;
 			}
 
-			Vector3f horiz_vel = new Vector3f( player.velocity.x, 0, player.velocity.z );
-			if ( horiz_vel.lengthSquared() > 25.0f )
+			if ( player.flying )
 			{
-				float ratio = 5.0f / horiz_vel.length();
-				horiz_vel.scale( ratio );
-				player.velocity.x = horiz_vel.x;
-				player.velocity.z = horiz_vel.z;
+				if ( player.velocity.lengthSquared() > 100.0f )
+				{
+					float ratio = 10.0f / player.velocity.length();
+					player.velocity.scale( ratio );
+				}
+			}
+			else
+			{
+				Vector3f horiz_vel = new Vector3f( player.velocity.x, 0, player.velocity.z );
+				if ( horiz_vel.lengthSquared() > 25.0f )
+				{
+					float ratio = 5.0f / horiz_vel.length();
+					horiz_vel.scale( ratio );
+					player.velocity.x = horiz_vel.x;
+					player.velocity.z = horiz_vel.z;
+				}
 			}
 
 			// Set the look vector
@@ -242,20 +263,21 @@ public class InputHandler
 		Mouse.setGrabbed( !Mouse.isGrabbed() );
 	}
 
-	void toggle_flying()
+	void set_flying( boolean fly )
 	{
-		if ( player.flying == false )
+		if ( fly )
 		{
 			player.flying = true;
+			player.jumping = false;
 			player.accel.y = 0;
 			player.velocity.y = 0;
-			System.out.println( "Flying is " + player.flying );
+			System.out.println( "Flying is " + player.flying + " Jumping is " + player.jumping );
 		}
 		else
 		{
 			player.flying = false;
 			player.jumping = true;
-			System.out.println( "Flying is " + player.flying );
+			System.out.println( "Flying is " + player.flying + " Jumping is " + player.jumping );
 		}
 	}
 
