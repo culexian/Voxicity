@@ -28,11 +28,8 @@ public class Player
 	Vector3f pos = new Vector3f( 0, 3, 0 );
 	Vector3f accel = new Vector3f();
 	Vector3f velocity = new Vector3f();
-
 	Vector3f look = new Vector3f( 0, 0, 1 );
-
 	Vector3f forward = new Vector3f( 0, 0, 1 );
-	Vector3f right = new Vector3f( 1, 0, 0 );
 
 	boolean flying = true;
 	boolean jumping = true;

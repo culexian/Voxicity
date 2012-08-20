@@ -81,7 +81,7 @@ public class Renderer
 		GL11.glLoadIdentity();
 		GLU.gluLookAt( camera.pos.x, camera.pos.y, camera.pos.z,
 		               camera.pos.x + camera.look.x, camera.pos.y + camera.look.y, camera.pos.z  + camera.look.z,
-		               0, 1, 0 );
+		               camera.up.x, camera.up.y, camera.up.z );
 
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 

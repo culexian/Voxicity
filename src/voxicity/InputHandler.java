@@ -177,8 +177,8 @@ public class InputHandler
 			yaw = yaw < -361.0 ? yaw + 360.0f : yaw;
 
 			// Avoid NaN in the frustum calculations
-			pitch = Math.min( pitch, 89.9999f );
-			pitch = Math.max( pitch, -89.9999f );
+			pitch = Math.min( pitch, 90.0f );
+			pitch = Math.max( pitch, -90.0f );
 
 			float cos_yaw = ( float ) Math.cos( Math.toRadians( yaw ) );
 			float sin_yaw = ( float ) Math.sin( Math.toRadians( yaw ) );
@@ -255,6 +255,7 @@ public class InputHandler
 
 			// Set the look vector
 			player.look.set( sin_yaw * cos_pitch * 4, sin_pitch * 4, cos_yaw * cos_pitch * -4 );
+			player.forward.set( sin_yaw, 0, -cos_yaw );
 		}
 	}
 
@@ -321,11 +322,9 @@ public class InputHandler
 		Vector3f pos = new Vector3f( player.pos );
 		pos.y += camera_offset;
 
-		Vector3f look = Vector3f.add( pos, player.look, null );
-
 		Vector3f up = new Vector3f( 0, 1, 0 );
 
-		client.renderer.camera.set_pos( pos, look, up );
+		client.renderer.camera.set_pos( pos, player.look, up, player.forward );
 	}
 
 	Vector3f calc_place_loc()

@@ -57,7 +57,7 @@ public class Frustum
 	{
 		this.pos.set( pos );
 
-		this.look = Vector3f.sub( look, pos, null );
+		this.look = new Vector3f( look );
 		this.look = this.look.normalise( null );
 
 		this.right = Vector3f.cross( forward, up, null );
