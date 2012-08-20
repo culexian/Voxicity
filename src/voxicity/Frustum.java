@@ -23,65 +23,10 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class Frustum
 {
-	enum Side
-	{
-		top,
-		bottom,
-		left,
-		right,
-		near,
-		far,
-	}
-
-	public enum Status
-	{
-		outside,
-		partial,
-		inside,
-	}
-
-	private class Plane
-	{
-		Vector3f normal;
-		Vector3f point;
-		float d;
-
-		Plane( Vector3f normal, Vector3f point )
-		{
-			this.normal = new Vector3f( normal );
-			this.point = new Vector3f( point );
-			this.d = -Vector3f.dot( normal, point );
-		}
-
-		Plane( Vector3f p1, Vector3f p2, Vector3f p3 )
-		{
-			Vector3f dir1 = Vector3f.sub( p1, p2, null );
-			Vector3f dir2 = Vector3f.sub( p3, p2, null );
-
-			this.normal = Vector3f.cross( dir1, dir2, null );
-			this.normal = this.normal.normalise( null );
-
-			this.point = new Vector3f( p2 );
-			this.d = -Vector3f.dot( this.normal, this.point );
-		}
-
-		public float distance( Vector3f point )
-		{
-			return d + Vector3f.dot( normal, point );
-		}
-
-		public String toString()
-		{
-			return "Plane normal: " + normal.toString() + " Plane point: " + point.toString();
-		}
-	}
-
 	Vector3f pos   = new Vector3f( 0, 0, 0 );
 	Vector3f right = new Vector3f( 1, 0, 0 );
 	Vector3f up    = new Vector3f( 0, 1, 0 );
 	Vector3f look  = new Vector3f( 0, 0, 1 );
-
-	Plane[] planes = new Plane[6];
 
 	float ratio;
 	float vert_angle_rads;
@@ -91,9 +36,6 @@ public class Frustum
 	float tan_vert_angle;
 	float near_width, near_height;
 	float far_width, far_height;
-
-	Vector3f near_top_left, near_top_right, near_bottom_left, near_bottom_right;
-	Vector3f far_top_left, far_top_right, far_bottom_left, far_bottom_right;
 
 	void set_attribs( float vert_angle, float ratio, float near_dist, float far_dist )
 	{
@@ -111,14 +53,14 @@ public class Frustum
 		this.far_width = far_height * ratio;
 	}
 
-	void set_pos( Vector3f pos, Vector3f look, Vector3f up )
+	void set_pos( Vector3f pos, Vector3f look, Vector3f up, Vector3f forward )
 	{
 		this.pos.set( pos );
 
 		this.look = Vector3f.sub( look, pos, null );
 		this.look = this.look.normalise( null );
 
-		this.right = Vector3f.cross( this.look, up, null );
+		this.right = Vector3f.cross( forward, up, null );
 		this.right = this.right.normalise( null );
 
 		this.up = Vector3f.cross( this.right, this.look, null );
@@ -128,67 +70,6 @@ public class Frustum
 
 		Vector3f far_center = new Vector3f( this.look );
 		far_center.scale( far_dist );
-
-/*
-		Vector3f temp1 = new Vector3f( this.up );
-		Vector3f temp2 = new Vector3f( this.right );
-		temp1.scale( near_height );
-		temp2.scale( near_width );
-		temp1 = Vector3f.sub( temp1, temp2, null );
-		near_top_left = Vector3f.add( near_center, temp1, null );
-
-		temp1.set( this.up );
-		temp2.set( this.right );
-		temp1.scale( near_height );
-		temp2.scale( near_width );
-		temp1 = Vector3f.add( temp1, temp2, null );
-		near_top_right = Vector3f.add( near_center, temp1, null );
- 
-		temp1.set( this.up );
-		temp2.set( this.right );
-		temp1.scale( near_height );
-		temp2.scale( near_width );
-		temp1 = Vector3f.sub( temp1, temp2, null );
-		near_bottom_left = Vector3f.sub( near_center, temp1, null );
- 
-		temp1.set( this.up );
-		temp2.set( this.right );
-		temp1.scale( near_height );
-		temp2.scale( near_width );
-		temp1 = Vector3f.add( temp1, temp2, null );
-		near_bottom_right = Vector3f.sub( far_center, temp1, null );
-
-		temp1.set( this.up );
-		temp2.set( this.right );
-		temp1.scale( far_height );
-		temp2.scale( far_width );
-		temp1 = Vector3f.sub( temp1, temp2, null );
-		far_top_left = Vector3f.add( far_center, temp1, null );
-
-		temp1.set( this.up );
-		temp2.set( this.right );
-		temp1.scale( far_height );
-		temp2.scale( far_width );
-		temp1 = Vector3f.add( temp1, temp2, null );
-		far_top_right = Vector3f.add( far_center, temp1, null );
-
-		temp1.set( this.up );
-		temp2.set( this.right );
-		temp1.scale( far_height );
-		temp2.scale( far_width );
-		temp1 = Vector3f.sub( temp1, temp2, null );
-		far_bottom_left = Vector3f.sub( far_center, temp1, null );
-
-		temp1.set( this.up );
-		temp2.set( this.right );
-		temp1.scale( far_height );
-		temp2.scale( far_width );
-		temp1 = Vector3f.add( temp1, temp2, null );
-		far_bottom_right = Vector3f.sub( far_center, temp1, null );
-
-		planes[Side.near.ordinal()] = new Plane( look, near_center );
-		planes[Side.far.ordinal()] = new Plane( look.negate( null), far_center );
-*/
 	}
 
 	public boolean contains_point( Vector3f point )
@@ -221,7 +102,7 @@ public class Frustum
 	public boolean collides( AABB box )
 	{
 		// Create an array of all the points, their x_dot, y_dot and z_dot values
-		Vector3f[] points = { new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f() };
+		Vector3f[] points = new Vector3f[8];//{ new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f() };
 		float[][] dots = new float[8][3];
 
 		points[0] = Vector3f.sub( new Vector3f( box.min_x(), box.max_y(), box.max_z() ), pos, null );
@@ -296,31 +177,4 @@ public class Frustum
 
 		return true;
 	}
-
-	public boolean collides_plane_check( AABB box )
-	{
-		boolean collides = true;
-
-		int out, in;
-
-		for ( int i = 0 ; i < 6 ; i++ )
-		{
-			out = 0;
-			in = 0;
-
-			for ( int j = 0 ; j < 8 && ( in == 0 || out == 0 ) ; j++ )
-			{
-				if ( planes[i].distance( box.get_vert( j ) ) < 0 )
-					out++;
-				else
-					in++;
-			}
-
-			if ( in == 0 )
-				return false;
-		}
-
-		return collides;
-	}
-
 }
