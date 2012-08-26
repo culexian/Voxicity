@@ -121,8 +121,9 @@ public class RenderUpdater implements Runnable
 				for ( ChunkNode node : nodes )
 				{
 					ArrayList< ChunkNode.Batch > old_batches = new ArrayList< ChunkNode.Batch >( node.batches );
-					if ( node.clean() )
+					if ( !node.is_clean() )
 					{
+						node.clean();
 						additions.addAll( new ArrayList< ChunkNode.Batch >( node.batches ) );
 						removals.addAll( old_batches );
 					}

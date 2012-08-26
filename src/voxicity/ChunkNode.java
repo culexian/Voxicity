@@ -92,11 +92,13 @@ public class ChunkNode
 		pos.z = z;
 	}
 
-	public boolean clean()
+	public boolean is_clean()
 	{
-		if ( !dirty && ( last_update >= chunk.get_timestamp() ) )
-			return false;
- 
+		return !dirty || ( last_update >= chunk.get_timestamp() );
+	}
+
+	public void clean()
+	{
 		last_update = Time.get_time_ms();
 
 		vert_buf = GL15.glGenBuffers();
@@ -106,7 +108,6 @@ public class ChunkNode
 			create_shader_prog();
 
 		int offset = 0;
-
 
 		verts.clear();
 		tex_coords.clear();
@@ -167,7 +168,7 @@ public class ChunkNode
 		{
 			empty = true;
 			dirty = false;
-			return true;
+			return;
 		}
 
 		verts.limit( verts.position() ).rewind();
@@ -224,7 +225,6 @@ public class ChunkNode
 
 		empty = false;
 		dirty = false;
-		return true;
 	}
 
 	public void render( Frustum camera )
