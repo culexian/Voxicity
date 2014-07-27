@@ -1,21 +1,19 @@
 #include <string>
 #include <map>
-#include <hash_map>
+#include <unordered_map>
 #include <set>
-#include <hash_set>
+#include <unordered_set>
 #include <iostream>
 #include <regex>
-
-// Rogue comment
 
 class Arguments
 {
 private:
 	// Map for pairs of string( --option argument )
-	map< string, string > pairs = new hash_map< string, string >();
+	map< string, string > pairs = new unordered_map< string, string >();
 
 	// Map for flags( -abc )
-	set< char > flags  = new hash_set< char >();
+	set< char > flags  = new unordered_set< char >();
 
 public:
 
