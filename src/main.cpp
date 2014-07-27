@@ -17,6 +17,8 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "arguments.h"
+
 int main( int argc, char* argv[] )
 {
 	// Parse the command line arguments and create the argument object
