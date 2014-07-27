@@ -29,7 +29,7 @@ private:
 				// Put the new argument pair in the map,
 				// overwriting any previous pair with the
 				// same key.
-				pairs.insert( std::string( argv[i] ).substr( 2 ), argv[i + 1] );
+				pairs.emplace( std::string( argv[i] ).substr(), std::string( argv[i + 1] ) );
 
 				// Skip one string ahead over the pair
 				i++;
@@ -46,7 +46,7 @@ private:
 			{
 				// Add each flag in the string to the flags set
 				for (int j = 1 ; j < argv[i].length() ; j++ )
-					flags.insert( argv[i].at( j ) );
+					flags.insert( argv[i][j] );
 			}
 		}
 	}
@@ -64,7 +64,7 @@ public:
 	// Returns the value of this key in the pairs map
 	std::string get_value( std::string key )
 	{
-		return pairs.get( key );
+		return pairs[key];
 	}
 
 	// Returns the value of this key in the pairs map
@@ -72,13 +72,13 @@ public:
 	std::string get_value( std::string key, std::string default_value )
 	{
 		std::string value = get_value( key );
-		return ( value == null ? default_value : value );
+		return ( value.empty() ? default_value : value );
 	}
 
 	// Return whether or not the flag is present
 	bool get_flag( char key )
 	{
-		return flags.contains( key );
+		return flags.count(key);
 	}
 
 
