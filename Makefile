@@ -1,4 +1,5 @@
 all:
+	g++ -std=c++11 -g src/main.cpp
 	javac -cp .:jar/* src/voxicity/*.java
 	jar cvfme Voxicity.jar Manifest.mf voxicity.Voxicity -C src/ . -C gui/ .
 
