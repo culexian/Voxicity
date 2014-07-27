@@ -13,7 +13,7 @@ private:
 	// Map for flags( -abc )
 	std::unordered_set< char > flags;
 
-	void parse_pairs( argc, argv[] )
+	void parse_pairs( int argc, char* argv[] )
 	{
 		for ( int i = 0 ; i < argc ; i++ )
 		{
@@ -37,7 +37,7 @@ private:
 		}
 	}
 
-	void parse_flags ( argc, argv[] )
+	void parse_flags ( int argc, char* argv[] )
 	{
 		for ( int i = 0 ; i < argc ; i++ )
 		{
@@ -55,10 +55,10 @@ public:
 
 	// Takes an array of Strings as an argument and constructs
 	// the maps of pairs and flags from it
-	Arguments( argc, argv[] )
+	Arguments( int argc, char* argv[] )
 	{
-		parse_pairs( int argc, char* argv[] );
-		parse_flags( int argc, char* argv[] );
+		parse_pairs( argc, argv );
+		parse_flags( argc, argv );
 	}
 
 	// Returns the value of this key in the pairs map
