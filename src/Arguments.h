@@ -6,6 +6,7 @@
 #include <iostream>
 #include <regex>
 
+// Rogue comment
 
 class Arguments
 {
