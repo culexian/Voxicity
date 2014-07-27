@@ -24,12 +24,12 @@ private:
 			if ( argv[i].matches( "--.*" ) && ( i + 1 <= argc ) )
 			{
 				if ( argv[i + 1].matches( "--.*" ) )
-					std::cout << "\"" << argv[i] << " " << args[i + 1] << "\" is not an option pair.\n";
+					std::cout << "\"" << argv[i] << " " << argv[i + 1] << "\" is not an option pair.\n";
 
 				// Put the new argument pair in the map,
 				// overwriting any previous pair with the
 				// same key.
-				pairs.insert( argv[i].substr( 2 ), argv[i + 1] );
+				pairs.insert( std::string( argv[i] ).substr( 2 ), argv[i + 1] );
 
 				// Skip one string ahead over the pair
 				i++;
@@ -82,4 +82,4 @@ public:
 	}
 
 
-}
+};
