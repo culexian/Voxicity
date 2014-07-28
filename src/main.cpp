@@ -18,6 +18,8 @@
  */
 
 #include "arguments.h"
+#include "config.h"
+#include "noise.h" // This is temporary, to see if the file compiles
 
 int main( int argc, char* argv[] )
 {
