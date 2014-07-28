@@ -15,16 +15,23 @@ private:
 
 	void parse_pairs( int argc, char* argv[] )
 	{
-		for ( int i = 0 ; i < argc ; i++ )
+		std::regex option_regex( "--[:alpha:]+" );
+		std::regex param_regex( "[:alphanum:]+" );
+
+		for ( int i = 1 ; i < argc ; i++ )
 		{
 			// Check if the string matches two hyphens
 			// followed by any number of characters and
 			// then check that there is at least one more
 			// string in args.
-			if ( argv[i].matches( "--.*" ) && ( i + 1 <= argc ) )
+			if ( std::regex_match( argv[i], option_regex ) && ( i + 1 < argc ) )
 			{
-				if ( argv[i + 1].matches( "--.*" ) )
+				// Make sure the parameter matches an alphanumeric string, otherwise continue
+				if ( !std::regex_match( argv[i + 1], param_regex ) )
+				{
 					std::cout << "\"" << argv[i] << " " << argv[i + 1] << "\" is not an option pair.\n";
+					continue;
+				}
 
 				// Put the new argument pair in the map,
 				// overwriting any previous pair with the
@@ -34,19 +41,26 @@ private:
 				// Skip one string ahead over the pair
 				i++;
 			}
+			else
+			{
+				std::cout << "Option " << argv[i] << " needs a parameter\n";
+			}
 		}
 	}
 
 	void parse_flags ( int argc, char* argv[] )
 	{
-		for ( int i = 0 ; i < argc ; i++ )
+		for ( int i = 1 ; i < argc ; i++ )
 		{
 			// Check that the string matches the flag option format
-			if ( argv[i].matches( "-\\p{Alnum}?" ) )
+			if ( std::regex_match( argv[i], std::regex( "-[:alpha:]+" ) ) )
 			{
+				std::cout << argv[i] << " matched as a flag!\n";
+
+				std::string flag_string( argv[i] );
 				// Add each flag in the string to the flags set
-				for (int j = 1 ; j < argv[i].length() ; j++ )
-					flags.insert( argv[i][j] );
+				for (int j = 1 ; j < flag_string.size() ; j++ )
+					flags.insert( flag_string[j] );
 			}
 		}
 	}

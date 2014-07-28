@@ -22,8 +22,9 @@
 int main( int argc, char* argv[] )
 {
 	// Parse the command line arguments and create the argument object
-	/*Arguments cmd_args = new Arguments( argc, argv );
- 
+	Arguments cmd_args( argc, argv );
+
+	/*
 	// If the command line arguments are invalid, print the usage info and exit
 	if ( !cmd_args.ok() )
 	{
