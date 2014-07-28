@@ -26,6 +26,23 @@ int main( int argc, char* argv[] )
 	// Parse the command line arguments and create the argument object
 	Arguments cmd_args( argc, argv );
 
+	Config config( cmd_args.get_value( "config", "voxicity.properties" ) );
+
+	std::string mode = cmd_args.get_value( "mode", "client" );
+
+	if ( mode == "server" )
+	{
+		// Start the server, it spawns its own thread
+		// and takes over from here
+	}
+	else if ( mode == "client" )
+	{
+		// Do client stuff here
+	}
+	else
+	{
+		std::cout << "Invalid mode: " << mode << endl;
+	}
 	/*
 	// If the command line arguments are invalid, print the usage info and exit
 	if ( !cmd_args.ok() )
