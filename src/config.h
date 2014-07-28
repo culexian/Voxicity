@@ -21,6 +21,16 @@
 
 class Config
 {
-	string filename;
+private:
+	std::string filename;
 
-}
+	void load_config()
+	{
+
+	}
+
+public:
+	Config( std::string filename ){
+
+	}
+};
