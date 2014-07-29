@@ -28,12 +28,13 @@ int main( int argc, char* argv[] )
 
 	Config config( cmd_args.get_value( "config", "voxicity.properties" ) );
 
-	std::string mode = cmd_args.get_value( "mode", "client" );
+	std::string mode = cmd_args.get_value( "--mode", "client" );
 
 	if ( mode == "server" )
 	{
 		// Start the server, it spawns its own thread
 		// and takes over from here
+		std::cout << "It works!\n";
 	}
 	else if ( mode == "client" )
 	{

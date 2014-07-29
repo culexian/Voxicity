@@ -61,9 +61,13 @@ private:
 				// Skip one string ahead over the pair
 				i++;
 			}
-			else
+			else if ( std::regex_match( argv[i], option_regex ) && ( i + 1 == argc ) )
 			{
 				std::cout << "Option " << argv[i] << " needs a parameter\n";
+			}
+			else if ( !std::regex_match( argv[i], option_regex ) && !std::regex_match( argv[i], std::regex( "-[[:alpha:]]+" ) ) )
+			{
+				std::cout << argv[i] << " is not an option or a flag\n";
 			}
 		}
 	}
@@ -98,7 +102,8 @@ public:
 	// Returns the value of this key in the pairs map
 	std::string get_value( std::string key )
 	{
-		return pairs[ key ];
+		std::unordered_map< std::string, std::string >::iterator got = pairs.find( key );
+		return ( got == pairs.end() ? "" : got->second );
 	}
 
 	// Returns the value of this key in the pairs map
@@ -106,7 +111,7 @@ public:
 	std::string get_value( std::string key, std::string default_value )
 	{
 		std::string value = get_value( key );
-		return ( value.empty( ) ? default_value : value );
+		return ( value.empty() ? default_value : value );
 	}
 
 	// Return whether or not the flag is present
@@ -114,6 +119,5 @@ public:
 	{
 		return flags.count(key);
 	}
-
 
 };
