@@ -41,8 +41,9 @@ int main( int argc, char* argv[] )
 	}
 	else
 	{
-		std::cout << "Invalid mode: " << mode << endl;
+		std::cout << "Invalid mode: " << mode << std::endl;
 	}
+
 	/*
 	// If the command line arguments are invalid, print the usage info and exit
 	if ( !cmd_args.ok() )

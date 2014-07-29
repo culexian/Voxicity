@@ -34,8 +34,8 @@ private:
 
 	void parse_pairs( int argc, char* argv[] )
 	{
-		std::regex option_regex( "--[:alpha:]+" );
-		std::regex param_regex( "[:alphanum:]+" );
+		std::regex option_regex( "--[[:alpha:]]+" );
+		std::regex param_regex( "[[:alnum:]]+" );
 
 		for ( int i = 1 ; i < argc ; i++ )
 		{
@@ -49,6 +49,7 @@ private:
 				if ( !std::regex_match( argv[i + 1], param_regex ) )
 				{
 					std::cout << "\"" << argv[i] << " " << argv[i + 1] << "\" is not an option pair.\n";
+					i++;
 					continue;
 				}
 
@@ -67,18 +68,18 @@ private:
 		}
 	}
 
-	void parse_flags ( int argc, char* argv[] )
+	void parse_flags( int argc, char* argv[] )
 	{
 		for ( int i = 1 ; i < argc ; i++ )
 		{
 			// Check that the string matches the flag option format
-			if ( std::regex_match( argv[i], std::regex( "-[:alpha:]+" ) ) )
+			if ( std::regex_match( argv[i], std::regex( "-[[:alpha:]]+" ) ) )
 			{
 				std::cout << argv[i] << " matched as a flag!\n";
 
 				std::string flag_string( argv[i] );
 				// Add each flag in the string to the flags set
-				for (int j = 1 ; j < flag_string.size() ; j++ )
+				for ( int j = 1 ; j < flag_string.size() ; j++ )
 					flags.insert( flag_string[j] );
 			}
 		}
@@ -97,7 +98,7 @@ public:
 	// Returns the value of this key in the pairs map
 	std::string get_value( std::string key )
 	{
-		return pairs[key];
+		return pairs[ key ];
 	}
 
 	// Returns the value of this key in the pairs map
@@ -105,7 +106,7 @@ public:
 	std::string get_value( std::string key, std::string default_value )
 	{
 		std::string value = get_value( key );
-		return ( value.empty() ? default_value : value );
+		return ( value.empty( ) ? default_value : value );
 	}
 
 	// Return whether or not the flag is present
