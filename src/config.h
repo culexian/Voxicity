@@ -33,6 +33,18 @@ class Config
 		std::vector< std::string > vect;
 
 		std::unordered_map< std::string, std::string > pairs;
+
+		/* This regex function matches anything that contains zero or more whitespaces ( [[:s:]]*, where *
+		 * means zero or more, and [[:s:]] means any whitespace in ECMAScript ), one or more letters 
+		 * ( where [[:alpha:]] means any alphabetical character, lowercase or uppercase, and the plus sign
+		 * (+) means that there is one or more of that element ), zero or more whitespaces ( as explained 
+		 * above ), an equals-sign, zero or more whitespaces, one or more letters or whitespaces ( here 
+		 * the paranthesises notify that [[:alnum:]] and [[:s:]] are in one group, and they are separated
+		 * by a |-sign, which basically means "or", and the plus at the end means one or more ), and zero
+		 * or more whitespaces at the end. An example of a line like this would be:
+		 * 
+		 * "	argument = i am an argument 	"
+		 */
 		std::regex argument_regex( "[[:s:]]*[[:alpha:]]+[[:s:]]*=[[:s:]]*([[:alnum:]]|[[:s:]])+[[:s:]]*" );
 
 		file.open( filename );
