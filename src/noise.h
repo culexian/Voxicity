@@ -17,8 +17,8 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <math.h>
-#include <random>
+#include <cmath>
+#include <cstdlib>
 
 class Noise
 {
@@ -85,6 +85,7 @@ public:
 	/* Gets the first random number for this seed */
 	static int first_rand( long seed )
 	{
-		return seed; // Temporary, will be fixed later
+		int random = rand() % seed + 0;
+		return random; // Temporary, will be fixed later
 	}
 };

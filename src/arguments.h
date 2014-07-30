@@ -117,6 +117,6 @@ public:
 	// Return whether or not the flag is present
 	bool get_flag( char key )
 	{
-		return flags.count(key);
+		return flags.count( key );
 	}
 };
