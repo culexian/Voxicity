@@ -22,13 +22,10 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <regex>
 
 class Config
 {
-private:
-	std::string filename;
-
-public:
 	Config( std::string filename ){
 		
 		std::ifstream file;
@@ -36,6 +33,7 @@ public:
 		std::vector< std::string > vect;
 
 		std::unordered_map< std::string, std::string > pairs;
+		std::regex argument_regex( "[[:s:]]*[[:alpha:]]+[[:s:]]*=[[:s:]]*([[:alnum:]]|[[:s:]])+[[:s:]]*" );
 
 		file.open( filename );
 
@@ -47,13 +45,12 @@ public:
 			for ( int i = 0; !file.eof() ; ++i )
 			{
 				std::getline( file, line );
-				auto iter = vect.begin();
-				vect.insert( iter, line );
+				vect.push_back( line );
 				std::cout << line << std::endl;
 			}
 
-			for ( int j = 1; j <= vect.size(); j++ ){
-				std::cout << j << std::endl;
+			for ( auto it = vect.begin(); it < vect.end(); it++ ){
+				std::cout << *it << std::endl;
 
 			}
 		}
