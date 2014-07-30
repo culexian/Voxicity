@@ -102,8 +102,8 @@ public:
 	// Returns the value of this key in the pairs map
 	std::string get_value( std::string key )
 	{
-		std::unordered_map< std::string, std::string >::iterator got = pairs.find( key );
-		return ( got == pairs.end() ? "" : got->second );
+		auto iter = pairs.find( key );
+		return ( iter == pairs.end() ? "" : iter->second );
 	}
 
 	// Returns the value of this key in the pairs map
