@@ -36,6 +36,7 @@ void init( Arguments args )
 	else if ( mode == "client" )
 	{
 		// Do client stuff here
+		std::cout << Noise::perlin(12125, 100, 60, 90) << std::endl;
 	}
 	else
 	{
@@ -52,7 +53,7 @@ int main( int argc, char* argv[] )
 {
 	// Parse the command line arguments and create the argument object
 	Arguments cmd_args( argc, argv );
-	
+
 	/*
 	// If the command line arguments are invalid, print the usage info and exit
 	if ( !cmd_args.ok() )

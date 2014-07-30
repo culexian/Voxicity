@@ -18,46 +18,12 @@
  */
 
 #include <cmath>
-#include <cstdlib>
+#include <ctime>
+#include <random>
 
 class Noise
 {
-public:
-	static double perlin( long seed, double x, double y, double z )
-	{
-		/*Extract the significant side of the decimal */
-		int X = std::floor(x);
-		int Y = std::floor(y);
-		int Z = std::floor(z);
-
-		/* Extract the less significant part of the decimal */
-		x -= std::floor(x);
-		y -= std::floor(y);
-		z -= std::floor(z);
-
-		/* Get fade values for each coord */
-		double u = fade(x);
-		double v = fade(y);
-		double w = fade(z);
-
-		/* Hash coords of 6 cube corners */
-		int A = first_rand( seed + X ) + Y;
-		int AA = first_rand( seed + A ) + Z;
-		int AB = first_rand( seed + A + 1 ) + Z;
-		int B = first_rand( seed + X + 1 ) + Y;
-		int BA = first_rand( seed + B ) + Z;
-		int BB = first_rand( seed + B + 1 ) + Z;
-
-		return lerp( w, lerp( v, lerp( u, grad( first_rand(AA), x, y, z),
-		                         grad( first_rand(BA), x - 1, y, z ) ),
-		              lerp( u, grad( first_rand(AB), x, y - 1, z ),
-		                       grad( first_rand(BB), x - 1, y - 1, z ) ) ),
-		              lerp( v, lerp( u, grad( first_rand(AA+1), x, y, z - 1 ),
-		                       grad( first_rand(BA+1), x - 1, y, z - 1 ) ),
-		              lerp( u, grad( first_rand(AB+1), x, y - 1, z - 1),
-		                       grad( first_rand(BB+1), x - 1, y - 1, z - 1 ) ) ) );
-	}
-
+private:
 	/* Smooth fade in/out factor, expects value [0,1] */
 	static double fade( double val )
 	{
@@ -85,7 +51,44 @@ public:
 	/* Gets the first random number for this seed */
 	static int first_rand( long seed )
 	{
-		int random = rand() % seed + 0;
+		srand(time(NULL));
+		int random = rand() % seed + 1;
 		return random; // Temporary, will be fixed later
+	}
+
+public:
+	static double perlin( long seed, double x, double y, double z )
+	{
+		/*Extract the significant side of the decimal */
+		int X = std::floor( x );
+		int Y = std::floor( y );
+		int Z = std::floor( z );
+
+		/* Extract the less significant part of the decimal */
+		x -= std::floor( x );
+		y -= std::floor( y );
+		z -= std::floor( z );
+
+		/* Get fade values for each coord */
+		double u = fade( x );
+		double v = fade( y );
+		double w = fade( z );
+
+		/* Hash coords of 6 cube corners */
+		int A = first_rand( seed + X ) + Y;
+		int AA = first_rand( seed + A ) + Z;
+		int AB = first_rand( seed + A + 1 ) + Z;
+		int B = first_rand( seed + X + 1 ) + Y;
+		int BA = first_rand( seed + B ) + Z;
+		int BB = first_rand( seed + B + 1 ) + Z;
+
+		return lerp( w, lerp( v, lerp( u, grad( first_rand(AA), x, y, z),
+		                         grad( first_rand(BA), x - 1, y, z ) ),
+		              lerp( u, grad( first_rand(AB), x, y - 1, z ),
+		                       grad( first_rand(BB), x - 1, y - 1, z ) ) ),
+		              lerp( v, lerp( u, grad( first_rand(AA+1), x, y, z - 1 ),
+		                       grad( first_rand(BA+1), x - 1, y, z - 1 ) ),
+		              lerp( u, grad( first_rand(AB+1), x, y - 1, z - 1),
+		                       grad( first_rand(BB+1), x - 1, y - 1, z - 1 ) ) ) );
 	}
 };
