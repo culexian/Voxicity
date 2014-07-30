@@ -119,5 +119,4 @@ public:
 	{
 		return flags.count(key);
 	}
-
 };

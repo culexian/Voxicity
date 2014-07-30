@@ -21,14 +21,11 @@
 #include "config.h"
 #include "noise.h" // This is temporary, to see if the file compiles
 
-int main( int argc, char* argv[] )
+void init( Arguments args )
 {
-	// Parse the command line arguments and create the argument object
-	Arguments cmd_args( argc, argv );
+	Config config( args.get_value( "config", "voxicity.properties" ) );
 
-	Config config( cmd_args.get_value( "config", "voxicity.properties" ) );
-
-	std::string mode = cmd_args.get_value( "--mode", "client" );
+	std::string mode = args.get_value( "--mode", "client" );
 
 	if ( mode == "server" )
 	{
@@ -44,7 +41,18 @@ int main( int argc, char* argv[] )
 	{
 		std::cout << "Invalid mode: " << mode << std::endl;
 	}
+}
 
+void print_usage()
+{
+
+}
+
+int main( int argc, char* argv[] )
+{
+	// Parse the command line arguments and create the argument object
+	Arguments cmd_args( argc, argv );
+	
 	/*
 	// If the command line arguments are invalid, print the usage info and exit
 	if ( !cmd_args.ok() )
@@ -52,13 +60,12 @@ int main( int argc, char* argv[] )
 		print_usage();
 		return 1;
 	}
-
-	File new_out = new File( "voxicity.log" );
-	System.setOut( new PrintStream( new_out ) );
+	*/
+	// File new_out = new File( "voxicity.log" );
+	// System.setOut( new PrintStream( new_out ) );
 
 	// Initialize based on the command line arguments
 	init( cmd_args );
-	*/
 
 	return 0;
 }
