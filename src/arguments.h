@@ -56,7 +56,7 @@ private:
 				// Put the new argument pair in the map,
 				// overwriting any previous pair with the
 				// same key.
-				pairs.emplace( std::string( argv[i] ).substr(), std::string( argv[i + 1] ) );
+				pairs.emplace( std::string( argv[i] ).substr( 2, std::string( argv[i] ).length() - 2 ), std::string( argv[i + 1] ) );
 
 				// Skip one string ahead over the pair
 				i++;

@@ -18,19 +18,45 @@
  */
 
 #include <string>
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <unordered_map>
 
 class Config
 {
 private:
 	std::string filename;
 
-	void load_config()
-	{
-
-	}
-
 public:
 	Config( std::string filename ){
+		
+		std::ifstream file;
+		std::string line;
+		std::vector< std::string > vect;
+
+		std::unordered_map< std::string, std::string > pairs;
+
+		file.open( filename );
+
+		if ( !file.is_open() ){
+			std::cout << "Invalid config file specified!\n";
+		}
+		else
+		{
+			for ( int i = 0; !file.eof() ; ++i )
+			{
+				std::getline( file, line );
+				auto iter = vect.begin();
+				vect.insert( iter, line );
+				std::cout << line << std::endl;
+			}
+
+			for ( int j = 1; j <= vect.size(); j++ ){
+				std::cout << j << std::endl;
+
+			}
+		}
 
 	}
 };
