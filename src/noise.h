@@ -18,7 +18,6 @@
  */
 
 #include <cmath>
-#include <ctime>
 #include <random>
 
 class Noise
@@ -51,15 +50,14 @@ private:
 	/* Gets the first random number for this seed */
 	static int first_rand( long seed )
 	{
-		srand(time(NULL));
-		int random = rand() % seed + 1;
-		return random; // Temporary, will be fixed later
+		std::minstd_rand0 random( seed );
+		return random(); // Temporary, will be fixed later
 	}
 
 public:
 	static double perlin( long seed, double x, double y, double z )
 	{
-		/*Extract the significant side of the decimal */
+		/* Extract the significant side of the decimal */
 		int X = std::floor( x );
 		int Y = std::floor( y );
 		int Z = std::floor( z );

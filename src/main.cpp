@@ -36,7 +36,6 @@ void init( Arguments args )
 	else if ( mode == "client" )
 	{
 		// Do client stuff here
-		std::cout << Noise::perlin(12125, 100, 60, 90) << std::endl;
 	}
 	else
 	{
