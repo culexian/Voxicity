@@ -9,6 +9,12 @@ test:
 server_test:
 	java -XX:+UseConcMarkSweepGC -Xmx4G -Djava.library.path=native/linux -jar Voxicity.jar voxicity.Voxicity --mode server &
 
+cpp:
+	g++ -std=c++11 -g src/main.cpp -o voxicity
+
+cppmac:
+	g++ -std=c++11 -stdlib=libc++ src/main.cpp
+	
 pack:
 	
 

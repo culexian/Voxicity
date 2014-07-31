@@ -19,20 +19,20 @@
 
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <vector>
 #include <unordered_map>
-#include <regex>
+#include <cstdio>
 
 class Config
 {
+public:
 	Config( std::string filename ){
 		
 		std::ifstream file;
-		std::string line;
-		std::vector< std::string > vect;
-
-		std::unordered_map< std::string, std::string > pairs;
+		std::string line, sarg, sparam;
+		char arg[80], param[80];
 
 		/* This regex function matches anything that contains zero or more whitespaces ( [[:s:]]*, where *
 		 * means zero or more, and [[:s:]] means any whitespace in ECMAScript ), one or more letters 
@@ -45,7 +45,10 @@ class Config
 		 * 
 		 * "	argument = i am an argument 	"
 		 */
-		std::regex argument_regex( "[[:s:]]*[[:alpha:]]+[[:s:]]*=[[:s:]]*([[:alnum:]]|[[:s:]])+[[:s:]]*" );
+		std::regex argument_regex( "[[:s:]]*([[:alpha:]]|[[:punct:]])+[[:s:]]*=[[:s:]]*([[:alnum:]]|[[:s:]]|[[:punct:]])+[[:s:]]*" );
+
+		std::vector< std::string > vect;
+		std::unordered_map< std::string, std::string > pairs;
 
 		file.open( filename );
 
@@ -54,16 +57,26 @@ class Config
 		}
 		else
 		{
-			for ( int i = 0; !file.eof() ; ++i )
+			for ( int i = 0; !file.eof(); ++i )
 			{
 				std::getline( file, line );
 				vect.push_back( line );
-				std::cout << line << std::endl;
 			}
 
 			for ( auto it = vect.begin(); it < vect.end(); it++ ){
-				std::cout << *it << std::endl;
+				std::sscanf( it->c_str(), "%s = %[^\n]s", arg, param );
+				sarg = std::string( arg );
+				sparam = std::string( param );
 
+				std::cout << sarg << " " << sparam << std::endl;
+
+				/*if ( std::regex_match( *it, argument_regex ) )
+				 * {
+				 *	std::stringstream stream( *it );
+				 *	stream >> arg >> param;
+				 *	std::cout << arg << " " << param << std::endl;
+				 * }
+				 */
 			}
 		}
 
