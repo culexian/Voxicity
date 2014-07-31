@@ -31,14 +31,27 @@ public:
 	Config( std::string filename ){
 		
 		std::ifstream file;
-		std::string line, sarg, sparam;
-		char arg[80], param[80];
+		std::string line, arg, param;
 
 		std::vector< std::string > vect;
 		std::unordered_map< std::string, std::string > pairs;
 
+			/* This regex function matches anything that contains zero or more whitespaces ( [[:s:]]*, where *
+		 * means zero or more, and [[:s:]] means any whitespace in ECMAScript ), one or more letters 
+		 * ( where [[:alpha:]] means any alphabetical character, lowercase or uppercase, and the plus sign
+		 * (+) means that there is one or more of that element ), zero or more whitespaces ( as explained 
+		 * above ), an equals-sign, zero or more whitespaces, one or more letters or whitespaces ( here 
+		 * the paranthesises notify that [[:alnum:]] and [[:s:]] are in one group, and they are separated
+		 * by a |-sign, which basically means "or", and the plus at the end means one or more ), and zero
+		 * or more whitespaces at the end. An example of a line like this would be:
+		 * 
+		 * "	argument = i am an argument 	"
+		 */
+		std::regex argument_regex( "[[:s:]]*([[:alpha:]]|[[:punct:]])+[[:s:]]*=[[:s:]]*([[:alnum:]]|[[:s:]]|[[:punct:]])+[[:s:]]*" );
+
 		file.open( filename );
 
+		// Checks if the specified file exists
 		if ( !file.is_open() ){
 			std::cout << "Invalid config file specified!\n";
 		}
@@ -51,16 +64,17 @@ public:
 			}
 
 			for ( auto it = vect.begin(); it < vect.end(); it++ ){
-				if ( std::sscanf( it->c_str(), "%s = %[^\n]s", arg, param ) == 2 )
+				if ( std::regex_match( *it, argument_regex ) )
 				{
-					sarg = std::string( arg );
-					sparam = std::string( param );
-
-					std::cout << sarg << " " << sparam << std::endl;
+					std::stringstream entire_line( *it );
+					std::getline( entire_line, arg, '=' );
+					std::getline( entire_line, param, '\n' );
+					
+					
 				}
 				else
 				{
-					std::cout << "Fuck you, that's wrong!\n";
+					std::cout << "Wrong!\n";
 				}
 			}
 		}
