@@ -34,19 +34,6 @@ public:
 		std::string line, sarg, sparam;
 		char arg[80], param[80];
 
-		/* This regex function matches anything that contains zero or more whitespaces ( [[:s:]]*, where *
-		 * means zero or more, and [[:s:]] means any whitespace in ECMAScript ), one or more letters 
-		 * ( where [[:alpha:]] means any alphabetical character, lowercase or uppercase, and the plus sign
-		 * (+) means that there is one or more of that element ), zero or more whitespaces ( as explained 
-		 * above ), an equals-sign, zero or more whitespaces, one or more letters or whitespaces ( here 
-		 * the paranthesises notify that [[:alnum:]] and [[:s:]] are in one group, and they are separated
-		 * by a |-sign, which basically means "or", and the plus at the end means one or more ), and zero
-		 * or more whitespaces at the end. An example of a line like this would be:
-		 * 
-		 * "	argument = i am an argument 	"
-		 */
-		std::regex argument_regex( "[[:s:]]*([[:alpha:]]|[[:punct:]])+[[:s:]]*=[[:s:]]*([[:alnum:]]|[[:s:]]|[[:punct:]])+[[:s:]]*" );
-
 		std::vector< std::string > vect;
 		std::unordered_map< std::string, std::string > pairs;
 
@@ -64,19 +51,17 @@ public:
 			}
 
 			for ( auto it = vect.begin(); it < vect.end(); it++ ){
-				std::sscanf( it->c_str(), "%s = %[^\n]s", arg, param );
-				sarg = std::string( arg );
-				sparam = std::string( param );
+				if ( std::sscanf( it->c_str(), "%s = %[^\n]s", arg, param ) == 2 )
+				{
+					sarg = std::string( arg );
+					sparam = std::string( param );
 
-				std::cout << sarg << " " << sparam << std::endl;
-
-				/*if ( std::regex_match( *it, argument_regex ) )
-				 * {
-				 *	std::stringstream stream( *it );
-				 *	stream >> arg >> param;
-				 *	std::cout << arg << " " << param << std::endl;
-				 * }
-				 */
+					std::cout << sarg << " " << sparam << std::endl;
+				}
+				else
+				{
+					std::cout << "Fuck you, that's wrong!\n";
+				}
 			}
 		}
 
