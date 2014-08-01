@@ -83,7 +83,12 @@ public:
 					arg = trim_string( arg );
 					param = trim_string( param );
 
+					pairs.emplace( arg, param );
+
 					std::cout << "Loaded option : " << arg << " = " << param << std::endl;
+				}
+				else if ( line.empty() ){
+					continue;
 				}
 				else
 				{
@@ -92,5 +97,17 @@ public:
 			}
 		}
 
+	}
+
+	std::string get_value( std::string key )
+	{
+		auto it = pairs.find( key );
+		return ( it == pairs.end() ? "" : it->second );
+	}
+
+	std::string get_value( std::string key, std::string default_value )
+	{
+		std::string value = get_value( key );
+		return ( value.empty() ? default_value : value );
 	}
 };
