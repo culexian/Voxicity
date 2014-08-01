@@ -47,7 +47,7 @@ public:
 		 * 
 		 * "	argument = i am an argument 	"
 		 */
-		std::regex argument_regex( "[[:s:]]*([[:alpha:]]|[[:punct:]])+[[:s:]]*=[[:s:]]*([[:alnum:]]|[[:s:]]|[[:punct:]])+[[:s:]]*" );
+		std::regex argument_regex( "[[:s:]]*([[:alnum:]]|[[:punct:]])+[[:s:]]*=[[:s:]]*([[:alnum:]]|[[:s:]]|[[:punct:]])+[[:s:]]*" );
 
 		file.open( filename );
 
