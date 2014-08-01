@@ -21,9 +21,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <vector>
 #include <unordered_map>
-#include <cstdio>
 
 class Config
 {
@@ -49,11 +47,9 @@ public:
 		std::ifstream file;
 		std::string line;
 
-		std::vector< std::string > vect;
-
-			/* This regex function matches anything that contains zero or more whitespaces ( [[:s:]]*, where *
-		 * means zero or more, and [[:s:]] means any whitespace in ECMAScript ), one or more letters 
-		 * ( where [[:alpha:]] means any alphabetical character, lowercase or uppercase, and the plus sign
+		/* This regex function matches anything that contains zero or more whitespaces ( [[:s:]]*, where *
+		 * means zero or more, and [[:s:]] means any whitespace in ECMAScript ), one or more letters or numbers 
+		 * ( where [[:alnum:]] means any alphabetical character or number, lowercase or uppercase, and the plus sign
 		 * (+) means that there is one or more of that element ), zero or more whitespaces ( as explained 
 		 * above ), an equals-sign, zero or more whitespaces, one or more letters or whitespaces ( here 
 		 * the paranthesises notify that [[:alnum:]] and [[:s:]] are in one group, and they are separated
@@ -76,19 +72,13 @@ public:
 			{
 				std::getline( file, line );
 
-				// Only try to parse lines with content
-				if ( !line.empty() )
-					vect.push_back( line );
-			}
-
-			for ( auto it = vect.begin(); it < vect.end(); it++ ){
-				if ( std::regex_match( *it, argument_regex ) )
+				if ( std::regex_match( line, argument_regex ) )
 				{
 					std::string arg, param;
 
 					std::stringstream entire_line( *it );
 					std::getline( entire_line, arg, '=' );
-					std::getline( entire_line, param, '\n' );
+					std::getline( entire_line, param );
 
 					arg = trim_string( arg );
 					param = trim_string( param );
