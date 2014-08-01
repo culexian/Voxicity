@@ -75,7 +75,7 @@ public:
 				}
 				else
 				{
-					std::cout << "Wrong!\n";
+					std::cout << "Invalid line in config at: \"" << *it << std::endl;
 				}
 			}
 		}
