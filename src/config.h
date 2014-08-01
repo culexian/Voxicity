@@ -68,7 +68,7 @@ public:
 		}
 		else
 		{
-			for ( int i = 0; !file.eof(); ++i )
+			while ( !file.eof() )
 			{
 				std::getline( file, line );
 
@@ -76,7 +76,7 @@ public:
 				{
 					std::string arg, param;
 
-					std::stringstream entire_line( *it );
+					std::stringstream entire_line( line );
 					std::getline( entire_line, arg, '=' );
 					std::getline( entire_line, param );
 
@@ -87,7 +87,7 @@ public:
 				}
 				else
 				{
-					std::cout << "Invalid line in config at: \"" << *it << std::endl;
+					std::cout << "Invalid line in config at: \"" << line << std::endl;
 				}
 			}
 		}
