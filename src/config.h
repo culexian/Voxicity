@@ -60,7 +60,10 @@ public:
 			for ( int i = 0; !file.eof(); ++i )
 			{
 				std::getline( file, line );
-				vect.push_back( line );
+
+				// Only try to parse lines with content
+				if ( !line.empty() )
+					vect.push_back( line );
 			}
 
 			for ( auto it = vect.begin(); it < vect.end(); it++ ){
@@ -69,8 +72,6 @@ public:
 					std::stringstream entire_line( *it );
 					std::getline( entire_line, arg, '=' );
 					std::getline( entire_line, param, '\n' );
-					
-					
 				}
 				else
 				{
