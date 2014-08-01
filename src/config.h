@@ -31,7 +31,7 @@ public:
 	Config( std::string filename ){
 		
 		std::ifstream file;
-		std::string line, arg, param;
+		std::string line;
 
 		std::vector< std::string > vect;
 		std::unordered_map< std::string, std::string > pairs;
@@ -69,9 +69,12 @@ public:
 			for ( auto it = vect.begin(); it < vect.end(); it++ ){
 				if ( std::regex_match( *it, argument_regex ) )
 				{
+					std::string arg, param;
+
 					std::stringstream entire_line( *it );
 					std::getline( entire_line, arg, '=' );
 					std::getline( entire_line, param, '\n' );
+
 				}
 				else
 				{
