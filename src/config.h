@@ -27,6 +27,22 @@
 
 class Config
 {
+	// The map of strings loaded in as options from the config file
+	std::unordered_map< std::string, std::string > options;
+
+	// Create a new string start from the first non-whitespace and including the last non-whitespace
+	std::string trim_string( const std::string& in ) const
+	{
+		// Find the position of the first non-whitespace character in the string
+		auto start = in.cbegin() + in.find_first_not_of( " \t" );
+
+		// Find the position of the last non-whitespace character in the string + 1 for 0-counting
+		auto end = in.cbegin() + in.find_last_not_of( " \t" ) + 1;
+
+		// Create a string with the new start and end iterators and return it
+		return std::string( start, end );
+	}
+
 public:
 	Config( std::string filename ){
 		
@@ -34,7 +50,6 @@ public:
 		std::string line;
 
 		std::vector< std::string > vect;
-		std::unordered_map< std::string, std::string > pairs;
 
 			/* This regex function matches anything that contains zero or more whitespaces ( [[:s:]]*, where *
 		 * means zero or more, and [[:s:]] means any whitespace in ECMAScript ), one or more letters 
@@ -75,6 +90,10 @@ public:
 					std::getline( entire_line, arg, '=' );
 					std::getline( entire_line, param, '\n' );
 
+					arg = trim_string( arg );
+					param = trim_string( param );
+
+					std::cout << "Loaded option : " << arg << " = " << param << std::endl;
 				}
 				else
 				{
