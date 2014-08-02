@@ -17,13 +17,16 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef CONFIG_H
+#define CONFIG_H
+
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <unordered_map>
 
-#include <arguments.h>
+#include "arguments.h"
 
 class Config
 {
@@ -117,3 +120,5 @@ public:
 		return ( value.empty() ? default_value : value );
 	}
 };
+
+#endif // CONFIG_H

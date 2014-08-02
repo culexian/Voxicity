@@ -17,13 +17,14 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef ARGUMENTS_H
+#define ARGUMENTS_H
+
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <iostream>
 #include <regex>
-
-#include <config.h>
 
 class Arguments
 {
@@ -122,3 +123,5 @@ public:
 		return flags.count( key );
 	}
 };
+
+#endif // ARGUMENTS_H
