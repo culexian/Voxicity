@@ -81,20 +81,15 @@ public:
 
 				if ( std::regex_match( line, argument_regex ) )
 				{
-					std::string arg, param, sparam;
+					std::string arg, param;
 
 					std::stringstream entire_line( line );
 					std::getline( entire_line, arg, '=' );
 					std::getline( entire_line, param );
 
+					param = args.get_value( arg, param );
 					arg = trim_string( arg );
 					param = trim_string( param );
-					sparam = args.get_value( arg );
-					
-					if ( !sparam.empty() )
-					{
-						param = sparam;
-					}
 
 					options.emplace( arg, param );
 
