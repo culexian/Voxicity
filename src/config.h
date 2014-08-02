@@ -86,10 +86,11 @@ public:
 					std::stringstream entire_line( line );
 					std::getline( entire_line, arg, '=' );
 					std::getline( entire_line, param );
-
-					param = args.get_value( arg, param );
+					
 					arg = trim_string( arg );
 					param = trim_string( param );
+
+					param = args.get_value( arg, param );
 
 					options.emplace( arg, param );
 
