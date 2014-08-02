@@ -23,6 +23,8 @@
 #include <iostream>
 #include <unordered_map>
 
+#include <arguments.h>
+
 class Config
 {
 	// The map of strings loaded in as options from the config file
@@ -83,7 +85,7 @@ public:
 					arg = trim_string( arg );
 					param = trim_string( param );
 
-					pairs.emplace( arg, param );
+					options.emplace( arg, param );
 
 					std::cout << "Loaded option : " << arg << " = " << param << std::endl;
 				}
@@ -96,7 +98,11 @@ public:
 				}
 			}
 		}
+	}
 
+	Config( Arguments args )
+	{
+		
 	}
 
 	std::string get_value( std::string key )

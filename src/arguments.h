@@ -23,6 +23,8 @@
 #include <iostream>
 #include <regex>
 
+#include <config.h>
+
 class Arguments
 {
 private:
