@@ -47,10 +47,12 @@ class Config
 	}
 
 public:
-	Config( std::string filename ){
+	Config( Arguments args ){
 		
 		std::ifstream file;
 		std::string line;
+
+		std::string filename = args.get_value( "config", "voxicity.cfg" );
 
 		/* This regex function matches anything that contains zero or more whitespaces ( [[:s:]]*, where *
 		 * means zero or more, and [[:s:]] means any whitespace in ECMAScript ), one or more letters or numbers 
@@ -79,7 +81,7 @@ public:
 
 				if ( std::regex_match( line, argument_regex ) )
 				{
-					std::string arg, param;
+					std::string arg, param, sparam;
 
 					std::stringstream entire_line( line );
 					std::getline( entire_line, arg, '=' );
@@ -87,6 +89,12 @@ public:
 
 					arg = trim_string( arg );
 					param = trim_string( param );
+					sparam = args.get_value( arg );
+					
+					if ( !sparam.empty() )
+					{
+						param = sparam;
+					}
 
 					options.emplace( arg, param );
 
@@ -103,15 +111,10 @@ public:
 		}
 	}
 
-	Config( Arguments args )
-	{
-		
-	}
-
 	std::string get_value( std::string key )
 	{
-		auto it = pairs.find( key );
-		return ( it == pairs.end() ? "" : it->second );
+		auto it = options.find( key );
+		return ( it == options.end() ? "" : it->second );
 	}
 
 	std::string get_value( std::string key, std::string default_value )

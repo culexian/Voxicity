@@ -23,7 +23,7 @@
 
 void init( Arguments args )
 {
-	Config config( args.get_value( "config", "voxicity.properties" ) );
+	Config config( args );
 
 	std::string mode = args.get_value( "mode", "client" );
 

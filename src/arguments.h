@@ -37,7 +37,7 @@ private:
 
 	void parse_pairs( int argc, char* argv[] )
 	{
-		std::regex option_regex( "--[[:alpha:]]+" );
+		std::regex option_regex( "--[[:alnum:]]+" );
 		std::regex param_regex( "[[:alnum:]]+" );
 
 		for ( int i = 1 ; i < argc ; i++ )
