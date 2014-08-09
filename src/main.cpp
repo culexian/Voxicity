@@ -17,8 +17,10 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "arguments.h"
 #include "config.h"
+#include "client.h"
 #include "noise.h" // This is temporary, to see if the file compiles
 
 void init( Arguments args )
@@ -35,17 +37,12 @@ void init( Arguments args )
 	}
 	else if ( mode == "client" )
 	{
-		// Do client stuff here
+		Client client( config );
 	}
 	else
 	{
 		std::cout << "Invalid mode: " << mode << std::endl;
 	}
-}
-
-void print_usage()
-{
-
 }
 
 int main( int argc, char* argv[] )
