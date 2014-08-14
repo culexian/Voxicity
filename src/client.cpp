@@ -34,6 +34,9 @@ void Client::init_SDL( Config config )
 		return;
 	}
 
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
+
 	SDL_Window* window = SDL_CreateWindow( "Voxicity", 0, 0, 1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
 	if ( window == nullptr )
 	{
