@@ -4,11 +4,8 @@ all:
 test:
 	./voxicity
 
-cpp:
-	g++ -std=c++11 -g src/main.cpp -o voxicity
-
-cppmac:
-	g++ -std=c++11 -stdlib=libc++ src/main.cpp
+mac:
+	cd src; make mac
 	
 clean:
 	rm -v voxicity
