@@ -20,6 +20,7 @@
 
 #include "arguments.h"
 #include "config.h"
+#include "rletree.h"
 #include "client.h"
 #include "noise.h" // This is temporary, to see if the file compiles
 
@@ -37,6 +38,7 @@ void init( Arguments args )
 	}
 	else if ( mode == "client" )
 	{
+		std::cout << "This works, too!\n";
 		Client client( config );
 	}
 	else

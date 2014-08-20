@@ -71,7 +71,7 @@ public:
 
 		// Checks if the specified file exists
 		if ( !file.is_open() ){
-			std::cout << "Invalid config file specified!\n";
+			std::cout << "Config file not found!\n";
 		}
 		else
 		{
@@ -84,12 +84,18 @@ public:
 					std::string arg, param;
 
 					std::stringstream entire_line( line );
+
+					// Read line until delimiter '=' is found
 					std::getline( entire_line, arg, '=' );
+
+					// Read the rest of the line until line break (duh)
 					std::getline( entire_line, param );
 					
+					// Trim strings (removing all whitespaces so the lines can be read by the program)
 					arg = trim_string( arg );
 					param = trim_string( param );
 
+					// Finds parameters from arguments and overwrites the ones found in the config
 					param = args.get_value( arg, param );
 
 					options.emplace( arg, param );
