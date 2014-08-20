@@ -20,7 +20,6 @@
 
 #include "arguments.h"
 #include "config.h"
-#include "rletree.h"
 #include "client.h"
 #include "noise.h" // This is temporary, to see if the file compiles
 
