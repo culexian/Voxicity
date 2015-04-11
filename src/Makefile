@@ -1,5 +1,5 @@
 all:
-	g++ -std=c++11 -g main.cpp -l SDL2 -o ../voxicity
+	g++ -std=c++11 -g *.cpp -l SDL2 -o ../voxicity
 
 mac:
 
