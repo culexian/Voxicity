@@ -7,4 +7,17 @@ namespace Constants
     {
         const int side_length = 32;
     }
+
+    namespace Blocks
+    {
+        enum
+        {
+            air = 0,
+            dirt,
+            stone,
+            grass
+        };
+    }
 }
+
+#endif // CONSTANTS_H
