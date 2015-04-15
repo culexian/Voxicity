@@ -25,45 +25,46 @@
 
 void init( Arguments args )
 {
-	Config config( args );
+    Config config( args );
 
-	std::string mode = args.get_value( "mode", "client" );
+    std::string mode = args.get_value( "mode", "client" );
 
-	if ( mode == "server" )
-	{
-		// Start the server, it spawns its own thread
-		// and takes over from here
-		std::cout << "It works!\n";
-	}
-	else if ( mode == "client" )
-	{
-		std::cout << "This works, too!\n";
-		Client client( config );
-	}
-	else
-	{
-		std::cout << "Invalid mode: " << mode << std::endl;
-	}
+    if ( mode == "server" )
+    {
+        // Start the server, it spawns its own thread
+        // and takes over from here
+        std::cout << "It works!\n";
+    }
+    else if ( mode == "client" )
+    {
+        std::cout << "This works, too!\n";
+        Client client( &config );
+        client.run();
+    }
+    else
+    {
+        std::cout << "Invalid mode: " << mode << std::endl;
+    }
 }
 
 int main( int argc, char* argv[] )
 {
-	// Parse the command line arguments and create the argument object
-	Arguments cmd_args( argc, argv );
+    // Parse the command line arguments and create the argument object
+    Arguments cmd_args( argc, argv );
 
-	/*
-	// If the command line arguments are invalid, print the usage info and exit
-	if ( !cmd_args.ok() )
-	{
-		print_usage();
-		return 1;
-	}
-	*/
-	// File new_out = new File( "voxicity.log" );
-	// System.setOut( new PrintStream( new_out ) );
+    /*
+    // If the command line arguments are invalid, print the usage info and exit
+    if ( !cmd_args.ok() )
+    {
+        print_usage();
+        return 1;
+    }
+    */
+    // File new_out = new File( "voxicity.log" );
+    // System.setOut( new PrintStream( new_out ) );
 
-	// Initialize based on the command line arguments
-	init( cmd_args );
+    // Initialize based on the command line arguments
+    init( cmd_args );
 
-	return 0;
+    return 0;
 }

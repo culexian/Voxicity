@@ -4,13 +4,13 @@
 
 namespace Util
 {
-    long time_get_ms()
+    long get_time_ms()
     {
         using namespace std::chrono;
         return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     }
     
-    long time_get_ns()
+    long get_time_ns()
     {
         using namespace std::chrono;
         return duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count();

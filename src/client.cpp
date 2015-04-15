@@ -21,17 +21,13 @@
 
 #include <GL/gl.h>
 
-Client::Client( Config config )
+Client::Client( Config* config )
 {
-    init_SDL( config );
-    init_GL( config );
+    config = config;
 
-    SDL_GL_SwapWindow( window );
-
-    SDL_Delay( 500 );
 }
 
-void Client::init_SDL( Config config )
+void Client::init_SDL()
 {
     if ( SDL_Init( SDL_INIT_EVERYTHING ) != 0 )
     {
@@ -55,7 +51,7 @@ void Client::init_SDL( Config config )
     std::printf( "Created Voxicity main window\n" );
 }
 
-void Client::init_GL( Config config )
+void Client::init_GL()
 {
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
@@ -70,5 +66,28 @@ void Client::init_GL( Config config )
 
     glClearColor( 126.0f / 255.0f, 169.0f / 255.0f, 254.0f / 255.0f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT );
+}
+
+void Client::init()
+{
+    init_SDL();
+    init_GL();
+    
+}
+
+void Client::run()
+{
+    init();
+
+//    while( !quitting )
+        update();
+
+    SDL_GL_SwapWindow( window );
+
+    SDL_Delay( 500 );
+}
+
+void Client::update()
+{
 
 }

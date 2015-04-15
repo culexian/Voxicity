@@ -5,7 +5,7 @@ namespace Constants
 {
     namespace Chunk
     {
-        const int side_length = 32;
+        const int side_length = 16;
     }
 
     namespace Blocks

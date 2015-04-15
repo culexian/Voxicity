@@ -26,14 +26,20 @@
 
 class Client
 {
+    Config* config;
     SDL_Window* window;
     SDL_GLContext context;
 
-    void init_SDL(Config config );
-    void init_GL( Config config );
+    bool quitting = false;
+
+    void init();
+    void init_SDL();
+    void init_GL();
+    void update();
 
     public:
-    Client( Config config );
+    Client( Config* config );
+    void run();
 };
 
 #endif // CLIENT_H
