@@ -19,37 +19,56 @@
 
 #include "client.h"
 
-#include <SDL2/SDL.h>
+#include <GL/gl.h>
 
 Client::Client( Config config )
 {
-	init_SDL( config );
+    init_SDL( config );
+    init_GL( config );
+
+    SDL_GL_SwapWindow( window );
+
+    SDL_Delay( 500 );
 }
 
 void Client::init_SDL( Config config )
 {
-	if ( SDL_Init( SDL_INIT_EVERYTHING ) != 0 )
-	{
-		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
-		return;
-	}
+    if ( SDL_Init( SDL_INIT_EVERYTHING ) != 0 )
+    {
+        std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        return;
+    }
 
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 
-	SDL_Window* window = SDL_CreateWindow( "Voxicity", 0, 0, 1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
-	if ( window == nullptr )
-	{
-		std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return;
-	}
 
-	SDL_GLContext context = SDL_GL_CreateContext( window );
-	if ( context == nullptr )
-	{
-		std::cout << "SDL_GL_CreateContext Error: " << SDL_GetError() << std::endl;
-	}
+    window = SDL_CreateWindow( "Voxicity", 0, 0, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
 
-	SDL_Delay( 5000 );
+    if ( window == nullptr )
+    {
+        std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        SDL_Quit();
+        return;
+    }
+
+    std::printf( "Created Voxicity main window\n" );
+}
+
+void Client::init_GL( Config config )
+{
+    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
+
+    context = SDL_GL_CreateContext( window );
+
+    if ( context == nullptr )
+    {
+        std::printf( "SDL_GL_CreateContext Error: %s\n", SDL_GetError() );
+        SDL_Quit();
+    }
+
+    glClearColor( 126.0f / 255.0f, 169.0f / 255.0f, 254.0f / 255.0f, 1.0f );
+    glClear( GL_COLOR_BUFFER_BIT );
+
 }

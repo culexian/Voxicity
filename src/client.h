@@ -20,15 +20,20 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <SDL2/SDL.h>
+
 #include "config.h"
 
 class Client
 {
-public:
-	Client( Config config );
+    SDL_Window* window;
+    SDL_GLContext context;
 
-private:
-	void init_SDL(Config config );
+    void init_SDL(Config config );
+    void init_GL( Config config );
+
+    public:
+    Client( Config config );
 };
 
 #endif // CLIENT_H
