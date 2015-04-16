@@ -19,6 +19,8 @@
 
 #include "client.h"
 
+#include "inputstate.h"
+
 #include <GL/gl.h>
 
 Client::Client( Config* config )
@@ -82,9 +84,15 @@ void Client::run()
 //    while( !quitting )
         update();
 
-    SDL_GL_SwapWindow( window );
+    while( true )
+    {
+        SDL_GL_SwapWindow( window );
 
-    SDL_Delay( 500 );
+        InputState input;
+
+        if ( input.quit )
+            break;
+    }
 }
 
 void Client::update()
