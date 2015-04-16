@@ -27,6 +27,7 @@
 class Client
 {
     Config* config;
+    FPSCounter fps_counter;
     SDL_Window* window;
     SDL_GLContext context;
 
