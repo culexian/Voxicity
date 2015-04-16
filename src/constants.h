@@ -20,4 +20,16 @@ namespace Constants
     }
 }
 
+enum Direction
+{
+    East = 0,
+    West,
+    North,
+    South,
+    Up,
+    Down,
+    All,
+    None
+};
+
 #endif // CONSTANTS_H
