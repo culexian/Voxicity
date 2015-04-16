@@ -21,7 +21,12 @@
 
 #include "inputstate.h"
 
-#include <GL/gl.h>
+#ifdef TARGET_OS_MAC
+    #include <OpenGL/gl.h>
+#else
+    #include <GL/gl.h>
+#endif
+    
 
 Client::Client( Config* config )
 {

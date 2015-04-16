@@ -3,7 +3,7 @@ all:
 
 mac:
 
-	g++ -std=c++11 -stdlib=libc++ -I/Library/Frameworks/SDL2.framework/Headers -framework SDL2 -g main.cpp client.cpp -o ../voxicity
+	g++ -std=c++11 -stdlib=libc++ -I/Library/Frameworks/SDL2.framework/Headers -framework OpenGL -framework SDL2 -g main.cpp client.cpp -o ../voxicity
 
 clean:
 	rm -v *.o
