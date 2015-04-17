@@ -17,30 +17,37 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLIENT_H
-#define CLIENT_H
+#include "fpscounter.h"
+#include "util.h"
 
-#include <SDL2/SDL.h>
-
-#include "config.h"
-
-class Client
+// Reset the time and counter
+void FPSCounter::reset()
 {
-    Config* config;
-    FPSCounter fps_counter;
-    SDL_Window* window;
-    SDL_GLContext context;
+    start = Util::get_time_ms();
+    counter = 0;
+}
 
-    bool quitting = false;
+// Compute the frames per second since the last reset
+// 1000 ms * number of frames / ms since start
+int FPSCounter::fps()
+{
+    long delta = time_delta();
 
-    void init();
-    void init_SDL();
-    void init_GL();
-    void update();
+    if (delta == 0)
+        return 1000 * counter;
+    else
+        return int (1000 * counter / (time_delta() * 1.0f));
+}
 
-    public:
-    Client( Config* config );
-    void run();
-};
+// Return the time delta since the last reset
+long FPSCounter::time_delta()
+{
+    return Util::get_time_ms() - start;
+}
 
-#endif // CLIENT_H
+// Increments the counter of
+// frames since last reset
+void FPSCounter::update()
+{
+    counter++;
+}

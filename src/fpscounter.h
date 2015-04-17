@@ -17,30 +17,19 @@
  *  along with Voxicity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef FPSCOUNTER_H
+#define FPSCOUNTER_H
 
-#include <SDL2/SDL.h>
-
-#include "config.h"
-
-class Client
+class FPSCounter
 {
-    Config* config;
-    FPSCounter fps_counter;
-    SDL_Window* window;
-    SDL_GLContext context;
+    long start;
+    int counter;
 
-    bool quitting = false;
-
-    void init();
-    void init_SDL();
-    void init_GL();
+public:
+    void reset();
+    int fps();
+    long time_delta();
     void update();
-
-    public:
-    Client( Config* config );
-    void run();
 };
 
-#endif // CLIENT_H
+#endif // FPSCOUNTER_H
