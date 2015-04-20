@@ -21,7 +21,9 @@
 #include "arguments.h"
 #include "config.h"
 #include "client.h"
-#include "noise.h" // This is temporary, to see if the file compiles
+
+#include <SDL2/SDL.h>
+#include <iostream>
 
 void init( Arguments args )
 {
@@ -33,17 +35,16 @@ void init( Arguments args )
     {
         // Start the server, it spawns its own thread
         // and takes over from here
-        std::cout << "It works!\n";
+        std::cout << "Starting Voxicity server\n";
     }
     else if ( mode == "client" )
     {
-        std::cout << "This works, too!\n";
-        Client client( &config );
-        client.run();
+        std::cout << "Starting Voxicity client\n" << std::endl;
+        Client(&config).run();
     }
     else
     {
-        std::cout << "Invalid mode: " << mode << std::endl;
+        std::cout << "Invalid mode. mode=" << mode << std::endl;
     }
 }
 
@@ -51,7 +52,7 @@ int main( int argc, char* argv[] )
 {
     // Parse the command line arguments and create the argument object
     Arguments cmd_args( argc, argv );
-
+    
     /*
     // If the command line arguments are invalid, print the usage info and exit
     if ( !cmd_args.ok() )

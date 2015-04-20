@@ -26,12 +26,20 @@
 #else
     #include <GL/gl.h>
 #endif
-    
+
+#include <iostream>
+
+/* Wrapper for glGetIntegerv */
+GLint glGetInteger( GLenum pname )
+{
+    GLint data;
+    glGetIntegerv( pname, &data );
+    return data;
+}
 
 Client::Client( Config* config )
 {
     config = config;
-
 }
 
 void Client::init_SDL()
@@ -45,8 +53,10 @@ void Client::init_SDL()
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 
+    int width = config->get_int( "window_width", 1280 );
+    int height = config->get_int( "window_height", 720 );
 
-    window = SDL_CreateWindow( "Voxicity", 0, 0, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
+    window = SDL_CreateWindow( "Voxicity", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
 
     if ( window == nullptr )
     {
@@ -71,32 +81,70 @@ void Client::init_GL()
         SDL_Quit();
     }
 
+    std::cout << "Setting up OpenGL states\n";
+    glShadeModel(GL_SMOOTH);
+    glEnable( GL_DEPTH_TEST );
+    glEnable( GL_TEXTURE_2D );
+    glEnable( GL_CULL_FACE );
+    glEnable( GL_BLEND );
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor( 126.0f / 255.0f, 169.0f / 255.0f, 254.0f / 255.0f, 1.0f );
-    glClear( GL_COLOR_BUFFER_BIT );
+    glEnableClientState( GL_VERTEX_ARRAY );
+    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+
+    std::printf( "Number of texture units: %d\n", glGetInteger( GL_MAX_TEXTURE_UNITS ) );
+    std::printf( "Number of image texture units: %d\n", glGetInteger( GL_MAX_TEXTURE_IMAGE_UNITS ) );
+    std::printf( "Number of vertex texture units: %d\n", glGetInteger( GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS ) );
+    std::printf( "Number of combined vertex/image texture units: %d\n", glGetInteger( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS ) );
+}
+
+void Client::init_login()
+{
+/*
+    LWJGLRenderer gui_renderer = new LWJGLRenderer();
+    LoginGUI login_gui = new LoginGUI();
+    ThemeManager theme = ThemeManager.createThemeManager( Voxicity.class.getResource( "/login.xml" ), gui_renderer );
+    GUI gui = new GUI( login_gui, gui_renderer );
+    gui.applyTheme( theme );
+
+    while ( !login_gui.is_login_pressed() )
+    {
+        GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
+        gui.update();
+        Display.update();
+
+        if ( Display.isCloseRequested() )
+        {
+            Display.destroy();
+            System.exit( 0 );
+        }
+    }
+
+    Socket client_s = new Socket( login_gui.get_server_name(), 11000 );
+    Client client = new Client( config, new NetworkConnection( client_s ) );
+*/
 }
 
 void Client::init()
 {
     init_SDL();
     init_GL();
-    
+    init_login();
 }
 
 void Client::run()
 {
     init();
 
-//    while( !quitting )
+    while( !quitting )
+    {
+        InputState input;
+        quitting = input.quit;
+
         update();
 
-    while( true )
-    {
+        glClear( GL_COLOR_BUFFER_BIT );
         SDL_GL_SwapWindow( window );
-
-        InputState input;
-
-        if ( input.quit )
-            break;
     }
 }
 

@@ -23,6 +23,7 @@
 #include <SDL2/SDL.h>
 
 #include "config.h"
+#include "fpscounter.h"
 
 class Client
 {
@@ -36,6 +37,7 @@ class Client
     void init();
     void init_SDL();
     void init_GL();
+    void init_login();
     void update();
 
     public:
