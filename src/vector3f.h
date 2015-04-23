@@ -10,6 +10,7 @@ class Vector3f
     float z;
 
     public:
+    Vector3f();
     Vector3f( float x, float y, float z );
 
     static Vector3f& add( const Vector3f& a, const Vector3f& b, Vector3f& dest );

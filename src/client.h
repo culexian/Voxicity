@@ -24,11 +24,13 @@
 
 #include "config.h"
 #include "fpscounter.h"
+#include "player.h"
 
 class Client
 {
     Config* config;
     FPSCounter fps_counter;
+    Player player;
     SDL_Window* window;
     SDL_GLContext context;
 
