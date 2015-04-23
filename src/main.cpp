@@ -25,7 +25,7 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
-void init( Arguments args )
+void init( const Arguments& args )
 {
     Config config( args );
 
