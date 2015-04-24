@@ -1,6 +1,7 @@
 #ifndef VECTOR3F_H
 #define VECTOR3F_H
 
+#include <string>
 #include <vector>
 
 class Vector3f
@@ -38,6 +39,8 @@ class Vector3f
     Vector3f& normalise( Vector3f& dest ) const;
     Vector3f& scale( float scale );
     Vector3f& translate( float x, float y, float z );
+
+    std::string to_string() const;
 };
 
 #endif // VECTOR3F_H

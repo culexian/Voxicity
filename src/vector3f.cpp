@@ -125,3 +125,8 @@ Vector3f& Vector3f::translate( float _x, float _y, float _z )
     set( x + _x, y + _y, z + _z );
     return *this;
 }
+
+std::string Vector3f::to_string() const
+{
+    return std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z);
+}
