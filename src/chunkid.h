@@ -17,6 +17,8 @@ class ChunkID
 
     std::vector<int> coords() const;
     ChunkID get( Direction d ) const;
+
+    bool operator<( const ChunkID& c ) const;
 };
 
 #endif // CHUNKID_H

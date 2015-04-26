@@ -12,7 +12,6 @@ class Chunk
     int blocks[side_length*side_length*side_length];
 
     void generate_blocks();
-    void update_timestamp();
 
     public:
     const int x;
@@ -20,10 +19,10 @@ class Chunk
     const int z;
 
     Chunk( int x, int y, int z );
-    void get_block( int x, int y, int z, int type );
-    void set_block( int x, int y, int z, int type );
+    int get_block( int x, int y, int z ) const;
+    void set_block( int x, int y, int z, int id );
     long get_timestamp() const;
-
+    void update_timestamp();
 };
 
 #endif // CHUNK_H}

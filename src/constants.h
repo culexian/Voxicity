@@ -35,6 +35,6 @@ enum Direction
     None
 };
 
-std::vector<std::string> directions{ "East", "West", "North", "South", "Up", "Down", "All", "None" };
+const std::vector<std::string> directions{ "East", "West", "North", "South", "Up", "Down", "All", "None" };
 
 #endif // CONSTANTS_H

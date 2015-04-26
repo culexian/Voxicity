@@ -37,10 +37,8 @@ GLint glGetInteger( GLenum pname )
     return data;
 }
 
-Client::Client( Config* config )
-{
-    config = config;
-}
+Client::Client( Config* config ): config(config), world(config)
+{}
 
 void Client::init_SDL()
 {

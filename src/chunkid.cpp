@@ -38,3 +38,8 @@ ChunkID ChunkID::get( Direction d ) const
         default: return *this;
     }
 }
+
+bool ChunkID::operator<( const ChunkID& rhs ) const
+{
+    return x < rhs.x || y < rhs.y || z < rhs.z;
+}

@@ -17,6 +17,9 @@ class AABB
     // from the two vectors supplied
     AABB( const Vector3f& a, const Vector3f& b );
 
+    // Default constructor for a zero-size AABB
+    AABB();
+
     // Construct an AABB from dimensions of this vector extending positively from the origin
     AABB( const Vector3f& dimensions );
     AABB( float x, float y, float z );

@@ -82,6 +82,8 @@ Config::Config( const Arguments& args )
             }
         }
     }
+
+    std::printf( "Config loaded with %d options\n", options.size() );
 }
 
 std::string Config::get_value( const std::string& key ) const
@@ -104,6 +106,7 @@ int Config::get_int( const std::string& key) const
 int Config::get_int( const std::string& key, int default_value ) const
 {
     std::string value = get_value( key );
+    std::cout << value << "DEBUG" << std::endl;
     return ( value.empty() ? default_value : std::stoi( value ) );
 }
 

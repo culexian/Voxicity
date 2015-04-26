@@ -25,6 +25,7 @@
 #include "config.h"
 #include "fpscounter.h"
 #include "player.h"
+#include "world.h"
 
 class Client
 {
@@ -33,6 +34,7 @@ class Client
     Player player;
     SDL_Window* window;
     SDL_GLContext context;
+    World world;
 
     bool quitting = false;
 

@@ -57,6 +57,11 @@ void Chunk::generate_blocks()
     long end = Util::get_time_ns();
 }
 
+int Chunk::get_block( int x, int y, int z ) const
+{
+
+}
+
 void Chunk::set_block( int x, int y, int z, int type )
 {
 

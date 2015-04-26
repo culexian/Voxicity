@@ -15,6 +15,10 @@ AABB::AABB( const Vector3f& a, const Vector3f& b ):
             std::max( a.getZ(), b.getZ() ) )
 {}
 
+AABB::AABB()
+    : AABB( Vector3f(), Vector3f() )
+{}
+
 // Construct an AABB from dimensions of this vector
 AABB::AABB( const Vector3f& dimensions ):
     AABB( Vector3f(), dimensions )
