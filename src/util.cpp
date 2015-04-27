@@ -1,6 +1,7 @@
 #include "util.h"
 
 #include <chrono>
+#include <cmath>
 
 namespace Util
 {
@@ -14,5 +15,10 @@ namespace Util
     {
         using namespace std::chrono;
         return duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count();
+    }
+
+    float deg_to_rad( float deg )
+    {
+        return deg * pi / 360;
     }
 }

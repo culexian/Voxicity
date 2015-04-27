@@ -9,6 +9,7 @@ namespace Constants
     namespace Chunk
     {
         const int side_length = 16;
+        const int blocks_per_chunk = side_length*side_length*side_length;
     }
 
     namespace Blocks
