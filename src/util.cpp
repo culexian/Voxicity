@@ -21,4 +21,9 @@ namespace Util
     {
         return deg * pi / 360;
     }
+
+    float signum( float num )
+    {
+        return ( 0 < num ) - ( num < 0 );
+    }
 }

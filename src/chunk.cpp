@@ -13,22 +13,23 @@ Chunk::Chunk( int x, int y, int z ):
 void Chunk::generate_blocks()
 {
     using namespace Constants;
+    using namespace Constants::Chunk;
 
     long start = Util::get_time_ns();
 
-    double heightmap[Chunk::side_length][Chunk::side_length];
+    double heightmap[side_length][side_length];
 
     // Make a heightmap for this chunk
-    for ( int x = 0 ; x < Chunk::side_length ; x++ )
-        for ( int z = 0 ; z < Chunk::side_length ; z++ )
+    for ( int x = 0 ; x < side_length ; x++ )
+        for ( int z = 0 ; z < side_length ; z++ )
             //heightmap[x][z] = Noise.perlin( 0, ( this.x + x ) / 600.0f, 0, ( this.z + z ) / 600.0f );
             heightmap[x][z] = 0.0;
 
-    for ( int x = 0 ; x < Chunk::side_length ; x++ )
+    for ( int x = 0 ; x < side_length ; x++ )
     {
-        for ( int y = 0 ; y < Chunk::side_length ; y++ )
+        for ( int y = 0 ; y < side_length ; y++ )
         {
-            for ( int z = 0 ; z < Chunk::side_length ; z++ )
+            for ( int z = 0 ; z < side_length ; z++ )
             {
                 //double noise = Noise.perlin( 0, (this.x + x) / 10.0f, (this.y + y) / 20.0f, (this.z + z) / 10.0f );
                 double noise = 0;

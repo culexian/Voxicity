@@ -2,15 +2,14 @@
 #define VECTOR3F_H
 
 #include <string>
-#include <vector>
 
 class Vector3f
 {
+    public:
     float x;
     float y;
     float z;
 
-    public:
     Vector3f();
     Vector3f( float x, float y, float z );
 
@@ -20,14 +19,6 @@ class Vector3f
     static Vector3f& cross( const Vector3f& a, const Vector3f& b, Vector3f& dest );
     static float dot( const Vector3f& a, const Vector3f& b );
 
-    float getX() const;
-    float getY() const;
-    float getZ() const;
-    std::vector<float> get() const;
-
-    void setX( float val );
-    void setY( float val );
-    void setZ( float val );
     void set( float _x, float _y, float _z );
 
     float lengthSquared() const;

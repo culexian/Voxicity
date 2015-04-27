@@ -40,41 +40,6 @@ float Vector3f::dot( const Vector3f& a, const Vector3f& b )
     return a.x * b.x + a.y * b.y * a.z * b.z;
 }
 
-float Vector3f::getX() const
-{
-    return x;
-}
-
-float Vector3f::getY() const
-{
-    return y;
-}
-
-float Vector3f::getZ() const
-{
-    return z;
-}
-
-std::vector<float> Vector3f::get() const
-{
-    return { x, y, z };
-}
-
-void Vector3f::setX( float val )
-{
-    x = val;
-}
-
-void Vector3f::setY( float val )
-{
-    y = val;
-}
-
-void Vector3f::setZ( float val )
-{
-    z = val;
-}
-
 void Vector3f::set( float _x, float _y, float _z )
 {
     x = _x;

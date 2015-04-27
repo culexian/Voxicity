@@ -8,6 +8,7 @@ namespace Util
 
     const float pi = 3.1415926535897932385;
     float deg_to_rad( float deg );
+    float signum( float num );
 }
 
 #endif // UTIL_H

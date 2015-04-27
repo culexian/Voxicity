@@ -7,12 +7,12 @@
 // Select the min and max points
 // from the two vectors supplied
 AABB::AABB( const Vector3f& a, const Vector3f& b ):
-        min( std::min( a.getX(), b.getX() ),
-            std::min( a.getY(), b.getY() ),
-            std::min( a.getZ(), b.getZ() ) ),
-        max( std::max( a.getX(), b.getX() ),
-            std::max( a.getY(), b.getY() ),
-            std::max( a.getZ(), b.getZ() ) )
+        min( std::min( a.x, b.x ),
+            std::min( a.y, b.y ),
+            std::min( a.z, b.z ) ),
+        max( std::max( a.x, b.x ),
+            std::max( a.y, b.y ),
+            std::max( a.z, b.z ) )
 {}
 
 AABB::AABB()
@@ -39,13 +39,13 @@ AABB::AABB( const AABB& a, const AABB& b )
     auto a_max( a.max_corner() );
     auto b_max( b.max_corner() );
 
-    min.set( std::min( a_min.getX(), b_min.getX() ),
-        std::min( a_min.getY(), b_min.getY() ),
-        std::min( a_min.getZ(), b_min.getZ() ) );
+    min.set( std::min( a_min.x, b_min.x ),
+        std::min( a_min.y, b_min.y ),
+        std::min( a_min.z, b_min.z ) );
 
-    max.set( std::max( a_max.getX(), b_max.getX() ),
-        std::max( a_max.getY(), b_max.getY() ),
-        std::max( a_max.getZ(), b_max.getZ() ) );
+    max.set( std::max( a_max.x, b_max.x ),
+        std::max( a_max.y, b_max.y ),
+        std::max( a_max.z, b_max.z ) );
 }
 
 // Returns a copy of the minimum corner
@@ -63,54 +63,54 @@ const Vector3f& AABB::max_corner() const
 // Return the maximum x-extent
 float AABB::max_x() const
 {
-    return max.getX();
+    return max.x;
 }
 
 // Return the minimum x-extent
 float AABB::min_x() const
 {
-    return min.getX();
+    return min.x;
 }
 
 // Return the maximum y-extent
 float AABB::max_y() const
 {
-    return max.getY();
+    return max.y;
 }
 
 // Return the minimum y-extent
 float AABB::min_y() const
 {
-    return min.getY();
+    return min.y;
 }
 
 // Return the maximum z-extent
 float AABB::max_z() const
 {
-    return max.getZ();
+    return max.z;
 }
 
 // Return the minimum z-extent
 float AABB::min_z() const
 {
-    return min.getZ();
+    return min.z;
 }
 
 // Returns the vector to the center point of the volume
 Vector3f AABB::position() const
 {
-    return Vector3f( ( min.getX() + max.getX() ) / 2,
-        ( min.getY() + max.getY() ) / 2,
-        ( min.getZ() + max.getZ() ) / 2 );
+    return Vector3f( ( min.x + max.x ) / 2,
+        ( min.y + max.y ) / 2,
+        ( min.z + max.z ) / 2 );
 }
 
 // Return a vector of the distance from the center point
 // to the maximum corner. X is width, Y is height, z is depth.
 Vector3f AABB::dimensions() const
 {
-    return Vector3f( ( max.getX() - min.getX() ) / 2,
-        ( max.getY() - min.getY() ) / 2,
-        ( max.getZ() - min.getZ() ) / 2 );
+    return Vector3f( ( max.x - min.x ) / 2,
+        ( max.y - min.y ) / 2,
+        ( max.z - min.z ) / 2 );
 }
 
 void AABB::translate( const Vector3f& v )
@@ -129,12 +129,12 @@ void AABB::scale( float x, float y, float z )
     Vector3f center = position();
     Vector3f dim = dimensions();
 
-    dim.setX( dim.getX() * x );
-    dim.setY( dim.getY() * x );
-    dim.setZ( dim.getZ() * x );
+    dim.x *= x;
+    dim.y *= y;
+    dim.z *= z;
 
-    min.set( -dim.getX(), -dim.getY(), -dim.getZ() );
-    max.set( dim.getX(), dim.getY(), dim.getZ() );
+    min.set( -dim.x, -dim.y, -dim.z );
+    max.set( dim.x, dim.y, dim.z );
 
     center_on( center );
 }
@@ -251,23 +251,23 @@ float AABB::collision_side_distance( const Vector3f& start, const Vector3f& leng
     switch ( dir )
     {
         case North:
-            distance = ray_plane_intersect( start, length, Vector3f( 0.0f, 0.0f, 1.0f ), Vector3f( position().getX(), position().getY(), max_z() ) );
+            distance = ray_plane_intersect( start, length, Vector3f( 0.0f, 0.0f, 1.0f ), Vector3f( position().x, position().y, max_z() ) );
         break;
         case East:
-            distance = ray_plane_intersect( start, length, Vector3f( 1.0f, 0.0f, 0.0f ), Vector3f( max_x(), position().getY(), position().getZ() ) );
+            distance = ray_plane_intersect( start, length, Vector3f( 1.0f, 0.0f, 0.0f ), Vector3f( max_x(), position().y, position().z ) );
         break;
         case South:
-            distance = ray_plane_intersect( start, length, Vector3f( 0.0f, 0.0f, -1.0f ), Vector3f( position().getX(), position().getY(), min_z() ) );
+            distance = ray_plane_intersect( start, length, Vector3f( 0.0f, 0.0f, -1.0f ), Vector3f( position().x, position().y, min_z() ) );
         break;
         case West:
             // TODO Check for bug, doesn't fit pattern of two positions, one max/min
-            distance = ray_plane_intersect( start, length, Vector3f( -1.0f, 0.0f, 0.0f ), Vector3f( min_x(), position().getY(), max_z() ) );
+            distance = ray_plane_intersect( start, length, Vector3f( -1.0f, 0.0f, 0.0f ), Vector3f( min_x(), position().y, max_z() ) );
         break;
         case Up:
-            distance = ray_plane_intersect( start, length, Vector3f( 0.0f, 1.0f, 0.0f ), Vector3f( position().getX(), max_y(), position().getZ() ) );
+            distance = ray_plane_intersect( start, length, Vector3f( 0.0f, 1.0f, 0.0f ), Vector3f( position().x, max_y(), position().z ) );
         break;
         case Down:
-            distance = ray_plane_intersect( start, length, Vector3f( 0.0f, -1.0f, 0.0f ), Vector3f( position().getX(), min_y(), position().getZ() ) );
+            distance = ray_plane_intersect( start, length, Vector3f( 0.0f, -1.0f, 0.0f ), Vector3f( position().x, min_y(), position().z ) );
         break;
     }
 
@@ -350,21 +350,21 @@ bool AABB::collides_point( const Vector3f& point ) const
 
 bool AABB::collides_x_col( const Vector3f& point ) const
 {
-    AABB x_col( std::numeric_limits<float>::infinity(), dimensions().getY() * 2, dimensions().getZ() * 2 );
+    AABB x_col( std::numeric_limits<float>::infinity(), dimensions().y * 2, dimensions().z * 2 );
     x_col.center_on( position() );
     return x_col.collides_point( point );
 }
 
 bool AABB::collides_y_col( const Vector3f& point ) const
 {
-    AABB y_col( dimensions().getX() * 2, std::numeric_limits<float>::infinity(), dimensions().getZ() * 2 );
+    AABB y_col( dimensions().x * 2, std::numeric_limits<float>::infinity(), dimensions().z * 2 );
     y_col.center_on( position() );
     return y_col.collides_point( point );
 }
 
 bool AABB::collides_z_col( const Vector3f& point ) const
 {
-    AABB z_col( dimensions().getX() * 2, dimensions().getY() * 2, std::numeric_limits<float>::infinity() );
+    AABB z_col( dimensions().x * 2, dimensions().y * 2, std::numeric_limits<float>::infinity() );
     z_col.center_on( position() );
     return z_col.collides_point( point );
 }

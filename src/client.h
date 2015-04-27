@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "fpscounter.h"
+#include "inputhandler.h"
 #include "player.h"
 #include "world.h"
 
@@ -31,6 +32,7 @@ class Client
 {
     Config* config;
     FPSCounter fps_counter;
+    InputHandler* input_handler;
     Player player;
     SDL_Window* window;
     SDL_GLContext context;

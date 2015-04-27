@@ -6,10 +6,8 @@
 
 class Chunk
 {
-    static const int side_length = Constants::Chunk::side_length;
-
     long modified_time = Util::get_time_ms();
-    int blocks[side_length*side_length*side_length];
+    int blocks[Constants::Chunk::blocks_per_chunk];
 
     void generate_blocks();
 

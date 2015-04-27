@@ -20,7 +20,7 @@ bool World::is_chunk_loaded( int x, int y, int z ) const
 }
 
 // TODO Synchronize
-Chunk* World::get_chunk( const ChunkID& id )
+Chunk* World::get_chunk( const ChunkID& id ) const
 {
     auto c = chunks.find(id);
 
@@ -30,7 +30,7 @@ Chunk* World::get_chunk( const ChunkID& id )
         return c->second;
 }
 
-Chunk* World::get_chunk( int x, int y, int z )
+Chunk* World::get_chunk( int x, int y, int z ) const
 {
     return get_chunk( ChunkID( x, y, z ) );
 }
@@ -71,7 +71,7 @@ void World::mark_neighbors( ChunkID id )
         get_chunk( id.get( Down ) )->update_timestamp();
 }
 
-int World::get_block( int x, int y, int z )
+int World::get_block( int x, int y, int z ) const
 {
     ChunkID id( x, y, z );
 
@@ -82,7 +82,7 @@ int World::get_block( int x, int y, int z )
         return Constants::Blocks::air;
 }
 
-int World::get_block( float x, float y, float z )
+int World::get_block( float x, float y, float z ) const
 {
     return get_block( static_cast<int>(std::lrint( x )),
         static_cast<int>(std::lrint( y )),
@@ -108,7 +108,7 @@ void World::set_block( float x, float y, float z, int id )
         id );
 }
 
-AABB World::get_hit_box( int x, int y, int z )
+AABB World::get_hit_box( int x, int y, int z ) const
 {
     int id = get_block( x, y, z );
 

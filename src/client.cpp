@@ -63,6 +63,8 @@ void Client::init_SDL()
         return;
     }
 
+    input_handler = new InputHandler( window, &player, &world );
+
     std::printf( "Created Voxicity main window\n" );
 }
 
