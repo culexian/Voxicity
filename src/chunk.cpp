@@ -35,7 +35,7 @@ void Chunk::generate_blocks()
                 double noise = 0;
 
                 //System.out.println( "Height factor: " + height_factor );
-                int ground_level = static_cast<int>(std::nearbyint(heightmap[x][z] * 2 + noise * 3));
+                int ground_level = std::lrint(heightmap[x][z] * 2 + noise * 3);
                 //System.out.println( "x: " + ( this.x + x ) + " y: " + ( this.y + y ) + " z: " + ( this.z + z ) );
                 //System.out.println( "Ground level: " + ground_level );
 
