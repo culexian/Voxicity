@@ -29,7 +29,9 @@
 
 #include <iostream>
 
-/* Wrapper for glGetIntegerv */
+#include <SDL2/SDL_net.h>
+
+/* Wrapper for: glGetIntegerv */
 GLint glGetInteger( GLenum pname )
 {
     GLint data;
@@ -45,6 +47,12 @@ void Client::init_SDL()
     if ( SDL_Init( SDL_INIT_EVERYTHING ) != 0 )
     {
         std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    if ( SDLNet_Init() == -1 )
+    {
+        std::cout << "SDLNet error: " << SDLNet_GetError() << std::endl;
         return;
     }
 
