@@ -23,7 +23,7 @@ class BlockingQueue
     T* take()
     {
         std::unique_lock<std::mutex> lock( mtx );
-        cv.wait( lock, []{ return !empty(); } );
+        cv.wait( lock, [&]{ return !empty(); } );
         T* t = queue.front();
         queue.pop();
         return t;
