@@ -1,5 +1,5 @@
 all:
-	g++ -std=c++11 -g *.cpp -lSDL2 -lGL -o ../voxicity
+	g++ -std=c++11 -g *.cpp -lSDL2 -lSDL2_net -lGL -o ../voxicity
 
 mac:
 
