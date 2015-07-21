@@ -1,6 +1,7 @@
 #ifndef CHUNK_H
 #define CHUNK_H
 
+#include "chunkid.h"
 #include "constants.h"
 #include "util.h"
 
@@ -16,6 +17,7 @@ class Chunk
     const int y;
     const int z;
 
+    Chunk( ChunkID id );
     Chunk( int x, int y, int z );
     int get_block( int x, int y, int z ) const;
     void set_block( int x, int y, int z, int id );
