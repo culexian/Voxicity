@@ -10,33 +10,33 @@ class BlockingQueue
 {
     std::mutex mtx;
     std::condition_variable cv;
-    std::queue<T*> queue;
+    std::queue<T> queue;
 
     public:
-    void put( T* t )
+    void put( T t )
     {
         std::lock_guard<std::mutex> lock( mtx );
         queue.push( t );
         cv.notify_one();
     }
 
-    T* take()
+    T take()
     {
         std::unique_lock<std::mutex> lock( mtx );
         cv.wait( lock, [&]{ return !empty(); } );
-        T* t = queue.front();
+        T t = queue.front();
         queue.pop();
         return t;
     }
 
-    T* poll()
+    T poll()
     {
         std::lock_guard<std::mutex> lock( mtx );
         if ( queue.empty() )
             return nullptr;
         else
         {   
-            T* t = queue.front();
+            T t = queue.front();
             queue.pop();
             return t;
         }
