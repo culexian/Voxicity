@@ -7,8 +7,8 @@
 class Connection
 {
     protected:
-    BlockingQueue< Packet > incoming;
-    BlockingQueue< Packet > outgoing;
+    BlockingQueue< Packet* > incoming;
+    BlockingQueue< Packet* > outgoing;
 
     public:
     void send( Packet* p );
