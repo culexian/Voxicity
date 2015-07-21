@@ -24,11 +24,11 @@
 
 class ConnectionInfo
 {
+    public:
     int update_id;
     long last_update = Util::get_time_ms();
     bool awaiting_update = false;
 
-    public:
     ConnectionInfo();
 
     int get_update_id() const;
